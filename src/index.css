@@ -144,8 +144,9 @@ body {
 }
 
 /* =========================================
-   4. HOME PAGE (PORTADA)
+   4. HOME PAGE: BOLETO SIMÉTRICO (SIN CARRITO)
    ========================================= */
+
 .home-container {
   position: relative;
   min-height: 100vh;
@@ -163,107 +164,184 @@ body {
   inset: 0;
   background: linear-gradient(to bottom, rgba(10, 10, 10, 0.6), rgba(5, 5, 5, 0.95));
   z-index: 1;
+  transition: all 0.5s ease;
+}
+
+/* Efecto de desenfoque dinámico */
+.home-container:has(.ticket-wrapper:hover) .home-overlay {
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .home-content {
   position: relative;
   z-index: 2;
-  text-align: center;
   width: 100%;
-  max-width: 450px;
+  max-width: 850px;
   padding: 20px;
 }
 
-.home-header {
-  margin-bottom: 40px;
+.ticket-wrapper {
+  display: flex;
+  width: 100%;
+  background: rgba(15, 15, 15, 0.75);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 35px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  transition: transform 0.4s ease;
+}
+
+.ticket-wrapper:hover { transform: scale(1.02); }
+
+.ticket-main {
+  flex: 1;
+  padding: 50px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
-/* Contenedor Logo + Texto (Home) */
-.brand-container {
+.brand-container-centered {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.home-logo-centered {
+  width: 95px;
+  height: auto;
+  border-radius: 20px;
+}
+
+.brand-text-centered h1 {
+  font-size: 3.8rem;
+  line-height: 0.9;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.brand-subtitle {
+  display: block;
+  letter-spacing: 5px;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.home-nav-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 25px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Botones enmarcados */
+.home-nav-grid button:first-child,
+.home-nav-grid button:last-child {
+  grid-column: span 2;
+  height: 58px;
+}
+
+.home-nav-grid button:not(:first-child):not(:last-child) {
+  height: 52px;
+}
+
+.ticket-stub {
+  width: 250px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #901c24 100%);
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 15px;
-  margin-bottom: 10px;
+  padding: 30px;
+  border-left: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
-.home-logo {
-  width: 80px;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-
-.brand-text {
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-}
-
-.brand-text h1 {
-  font-size: 3.5rem;
-  margin: 0;
-  line-height: 0.9;
-}
-
-.brand-text span {
-  letter-spacing: 3px;
-  font-size: 0.8rem;
-  color: white;
-  font-weight: 600;
-  padding-left: 4px;
-}
-
-.home-tagline {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  margin-top: 10px;
-}
-
-.home-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 100%;
-}
-
-/* Botón Admin (Arriba a la derecha) */
-.settings-btn {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-  z-index: 50;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.6);
+.qr-box {
+  background: white;
   padding: 10px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
+  border-radius: 18px;
 }
 
-.settings-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+.ticket-wrapper::before, .ticket-wrapper::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+  z-index: 10;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ticket-wrapper::before { left: -20px; }
+.ticket-wrapper::after { right: -20px; }
+
+/* =========================================
+   BLOQUE DE ELIMINACIÓN DE CARRITO EN HOME
+   ========================================= */
+
+/* Oculta el panel lateral del carrito si se intenta abrir en el Home */
+.home-container ~ .cart-panel,
+.home-container ~ #cart-panel {
+  display: none !important;
+}
+
+/* Oculta cualquier burbuja de contador en el botón de WhatsApp */
+.home-container ~ .whatsapp-float .badge-count,
+.home-container ~ .whatsapp-float.has-items::after {
+  display: none !important;
+}
+
+/* Oculta cualquier botón flotante específico de carrito */
+.home-container ~ .cart-float,
+.home-container ~ .floating-cart {
+  display: none !important;
+}
+
+@media (max-width: 850px) {
+  .ticket-wrapper {
+    display: block;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    overflow: visible;
+  }
+  .ticket-stub, .ticket-wrapper::before, .ticket-wrapper::after {
+    display: none !important;
+  }
+  .ticket-main { padding: 0; }
+  .home-nav-grid { grid-template-columns: 1fr; max-width: 100%; }
 }
 
 /* =========================================
-   5. NAVBAR STICKY (MENU)
+   5. NAVBAR STICKY (MENU PREMIUM)
    ========================================= */
 .navbar-sticky {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 10px 0;
+  padding: 12px 0;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--card-border);
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(10px);
+  /* Línea base más sutil para que no choque con el fondo */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  /* Sombra para dar profundidad al scroll */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 .navbar-container {
@@ -271,8 +349,11 @@ body {
   overflow-x: auto;
   white-space: nowrap;
   padding: 0 15px;
-  gap: 8px;
+  gap: 10px; /* Un poco más de aire entre categorías */
   scrollbar-width: none;
+  /* Scroll suave interno para dispositivos táctiles */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .navbar-container::-webkit-scrollbar {
@@ -280,24 +361,50 @@ body {
 }
 
 .tab-item {
-  padding: 8px 18px;
+  padding: 10px 20px;
   border-radius: 50px;
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Borde inicial sutil */
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: var(--transition-fast);
+  /* Transición fluida para evitar el "efecto raro" */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
 }
 
 .tab-item.active {
   background: var(--accent-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+  border-color: var(--accent-primary);
+  /* Efecto de elevación y brillo */
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4);
 }
 
+/* Animación para que el fuego animado de Google no se vea estático */
+.tab-item img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* Ajuste específico para móviles: botones un poco más grandes para dedos */
+@media (max-width: 600px) {
+  .tab-item {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+}
 /* =========================================
    6. PRODUCTOS (SCROLL INTERNO & FIXED GRID)
    ========================================= */
@@ -505,33 +612,33 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- AJUSTES MÓVIL (CORRECCIÓN DE PROPORCIÓN) --- */
+/* --- AJUSTES MÓVIL (OPTIMIZADOS) --- */
 @media (max-width: 600px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 12px;
   }
 
   .product-card {
-    height: 280px; /* Altura corregida para no verse estirada */
-    border-radius: 16px;
+    height: 310px; /* Altura equilibrada para no verse estirada */
+    border-radius: 20px;
   }
   
   .product-image {
-    aspect-ratio: 16/10; /* Imagen más compacta en móvil */
+    aspect-ratio: 16/11; /* Proporción mejorada para móviles */
   }
 
   .product-info {
-    padding: 10px;
+    padding: 12px;
   }
 
   .info-content-wrapper {
-    min-height: 65px;
+    min-height: 95px; /* Mayor aprovechamiento del espacio */
   }
   
   .product-name {
-    font-size: 0.85rem;
-    margin-bottom: 2px;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -539,19 +646,20 @@ body {
   }
 
   .product-desc-clamped {
-    font-size: 0.7rem;
-    -webkit-line-clamp: 1; 
+    font-size: 0.75rem;
+    -webkit-line-clamp: 3; /* Ahora muestra más información de entrada */
+    line-height: 1.3;
   }
 
   .product-price {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .btn-add {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     justify-content: center;
   }
   
@@ -567,8 +675,8 @@ body {
   .badge-special {
     top: 8px;
     left: 8px;
-    padding: 4px 8px;
-    font-size: 0.6rem;
+    padding: 4px 10px;
+    font-size: 0.65rem;
   }
 }
 /* =========================================
@@ -1025,4 +1133,259 @@ input:checked + .slider:before { transform: translateX(22px); }
 section {
   scroll-behavior: smooth;
   overflow-anchor: none; 
+}
+
+/* =========================================
+   HOME: TICKET SYSTEM (BOLETO PREMIUM)
+   ========================================= */
+
+.home-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.ticket-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 850px;
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  position: relative;
+  overflow: hidden; /* Corta cualquier desborde de los botones */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* --- SECCIÓN IZQUIERDA: CONTENIDO --- */
+.ticket-main {
+  flex: 1;
+  padding: 40px;
+  z-index: 2;
+  position: relative;
+}
+
+.home-nav-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas en Desktop */
+  gap: 15px;
+  margin-top: 30px;
+}
+
+/* Botón principal (Ver Menú) ocupa todo el ancho */
+.home-nav-grid .btn-primary {
+  grid-column: span 2;
+  height: 60px;
+  font-size: 1.1rem;
+}
+
+.btn-secondary {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* --- SECCIÓN DERECHA: TICKET STUB (QR) --- */
+.ticket-stub {
+  width: 240px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #901c24 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  border-left: 2px dashed rgba(255, 255, 255, 0.2); /* Efecto troquelado */
+}
+
+/* Contenedor del QR generado por la librería */
+.qr-box {
+  background: white;
+  padding: 12px;
+  border-radius: 18px;
+  display: inline-block;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.qr-box:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+.stub-content {
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.stub-badge {
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 0.7rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 12px;
+  border-radius: 50px;
+  text-transform: uppercase;
+}
+
+.stub-scan-text {
+  font-weight: 900;
+  font-size: 1rem;
+  margin: 0;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.stub-info {
+  font-size: 0.6rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+/* --- CÍRCULOS DE RECORTE (EFECTO BOLETO) --- */
+.ticket-wrapper::before, .ticket-wrapper::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-primary); /* Debe ser igual al fondo de tu web */
+  border-radius: 50%;
+  z-index: 5;
+}
+
+.ticket-wrapper::before { top: 50%; left: -20px; transform: translateY(-50%); }
+.ticket-wrapper::after { top: 50%; right: -20px; transform: translateY(-50%); }
+
+/* =========================================
+   AJUSTES MÓVIL: OCULTAR BOLETO Y QR
+   ========================================= */
+@media (max-width: 800px) {
+  .ticket-wrapper {
+    display: block; /* Deja de ser flex lateral */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    overflow: visible;
+  }
+
+  /* Desaparece la parte roja del QR y los adornos */
+  .ticket-stub, 
+  .ticket-stub-line,
+  .ticket-wrapper::before, 
+  .ticket-wrapper::after {
+    display: none !important;
+  }
+
+  .ticket-main {
+    padding: 0;
+  }
+
+  /* Los botones vuelven a una sola columna */
+  .home-nav-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .home-nav-grid .btn-primary {
+    grid-column: span 1;
+  }
+}
+/* SOLUCIÓN RADICAL PARA EL CARRITO EN EL HOME */
+
+/* Si tu navegador es moderno, esto detectará si el Home está presente y borrará el carrito de la pantalla */
+body:has(.home-container) .whatsapp-float,
+body:has(.home-container) .cart-btn, 
+body:has(.home-container) .badge-count,
+body:has(.home-container) [class*="cart"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* En caso de que el botón esté dentro de un header global */
+.home-container ~ header .cart-icon,
+.home-container ~ .floating-cart {
+  display: none !important;
+}
+/* =========================================
+   BOTÓN ADMIN FANTASMA (SOLO HOVER)
+   ========================================= */
+
+.settings-btn {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  z-index: 9999; /* Asegura que esté sobre todo */
+  
+  /* Estilo visual cuando aparece */
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 12px; /* Un poco más grande para que sea fácil de clickear */
+  border-radius: 50%; /* Redondo se ve más moderno para iconos solos */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
+  /* ESTADO INICIAL: OCULTO */
+  opacity: 0; /* Totalmente transparente */
+  transform: translateY(-20px) scale(0.8); /* Desplazado hacia arriba y pequeño */
+  pointer-events: auto; /* IMPORTANTE: Debe detectar el mouse aunque sea invisible */
+  
+  /* Transición suave para aparecer */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Aumentamos el área sensible del mouse para que sea fácil de encontrar */
+.settings-btn::before {
+  content: '';
+  position: absolute;
+  /* Expande el área detectable 30px alrededor del botón */
+  top: -30px;
+  right: -30px;
+  bottom: -30px;
+  left: -30px;
+  /* background: red; /* Descomenta esto si necesitas ver el área de prueba */
+}
+
+/* ESTADO HOVER: APARECE */
+.settings-btn:hover {
+  opacity: 1; /* Se vuelve visible */
+  transform: translateY(0) scale(1); /* Baja a su posición y tamaño normal */
+  background: var(--accent-primary); /* Se pone rojo al detectarlo */
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.6); /* Brillo intenso */
+}
+/* =========================================
+   BLOQUEO DEFINITIVO DE CARRITO (ADMIN & LOGIN)
+   ========================================= */
+
+/* 1. Ocultar el botón de WhatsApp (que tiene el contador) */
+body:has(.login-container) .whatsapp-float,
+body:has(.login-page) .whatsapp-float,
+body:has(.admin-layout) .whatsapp-float,
+body:has(.admin-container) .whatsapp-float {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* 2. Ocultar el panel lateral del carrito por si acaso */
+body:has(.login-container) .cart-panel,
+body:has(.admin-layout) .cart-panel {
+  display: none !important;
+}
+
+/* 3. Limpieza de cualquier otro botón de carrito flotante */
+body:has(.login-container) [class*="cart"],
+body:has(.admin-layout) [class*="cart"] {
+  display: none !important;
 }
