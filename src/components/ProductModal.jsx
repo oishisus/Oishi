@@ -3,6 +3,15 @@ import { X, Save, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories, saving = false }) => {
+    // Permitir cerrar modal con Esc
+    useEffect(() => {
+      if (!isOpen) return;
+      const handleEsc = (e) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleEsc);
+      return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
   const fileInputRef = useRef();
   const [formData, setFormData] = useState({
     name: '',
@@ -82,11 +91,11 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{background: 'rgba(16,24,40,0.92)', zIndex: 1000}}>
+    <div className="modal-overlay" onClick={onClose} style={{background: 'rgba(16,24,40,0.92)', zIndex: 1000}} role="dialog" aria-modal="true" aria-label={product ? 'Editar producto' : 'Nuevo producto'}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{background: 'var(--background-dark, #101828)', color: '#fff', borderRadius: 18, minWidth: 370, maxWidth: 420, boxShadow: '0 8px 32px #0008'}}>
         <header className="modal-header" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #22304a', paddingBottom: 8, marginBottom: 18}}>
           <h3 style={{fontWeight: 700, fontSize: 22, color: '#fff', letterSpacing: 0.5}}>{product ? 'Editar Producto' : 'Nuevo Producto'}</h3>
-          <button onClick={onClose} className="btn-close" style={{background: 'none', border: 'none', color: '#fff'}}><X size={24} /></button>
+          <button onClick={onClose} className="btn-close" aria-label="Cerrar modal" style={{background: 'none', border: 'none', color: '#fff'}}><X size={24} /></button>
         </header>
         <form onSubmit={handleSubmit} autoComplete="off">
           <div className="modal-form" style={{display: 'flex', flexDirection: 'column', gap: 18}}>
@@ -123,8 +132,10 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
                 value={formData.name} 
                 onChange={handleChange} 
                 placeholder="Ej: Roll Acevichado"
-                style={{background: '#1e293b', color: '#fff', border: errors.name ? '1.5px solid #e53e3e' : '#334155'}}
+                style={{background: '#1e293b', color: '#fff', border: errors.name ? '2px solid #e53e3e' : '#38bdf8'}}
                 autoFocus
+                aria-label="Nombre del plato"
+                required
               />
               {errors.name && <span style={{color:'#e53e3e', fontSize:13, display:'flex',alignItems:'center',gap:4}}><AlertCircle size={14}/> {errors.name}</span>}
             </div>
@@ -139,7 +150,9 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
                   value={formData.price} 
                   onChange={handleChange} 
                   placeholder="6000"
-                  style={{background: '#1e293b', color: '#fff', border: errors.price ? '1.5px solid #e53e3e' : '#334155'}}
+                  style={{background: '#1e293b', color: '#fff', border: errors.price ? '2px solid #e53e3e' : '#38bdf8'}}
+                  aria-label="Precio"
+                  required
                 />
                 {errors.price && <span style={{color:'#e53e3e', fontSize:13, display:'flex',alignItems:'center',gap:4}}><AlertCircle size={14}/> {errors.price}</span>}
               </div>
@@ -150,7 +163,9 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
                   name="category_id" 
                   value={formData.category_id} 
                   onChange={handleChange}
-                  style={{background: '#1e293b', color: '#fff', border: errors.category_id ? '1.5px solid #e53e3e' : '#334155'}}
+                  style={{background: '#1e293b', color: '#fff', border: errors.category_id ? '2px solid #e53e3e' : '#38bdf8'}}
+                  aria-label="Categoría"
+                  required
                 >
                   <option value="">Selecciona...</option>
                   {categories.map(cat => (
@@ -170,7 +185,9 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
                 onChange={handleChange} 
                 rows="3"
                 placeholder="Ingredientes, detalles..."
-                style={{background: '#1e293b', color: '#fff', border: errors.description ? '1.5px solid #e53e3e' : '#334155'}}
+                style={{background: '#1e293b', color: '#fff', border: errors.description ? '2px solid #e53e3e' : '#38bdf8'}}
+                aria-label="Descripción"
+                required
               ></textarea>
               {errors.description && <span style={{color:'#e53e3e', fontSize:13, display:'flex',alignItems:'center',gap:4}}><AlertCircle size={14}/> {errors.description}</span>}
             </div>

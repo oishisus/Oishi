@@ -3,6 +3,15 @@ import { X, Save } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = false }) => {
+    // Permitir cerrar modal con Esc
+    useEffect(() => {
+      if (!isOpen) return;
+      const handleEsc = (e) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleEsc);
+      return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
   const [formData, setFormData] = useState({
     name: '',
     order: 0,
@@ -41,11 +50,11 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={category ? 'Editar categoría' : 'Nueva categoría'}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <header className="modal-header">
           <h3>{category ? 'Editar Categoría' : 'Nueva Categoría'}</h3>
-          <button onClick={onClose} className="btn-close"><X size={24} /></button>
+          <button onClick={onClose} className="btn-close" aria-label="Cerrar modal"><X size={24} /></button>
         </header>
 
         <form onSubmit={handleSubmit}>
@@ -60,6 +69,8 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
                 onChange={handleChange} 
                 required 
                 placeholder="Ej: Rolls Tradicionales"
+                aria-label="Nombre de la categoría"
+                style={{border: '2px solid #38bdf8'}}
               />
             </div>
 
@@ -72,6 +83,8 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
                 value={formData.order} 
                 onChange={handleChange} 
                 required 
+                aria-label="Orden de visualización"
+                style={{border: '2px solid #38bdf8'}}
               />
               <small style={{ color: 'var(--text-secondary)', marginTop: '5px', display: 'block' }}>
                 Menor número aparece primero (Ej: 1, 2, 3)
