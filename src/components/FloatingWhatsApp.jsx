@@ -1,7 +1,7 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 
-const FloatingWhatsApp = ({ phoneNumber = '56912345678', message = 'Hola! Me gustaría hacer un pedido.' }) => {
+const FloatingWhatsApp = ({ phoneNumber = '56976645547', message = 'Hola! Me gustaría hacer un pedido.' }) => {
   const handleClick = () => {
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');

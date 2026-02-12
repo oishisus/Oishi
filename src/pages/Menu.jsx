@@ -26,11 +26,11 @@ const Menu = () => {
 
 				if (categoriesError) throw categoriesError;
 
-				// Cargar productos activos
+				// Cargar productos
 				const { data: productsData, error: productsError } = await supabase
 					.from('products')
-					.select('*, categories(name)')
-					.eq('is_active', true)
+					.select('*')
+					.eq('is_active', true) // Solo productos activos
 					.order('name', { ascending: true });
 
 				if (productsError) throw productsError;
@@ -253,7 +253,7 @@ const Menu = () => {
 
 				.products-grid {
 					display: grid;
-					grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+					grid-template-columns: repeat(1, 1fr);
 					gap: 15px;
 				}
 
@@ -272,9 +272,15 @@ const Menu = () => {
 					animation: spin 1s linear infinite;
 				}
 
-				@media (min-width: 480px) {
+				@media (min-width: 600px) {
 					.products-grid {
 						grid-template-columns: repeat(2, 1fr);
+					}
+				}
+
+				@media (min-width: 1024px) {
+					.products-grid {
+						grid-template-columns: repeat(4, 1fr); /* 4 items por fila en tablets/desktop */
 					}
 				}
 			`}</style>

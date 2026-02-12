@@ -15,19 +15,19 @@ const Home = () => {
     {
       label: "Escríbeme por WhatsApp",
       icon: <MessageCircle size={24} />,
-      onClick: () => window.open("https://wa.me/yournumber", "_blank"),
+      onClick: () => window.open("https://wa.me/56976645547", "_blank"),
       primary: false,
     },
     {
       label: "Sígueme en Instagram",
       icon: <Instagram size={24} />,
-      onClick: () => window.open("https://instagram.com/yourprofile", "_blank"),
+      onClick: () => window.open("https://instagram.com/oishi.sushi.stg", "_blank"),
       primary: false,
     },
     {
       label: "Cómo llegar",
       icon: <MapPin size={24} />,
-      onClick: () => window.open("https://maps.google.com", "_blank"),
+      onClick: () => window.open("https://www.google.com/maps/search/?api=1&query=oishi+sushi+-+castelar+nte.+141+8940000+san+joaquín", "_blank"),
       primary: false,
     },
   ];
