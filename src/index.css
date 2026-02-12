@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap");
 
 :root {
+  /* --- PALETA DE COLORES (Sushi Night Theme) --- */
   --bg-primary: #0a0a0a;
   --bg-secondary: #1a1a1a;
   --bg-tertiary: #252525;
@@ -12,15 +13,18 @@
   --text-secondary: #a0a0a0;
   --text-muted: #666666;
 
-  --card-bg: rgba(255, 255, 255, 0.05);
+  /* Variables para Glassmorphism */
+  --card-bg: rgba(30, 30, 30, 0.6);
   --card-border: rgba(255, 255, 255, 0.1);
 
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+  /* Sombras y Efectos */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(230, 57, 70, 0.25); /* Resplandor rojo sutil */
 
+  /* Transiciones */
   --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
+  --transition-normal: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 * {
@@ -36,6 +40,7 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased; /* Texto más nítido */
 }
 
 /* Scrollbar personalizada */
@@ -57,20 +62,41 @@ body {
   background: var(--accent-primary);
 }
 
-/* Utilidades */
+/* --- UTILIDADES --- */
+
+/* Container Responsivo Mejorado:
+   Se ve bien en móvil y no se estira demasiado en PC */
 .container {
-  max-width: 600px;
+  width: 100%;
+  max-width: 1200px; 
   margin: 0 auto;
   padding: 0 20px;
 }
 
+/* GLASSMORPHISM PREMIUM 
+   Efecto de cristal con bordes de luz */
 .glass {
   background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--card-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  /* Luz arriba e izquierda, sombra abajo y derecha */
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
+/* Título con gradiente (Toque Gourmet) */
+.text-gradient {
+  background: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+/* --- BOTONES --- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -90,6 +116,13 @@ body {
 .btn-primary {
   background-color: var(--accent-primary);
   color: white;
+  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4); /* Glow rojo */
+}
+
+.btn-primary:hover {
+  background-color: #ff4d5a;
+  transform: translateY(-2px); /* Pequeña elevación */
+  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.6);
 }
 
 .btn-primary:active {
@@ -99,6 +132,12 @@ body {
 .btn-secondary {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
+  border: 1px solid var(--card-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--text-secondary);
 }
 
 .section-title {
@@ -106,9 +145,10 @@ body {
   font-weight: 700;
   margin-bottom: 20px;
   color: var(--accent-secondary);
+  letter-spacing: -0.5px;
 }
 
-/* Animaciones */
+/* --- ANIMACIONES --- */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -121,5 +161,431 @@ body {
 }
 
 .animate-fade {
-  animation: fadeIn 0.5s ease forwards;
+  animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* --- NAVBAR --- */
+.navbar-sticky {
+  position: sticky;
+  top: 0; /* Ajustado a 0 para mejor compatibilidad móvil */
+  z-index: 100;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--card-border);
+  /* Un fondo un poco más sólido para que no se mezcle con el contenido al hacer scroll */
+  background: rgba(10, 10, 10, 0.85); 
+}
+
+.navbar-container {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0 15px;
+  gap: 10px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.navbar-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.tab-item {
+  padding: 8px 20px;
+  border-radius: 50px; /* Más redondeado estilo "pill" */
+  border: 1px solid transparent; /* Para evitar saltos al activar borde */
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.tab-item:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.tab-item.active {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3); /* Glow rojo */
+}
+
+/* --- PRODUCT CARD --- */
+.product-card {
+  border-radius: 20px; /* Bordes más suaves */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-8px); /* Elevación al pasar el mouse */
+  box-shadow: var(--shadow-md);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.product-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05); /* Zoom sutil en la imagen */
+}
+
+.badge-special {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--accent-primary);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  z-index: 10;
+  letter-spacing: 0.5px;
+}
+
+.product-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.product-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.product-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-price {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--accent-secondary); /* Color salmón para el precio */
+}
+
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-tertiary);
+  color: white;
+  border: 1px solid var(--card-border);
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-add:hover {
+  background: var(--bg-secondary);
+  border-color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+.btn-add.added {
+  background: #25d366; /* Verde WhatsApp/Éxito */
+  border-color: #25d366;
+  color: #050505; /* Texto oscuro para contraste */
+}
+
+/* --- FLOATING BUTTON --- */
+.whatsapp-float {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 64px;
+  height: 64px;
+  background-color: #25d366; /* Verde WhatsApp original */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease;
+}
+
+/* Estado cuando hay items en el carrito */
+.whatsapp-float.has-items {
+  background-color: var(--accent-primary); /* Cambia al rojo de tu marca */
+  box-shadow: 0 4px 25px rgba(230, 57, 70, 0.5); /* Glow rojo */
+  animation: pulse-border 2s infinite;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.whatsapp-float:active {
+  transform: scale(0.9);
+}
+
+.badge-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: white;
+  color: var(--bg-primary);
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--bg-primary); /* Borde para separar del botón */
+  padding: 0 4px;
+}
+
+.tooltip {
+  position: absolute;
+  right: 80px;
+  background: var(--bg-tertiary);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--card-border);
+}
+
+.whatsapp-float:hover .tooltip {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Animaciones específicas */
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(230, 57, 70, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
+}
+
+@keyframes bounce-small {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.animate-bounce {
+  animation: bounce-small 2s infinite;
+}
+
+/* --- MODALES Y FORMULARIOS --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+  backdrop-filter: blur(8px); /* Efecto borroso detrás del modal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* Por encima de todo */
+  padding: 20px;
+  opacity: 0;
+  animation: fadeInOverlay 0.3s forwards;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transform: scale(0.95);
+  animation: popInModal 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex; /* Centrar icono */
+}
+
+.btn-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--accent-primary);
+  transform: rotate(90deg);
+}
+
+.modal-form {
+  padding: 24px;
+  max-height: 80vh; /* Evita que sea más alto que la pantalla */
+  overflow-y: auto; /* Scroll si es muy largo */
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Estilo de Inputs (Cajas de texto) */
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-primary); /* Fondo muy oscuro */
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  color: white;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
+}
+
+/* Wrapper para input con botón (Ej: Imagen URL) */
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* Switch Toggle (Interruptor) */
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.switch {
+  position: relative;
+  width: 50px;
+  height: 28px;
+  background-color: var(--bg-tertiary);
+  border-radius: 28px;
+  transition: 0.3s;
+  border: 1px solid var(--card-border);
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Estado activo del switch */
+input:checked + .switch {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+input:checked + .switch::after {
+  transform: translateX(22px);
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Animaciones de entrada */
+@keyframes fadeInOverlay {
+  to { opacity: 1; }
+}
+
+@keyframes popInModal {
+  to { transform: scale(1); opacity: 1; }
 }
