@@ -977,11 +977,64 @@ body {
 }
 
 /* --- TABLA DE DATOS: ESTILO EDITORIAL --- */
+
 .admin-content-card {
   border-radius: 24px;
   overflow: hidden;
   border: 1px solid var(--card-border);
   background: var(--bg-secondary);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+  transition: box-shadow 0.3s;
+}
+
+@media (max-width: 800px) {
+  .admin-content-card {
+    border-radius: 12px;
+    padding: 0 2px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.13);
+  }
+  .admin-products-section {
+    margin: 0 0.5vw !important;
+    gap: 8px !important;
+  }
+  .admin-toolbar {
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    border-radius: 10px !important;
+  }
+  .data-table {
+    min-width: 520px !important;
+    font-size: 12px !important;
+  }
+  .data-table th, .data-table td {
+    padding: 10px 8px !important;
+  }
+  .table-thumb {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 7px !important;
+  }
+  .p-name {
+    font-size: 0.95rem !important;
+  }
+  .premium-label {
+    font-size: 0.6rem !important;
+    padding: 1px 6px !important;
+  }
+  .actions-group {
+    gap: 4px !important;
+  }
+  .action-btn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+  }
+  .status-pill {
+    font-size: 0.65rem !important;
+    padding: 4px 10px !important;
+  }
 }
 
 .data-table {
