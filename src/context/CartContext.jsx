@@ -64,29 +64,31 @@ export const CartProvider = ({ children }) => {
     if (cart.length === 0) return;
 
     // Usa emojis directamente en el string para máxima compatibilidad
-    let message = `🍣 *NUEVO PEDIDO WEB OISHI* 🍣\n`;
-    message += `───────────────\n`;
+    let message = '';
+    message += '==============================\n';
+    message += '   NUEVO PEDIDO WEB OISHI\n';
+    message += '==============================\n\n';
 
     cart.forEach(item => {
       const price = getPrice(item);
       const subtotal = price * item.quantity;
-      message += `📦 *${item.quantity}x ${item.name}*\n`;
+      message += `• ${item.quantity} x ${item.name}\n`;
       if (item.discount_price && item.discount_price < item.price) {
-        message += `   🏷️ _(Oferta: $${price.toLocaleString('es-CL')})_\n`;
+        message += `    Oferta: $${price.toLocaleString('es-CL')}\n`;
       }
-      message += `   💲 Subtotal: $${subtotal.toLocaleString('es-CL')}\n\n`;
+      message += `    Subtotal: $${subtotal.toLocaleString('es-CL')}\n\n`;
     });
 
-    message += `───────────────\n`;
+    message += '------------------------------\n';
+    message += `TOTAL A PAGAR: $${cartTotal.toLocaleString('es-CL')}\n`;
+    message += '------------------------------\n';
 
     if (orderNote.trim()) {
-      message += `📝 *Nota:* ${orderNote}\n`;
-      message += `───────────────\n`;
+      message += `Nota para el pedido: ${orderNote}\n`;
+      message += '------------------------------\n';
     }
 
-    message += `💰 *TOTAL: $${cartTotal.toLocaleString('es-CL')}*\n`;
-    message += `───────────────\n\n`;
-    message += `📍 *Mis datos de envío:*\n(Escribe aquí tu dirección)`;
+    message += '\nPor favor, completa tus datos de envío:\n(Nombre, dirección, referencia, etc.)';
 
     return encodeURIComponent(message);
   };
