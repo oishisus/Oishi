@@ -105,10 +105,13 @@ const Admin = () => {
         const fileExt = localFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const { error: upErr } = await supabase.storage.from('images').upload(`menu/${fileName}`, localFile);
-        if (!upErr) {
-           const { data } = supabase.storage.from('images').getPublicUrl(`menu/${fileName}`);
-           finalImageUrl = data.publicUrl;
+        if (upErr) {
+          showNotify(`Error al subir imagen: ${upErr.message}`, 'error');
+          setSaving(false);
+          return;
         }
+        const { data } = supabase.storage.from('images').getPublicUrl(`menu/${fileName}`);
+        finalImageUrl = data.publicUrl;
       }
       const payload = { ...formData, image_url: finalImageUrl, price: parseInt(formData.price) };
 
@@ -471,7 +474,15 @@ const Admin = () => {
                   <tbody>
                     {filteredProducts.map(p => (
                       <tr key={p.id} className="row-hover">
-                        <td><div className="thumb-frame"><img src={p.image_url || ''} className="table-thumb" alt="" /></div></td>
+                        <td>
+                          <div className="thumb-frame">
+                            {p.image_url && p.image_url !== '' ? (
+                              <img src={p.image_url} className="table-thumb" alt="" />
+                            ) : (
+                              <ImageIcon size={38} color="#334155" />
+                            )}
+                          </div>
+                        </td>
                         <td><span className="p-name">{p.name}</span>{p.is_special && <span className="premium-label">ESPECIAL 🔥</span>}</td>
                         <td className="p-cat">{categories.find(c => c.id === p.category_id)?.name || '---'}</td>
                         <td className="p-price">${p.price?.toLocaleString('es-CL')}</td>

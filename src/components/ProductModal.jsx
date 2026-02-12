@@ -102,7 +102,7 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
             {/* Imagen preview */}
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8}}>
               <div style={{width: 90, height: 90, borderRadius: 12, background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '2px solid #334155'}}>
-                {previewUrl ? (
+                {previewUrl && previewUrl !== '' ? (
                   <img src={previewUrl} alt="preview" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
                 ) : (
                   <ImageIcon size={38} color="#334155" />
