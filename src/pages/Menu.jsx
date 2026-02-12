@@ -124,20 +124,22 @@ const Menu = () => {
 
 	return (
 		<div className="menu-page">
-			<header className="menu-header glass">
-				<div className="container header-flex">
-					<button onClick={() => navigate('/')} className="btn-back">
-						<ChevronLeft size={24} />
-					</button>
-					<div className="header-title">
-						<h2>Oishi Sushi</h2>
-						<span>Carta Digital</span>
-					</div>
-					<div className="header-search">
-						<Search size={20} />
-					</div>
-				</div>
-			</header>
+			      <header className="menu-header">
+        <div className="container-full">
+          <div className="menu-header-content">
+            <button onClick={() => window.history.back()} className="btn-icon">
+              <ChevronLeft size={24} />
+            </button>
+            <div className="menu-title">
+              <h1>Oishi Sushi</h1>
+              <span>CARTA DIGITAL</span>
+            </div>
+            <button className="btn-icon">
+              <Search size={24} />
+            </button>
+          </div>
+        </div>
+      </header>
 
 			<Navbar 
 				categories={[
@@ -148,7 +150,7 @@ const Menu = () => {
 				onCategoryClick={scrollToCategory} 
 			/>
 
-			<main className="container menu-content">
+			<main className="menu-main container-full animate-fade">
 				{/* Sección de productos especiales */}
 				{specialProducts.length > 0 && (
 					<section 
@@ -199,14 +201,27 @@ const Menu = () => {
 					padding-bottom: 80px;
 				}
 
-				.menu-header {
-					padding: 15px 0;
-					position: sticky;
-					top: 0;
-					background: var(--bg-primary);
-					z-index: 110;
-					border-bottom: 1px solid rgba(255,255,255,0.05);
-				}
+				        .menu-container {
+          min-height: 100vh;
+          background-color: var(--bg-primary);
+          color: white;
+        }
+
+        .container-full {
+          width: 100%;
+          padding: 0 10px; /* Menos padding lateral para ganar espacio */
+          max-width: none;
+        }
+
+        .menu-header {
+          position: sticky;
+          top: 0;
+          z-index: 110;
+          background: rgba(5,5,5,0.8);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          padding: 10px 0;
+        }
 
 				.header-flex {
 					display: flex;
@@ -253,8 +268,8 @@ const Menu = () => {
 
 				.products-grid {
 					display: grid;
-					grid-template-columns: repeat(1, 1fr);
-					gap: 15px;
+					grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil por defecto */
+					gap: 10px; /* Gap más pequeño para ahorrar espacio */
 				}
 
 				.no-products {
@@ -274,7 +289,7 @@ const Menu = () => {
 
 				@media (min-width: 600px) {
 					.products-grid {
-						grid-template-columns: repeat(2, 1fr);
+						grid-template-columns: repeat(3, 1fr);
 					}
 				}
 

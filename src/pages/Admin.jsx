@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ShoppingBag, List, Settings, Plus, Edit, Trash, ArrowLeft, Loader2 } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, List, Settings, Plus, Edit, Trash, ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProductModal from '../components/ProductModal';
 import CategoryModal from '../components/CategoryModal';
@@ -119,6 +119,40 @@ const Admin = () => {
 			alert('Error al guardar el producto: ' + error.message);
 		} finally {
 			setSaving(false);
+		}
+	};
+
+	const handleToggleProductActive = async (product) => {
+		try {
+			const { data, error } = await supabase
+				.from('products')
+				.update({ is_active: !product.is_active })
+				.eq('id', product.id)
+				.select()
+				.single();
+
+			if (error) throw error;
+			setProducts(products.map(p => p.id === product.id ? data : p));
+		} catch (error) {
+			console.error('Error al cambiar estado del producto:', error);
+			alert('No se pudo cambiar el estado del producto');
+		}
+	};
+
+	const handleToggleCategoryActive = async (category) => {
+		try {
+			const { data, error } = await supabase
+				.from('categories')
+				.update({ is_active: !category.is_active })
+				.eq('id', category.id)
+				.select()
+				.single();
+
+			if (error) throw error;
+			setCategories(categories.map(c => c.id === category.id ? data : c).sort((a,b) => a.order - b.order));
+		} catch (error) {
+			console.error('Error al cambiar estado de la categoría:', error);
+			alert('No se pudo cambiar el estado de la categoría');
 		}
 	};
 
@@ -272,6 +306,13 @@ const Admin = () => {
 													</span>
 												</td>
 												<td className="actions">
+													<button 
+														onClick={() => handleToggleProductActive(product)} 
+														className={`btn-icon-sm ${product.is_active ? 'text-green' : 'text-muted'}`}
+														title={product.is_active ? 'Desactivar' : 'Activar'}
+													>
+														{product.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
+													</button>
 													<button onClick={() => handleOpenModal(product)} className="btn-icon-sm"><Edit size={16} /></button>
 													<button onClick={() => handleDelete(product.id)} className="btn-icon-sm text-red"><Trash size={16} /></button>
 												</td>
@@ -303,6 +344,13 @@ const Admin = () => {
 												</span>
 											</td>
 											<td className="actions">
+												<button 
+													onClick={() => handleToggleCategoryActive(cat)} 
+													className={`btn-icon-sm ${cat.is_active ? 'text-green' : 'text-muted'}`}
+													title={cat.is_active ? 'Desactivar' : 'Activar'}
+												>
+													{cat.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
+												</button>
 												<button onClick={() => handleOpenCategoryModal(cat)} className="btn-icon-sm"><Edit size={16} /></button>
 											</td>
 										</tr>
@@ -366,9 +414,12 @@ const Admin = () => {
 				td { padding: 15px; border-bottom: 1px solid var(--card-border); vertical-align: middle; }
 				.badge-active { background: rgba(37, 211, 102, 0.2); color: #25d366; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 				.badge-inactive { background: rgba(255, 0, 0, 0.2); color: #ff4444; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-				.actions { display: flex; gap: 10px; }
-				.btn-icon-sm { background: var(--bg-tertiary); border: none; color: white; padding: 6px; border-radius: 6px; cursor: pointer; }
-				.text-red { color: var(--accent-primary); }
+				.actions { display: flex; gap: 8px; }
+				.btn-icon-sm { background: var(--bg-tertiary); border: none; color: white; padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+				.btn-icon-sm:hover { background: rgba(255,255,255,0.1); }
+				.text-red { color: #ff4444; }
+				.text-green { color: #25d366; }
+				.text-muted { color: #666; }
 				.placeholder-content { padding: 50px; text-align: center; color: var(--text-muted); }
 				@keyframes spin {
 					from { transform: rotate(0deg); }
