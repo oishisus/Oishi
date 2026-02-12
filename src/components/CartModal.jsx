@@ -43,9 +43,11 @@ const CartModal = () => {
               <span className="empty-icon">🍣</span>
               <p>Tu bandeja está vacía</p>
               <span>¡Agrega unos rolls para comenzar!</span>
-              <button onClick={toggleCart} className="btn btn-secondary mt-20">
-                Ver Menú
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <button onClick={toggleCart} className="btn btn-secondary mt-20" style={{ margin: '20px auto 0 auto', display: 'block' }}>
+                  Ver Menú
+                </button>
+              </div>
             </div>
           ) : (
             <>

@@ -77,17 +77,18 @@ const CategoryModal = ({ isOpen, onClose, onSave, category }) => {
               </small>
             </div>
 
-            <div className="form-group">
-              <label className="switch-container">
-                <input 
-                  type="checkbox" 
-                  name="is_active" 
-                  checked={formData.is_active} 
-                  onChange={handleChange} 
-                  hidden
+            <div className="form-group" style={{display: 'flex', alignItems: 'center', gap: 12, marginTop: 16}}>
+              <label className="label-text" htmlFor="cat-active-switch">Categoría Activa (Visible)</label>
+              <label className="switch" style={{marginBottom: 0, cursor: 'pointer'}}>
+                <input
+                  id="cat-active-switch"
+                  type="checkbox"
+                  name="is_active"
+                  checked={formData.is_active}
+                  onChange={handleChange}
+                  style={{display: 'none'}}
                 />
-                <div className="switch"></div>
-                <span className="label-text">Categoría Activa (Visible)</span>
+                <span className="slider"></span>
               </label>
             </div>
           </div>

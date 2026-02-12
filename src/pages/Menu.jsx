@@ -132,7 +132,8 @@ const Menu = () => {
               <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', letterSpacing: '0.5px', textTransform: 'uppercase', fontWeight: 600 }}>Carta Digital</span>
             </div>
           </div>
-          <div style={{ color: 'var(--text-secondary)' }}><Search size={24} /></div>
+          {/* Espaciador para mantener layout donde estaba el buscador */}
+          <div style={{ width: 24, height: 24 }}></div>
         </div>
 
         <Navbar 
