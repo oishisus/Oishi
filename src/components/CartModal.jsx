@@ -146,7 +146,55 @@ const CartModal = React.memo(() => {
         receiptUrl = await uploadReceipt(receiptFile);
       }
 
-      const { error } = await supabase.from('orders').insert({
+      // --- LÓGICA CLIENTE (UPsert por RUT) ---
+      // 1) Buscar cliente por RUT
+      const { data: clientRows, error: clientSelectError } = await supabase
+        .from('clients')
+        .select('id,total_spent,total_orders')
+        .eq('rut', clientRut);
+
+      if (clientSelectError) throw clientSelectError;
+
+      let clientId = null;
+
+      if (!clientRows || clientRows.length === 0) {
+        // 2a) Cliente NO existe: crear nuevo
+        const { data: insertedClient, error: insertClientError } = await supabase
+          .from('clients')
+          .insert({
+            name: clientName,
+            phone: clientPhone,
+            rut: clientRut,
+            total_spent: cartTotal,
+            total_orders: 1
+          })
+          .select('id')
+          .single();
+
+        if (insertClientError) throw insertClientError;
+        clientId = insertedClient.id;
+      } else {
+        // 2b) Cliente YA existe: actualizar estadísticas
+        const existing = clientRows[0];
+        const { data: updatedClient, error: updateClientError } = await supabase
+          .from('clients')
+          .update({
+            name: clientName,
+            phone: clientPhone,
+            total_spent: (existing.total_spent || 0) + cartTotal,
+            total_orders: (existing.total_orders || 0) + 1
+          })
+          .eq('id', existing.id)
+          .select('id')
+          .single();
+
+        if (updateClientError) throw updateClientError;
+        clientId = updatedClient.id;
+      }
+
+      // 3) Insertar pedido vinculado al cliente (client_id)
+      const { error: orderError } = await supabase.from('orders').insert({
+        client_id: clientId,
         client_name: clientName,
         client_phone: clientPhone,
         client_rut: clientRut,
@@ -158,7 +206,7 @@ const CartModal = React.memo(() => {
         status: 'pending'
       });
 
-      if (error) throw error;
+      if (orderError) throw orderError;
 
       setShowForm(false);
       setShowSuccess(true);
@@ -190,6 +238,13 @@ const CartModal = React.memo(() => {
         if (orderNote.trim()) message += `\nNota: ${orderNote}\n`;
         
         window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+
+        // Limpieza post-venta: vaciar carrito y resetear formulario,
+        // pero mantenemos el panel de éxito activo para que el usuario
+        // pueda volver a ver la información de retiro.
+        clearCart();
+        resetPaymentFlow();
+        toggleCart();
       }, 1500);
 
     } catch (error) {
@@ -206,8 +261,24 @@ const CartModal = React.memo(() => {
     return {}; // Normal
   };
 
+  // Cerrar carrito
+  const handleCloseCart = () => {
+    // Si ya estamos en el panel de éxito, solo cerramos el modal,
+    // pero mantenemos el estado de éxito para que al abrir de nuevo
+    // siga mostrando la información de retiro.
+    if (showSuccess) {
+      toggleCart();
+      return;
+    }
+
+    // Si NO estamos en éxito, cerramos y limpiamos el flujo de pago/formulario
+    setShowSuccess(false);
+    resetPaymentFlow();
+    toggleCart();
+  };
+
   return (
-    <div className="modal-overlay" onClick={toggleCart}>
+    <div className="modal-overlay" onClick={handleCloseCart}>
       <div className="cart-panel glass animate-slide-in" onClick={e => e.stopPropagation()}>
         
         {showSuccess ? (
@@ -234,7 +305,16 @@ const CartModal = React.memo(() => {
               <button className="btn btn-primary btn-block" onClick={() => { clearCart(); setShowSuccess(false); resetPaymentFlow(); }}>
                 Nuevo Pedido
               </button>
-              <button className="btn btn-secondary btn-block" onClick={() => { clearCart(); navigate('/'); }}>
+              <button
+                className="btn btn-secondary btn-block"
+                onClick={() => {
+                  clearCart();
+                  setShowSuccess(false);
+                  resetPaymentFlow();
+                  toggleCart();
+                  navigate('/');
+                }}
+              >
                 Volver al Menú
               </button>
             </div>
@@ -247,7 +327,7 @@ const CartModal = React.memo(() => {
                 <h3>Tu Pedido</h3>
                 <span className="cart-count-badge">{cart.reduce((a,c) => a + c.quantity, 0)}</span>
               </div>
-              <button onClick={toggleCart} className="btn-close-cart"><X size={24} /></button>
+              <button onClick={handleCloseCart} className="btn-close-cart"><X size={24} /></button>
             </header>
 
             <div className="cart-body">
@@ -255,7 +335,7 @@ const CartModal = React.memo(() => {
                 <div className="empty-state">
                   <span className="empty-emoji">🍣</span>
                   <h3>Bandeja Vacía</h3>
-                  <button onClick={toggleCart} className="btn btn-secondary mt-20">Ir al Menú</button>
+                  <button onClick={handleCloseCart} className="btn btn-secondary mt-20">Ir al Menú</button>
                 </div>
               ) : (
                 <>
@@ -419,7 +499,7 @@ const CartModal = React.memo(() => {
                       <h4 style={{textAlign:'center', marginBottom: 15, color:'white'}}>Método de Pago</h4>
                       <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('online')}><CreditCard size={20}/> Transferencia</button>
                       <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('tienda')}><Store size={20}/> Pagar en Local</button>
-                      <button onClick={() => setShowPaymentInfo(false)} className="btn btn-text btn-block">Cancelar</button>
+                      <button onClick={resetPaymentFlow} className="btn btn-text btn-block">Cancelar</button>
                     </div>
                   )
                 ) : (
