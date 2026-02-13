@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Trash2, Plus, Minus, MessageCircle, ShoppingBag, CreditCard, Store, Check, Upload, FileText } from 'lucide-react';
+import { 
+  X, Trash2, Plus, Minus, MessageCircle, ShoppingBag, 
+  CreditCard, Store, Check, Upload, FileText, ArrowLeft, 
+  AlertCircle, CheckCircle2 
+} from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
 
@@ -24,13 +28,18 @@ const CartModal = React.memo(() => {
   const [clientPhone, setClientPhone] = useState("+56 9 "); 
   const [clientRut, setClientRut] = useState(""); 
   const [receiptFile, setReceiptFile] = useState(null); 
+  const [receiptPreview, setReceiptPreview] = useState(null); // Nuevo estado para la miniatura
   
   const [paymentType, setPaymentType] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // --- UTILIDADES ---
+  // Estados de Validación Visual
+  const [phoneValid, setPhoneValid] = useState(null); // null = sin validar, true = valido, false = error
+  const [rutValid, setRutValid] = useState(null);
+
+  // --- UTILIDADES DE VALIDACIÓN ---
   
-  // Formateador de RUT Chileno
+  // 1. Formateador de RUT (Mantiene formato 12.345.678-9)
   const formatRut = (rut) => {
     let value = rut.replace(/[^0-9kK]/g, '');
     if (value.length > 1) {
@@ -49,7 +58,38 @@ const CartModal = React.memo(() => {
   };
 
   const handleRutChange = (e) => {
-    setClientRut(formatRut(e.target.value));
+    const formatted = formatRut(e.target.value);
+    setClientRut(formatted);
+    // Validación simple de largo (mínimo para un RUT corto: 1.111.111-1 son 11 chars)
+    setRutValid(formatted.length >= 11);
+  };
+
+  // 2. Manejador de Teléfono Inteligente (Máscara +56 9)
+  const handlePhoneChange = (e) => {
+    let input = e.target.value;
+    
+    // Si el usuario intenta borrar el prefijo, lo reseteamos
+    if (!input.startsWith("+56 9")) {
+      input = "+56 9 "; 
+    }
+
+    // Solo permitimos números y espacios extra después del prefijo
+    const numbersOnly = input.replace(/[^0-9+ ]/g, '');
+    setClientPhone(numbersOnly);
+
+    // Validar largo: +56 9 xxxx xxxx son 12 a 13 caracteres aprox
+    // Un número chileno tiene 9 dígitos. +56 9 (5 chars) + 8 dígitos = 13 chars min
+    const digitCount = numbersOnly.replace(/\D/g, '').length;
+    setPhoneValid(digitCount >= 11); // 569 + 8 dígitos = 11 dígitos total
+  };
+
+  // 3. Manejo de Archivo con Preview
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setReceiptFile(file);
+      setReceiptPreview(URL.createObjectURL(file)); // Creamos URL temporal
+    }
   };
 
   const resetPaymentFlow = () => {
@@ -60,34 +100,35 @@ const CartModal = React.memo(() => {
     setClientPhone("+56 9 ");
     setClientRut("");
     setReceiptFile(null);
+    setReceiptPreview(null);
     setIsSaving(false);
+    setPhoneValid(null);
+    setRutValid(null);
   };
 
   if (!isCartOpen) return null;
 
   const handlePaid = () => setShowForm(true);
 
-  // --- SUBIDA DE IMAGEN ---
+  // --- SUBIDA A SUPABASE ---
   const uploadReceipt = async (file) => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
     const filePath = `receipts/${fileName}`; 
 
     const { error } = await supabase.storage.from('images').upload(filePath, file);
-    
     if (error) throw error;
 
     const { data } = supabase.storage.from('images').getPublicUrl(filePath);
     return data.publicUrl;
   };
 
-  // --- ENVIAR PEDIDO ---
   const handleSendOrder = async (e) => {
     e.preventDefault();
     if (isSaving) return;
     
-    if (clientPhone.length < 11) {
-      alert("Por favor ingresa un número válido (+56 9...)");
+    if (!phoneValid) {
+      alert("Por favor completa el número de teléfono.");
       return;
     }
 
@@ -96,7 +137,6 @@ const CartModal = React.memo(() => {
     try {
       let receiptUrl = null;
 
-      // 1. Si es transferencia, subir comprobante
       if (paymentType === 'online') {
         if (!receiptFile) {
           alert("Debes adjuntar el comprobante de transferencia.");
@@ -106,48 +146,7 @@ const CartModal = React.memo(() => {
         receiptUrl = await uploadReceipt(receiptFile);
       }
 
-      // 2. Buscar o crear cliente
-      let clientId = null;
-      
-      // Buscar cliente existente por nombre y teléfono
-      const { data: existingClient, error: searchError } = await supabase
-        .from('clients')
-        .select('id, is_frequent, total_orders')
-        .eq('phone', clientPhone)
-        .eq('name', clientName)
-        .maybeSingle();
-
-      if (searchError && searchError.code !== 'PGRST116') {
-        // PGRST116 es "no rows returned", que es válido
-        throw searchError;
-      }
-
-      if (existingClient) {
-        // Cliente existente
-        clientId = existingClient.id;
-        console.log(`Cliente frecuente encontrado: ${clientName} (${existingClient.total_orders} pedidos)`);
-      } else {
-        // Crear nuevo cliente
-        const { data: newClient, error: createError } = await supabase
-          .from('clients')
-          .insert({
-            name: clientName,
-            phone: clientPhone,
-            rut: clientRut || null,
-            first_order_at: new Date().toISOString(),
-            last_order_at: new Date().toISOString()
-          })
-          .select('id')
-          .single();
-
-        if (createError) throw createError;
-        clientId = newClient.id;
-        console.log(`Nuevo cliente creado: ${clientName}`);
-      }
-
-      // 3. Guardar pedido en Base de Datos
       const { error } = await supabase.from('orders').insert({
-        client_id: clientId,
         client_name: clientName,
         client_phone: clientPhone,
         client_rut: clientRut,
@@ -161,7 +160,6 @@ const CartModal = React.memo(() => {
 
       if (error) throw error;
 
-      // 4. Éxito y WhatsApp
       setShowForm(false);
       setShowSuccess(true);
       
@@ -201,11 +199,17 @@ const CartModal = React.memo(() => {
     }
   };
 
+  // Función auxiliar para estilo de validación
+  const getInputStyle = (isValid) => {
+    if (isValid === true) return { borderColor: '#25d366', boxShadow: '0 0 0 1px #25d366' }; // Verde
+    if (isValid === false) return { borderColor: '#ff4444', boxShadow: '0 0 0 1px #ff4444' }; // Rojo
+    return {}; // Normal
+  };
+
   return (
     <div className="modal-overlay" onClick={toggleCart}>
       <div className="cart-panel glass animate-slide-in" onClick={e => e.stopPropagation()}>
         
-        {/* VISTA DE ÉXITO */}
         {showSuccess ? (
           <div className="cart-success-view">
             <div className="success-icon-circle">
@@ -216,7 +220,6 @@ const CartModal = React.memo(() => {
               Estamos validando tu pago. Te contactaremos por WhatsApp.
             </p>
             
-            {/* TARJETA DE DIRECCIÓN ACTUALIZADA */}
             <div className="order-summary-card animate-fade">
               <div className="summary-label">Lugar de Retiro</div>
               <div className="summary-value" style={{marginBottom: 4}}>
@@ -238,7 +241,6 @@ const CartModal = React.memo(() => {
           </div>
         ) : (
           <>
-            {/* HEADER */}
             <header className="cart-header">
               <div className="flex-center">
                 <ShoppingBag size={22} className="text-accent" />
@@ -248,7 +250,6 @@ const CartModal = React.memo(() => {
               <button onClick={toggleCart} className="btn-close-cart"><X size={24} /></button>
             </header>
 
-            {/* BODY */}
             <div className="cart-body">
               {cart.length === 0 ? (
                 <div className="empty-state">
@@ -290,7 +291,6 @@ const CartModal = React.memo(() => {
               )}
             </div>
 
-            {/* FOOTER */}
             {cart.length > 0 && (
               <footer className="cart-footer">
                 {!showPaymentInfo && (
@@ -309,34 +309,81 @@ const CartModal = React.memo(() => {
                         </div>
 
                         <div className="form-group">
-                          <label>RUT (Para boleta)</label>
-                          <input type="text" required value={clientRut} onChange={handleRutChange} className="form-input" placeholder="12.345.678-9" maxLength={12} />
+                          <div style={{display:'flex', justifyContent:'space-between'}}>
+                            <label>RUT</label>
+                            {rutValid && <CheckCircle2 size={16} color="#25d366" />}
+                          </div>
+                          <input 
+                            type="text" 
+                            required 
+                            value={clientRut} 
+                            onChange={handleRutChange} 
+                            className="form-input" 
+                            placeholder="12.345.678-9" 
+                            maxLength={12} 
+                            style={getInputStyle(rutValid)}
+                          />
                         </div>
                         
                         <div className="form-group">
-                          <label>Teléfono</label>
-                          <input type="tel" required value={clientPhone} onChange={e => setClientPhone(e.target.value)} className="form-input" placeholder="+56 9..." />
+                          <div style={{display:'flex', justifyContent:'space-between'}}>
+                            <label>Teléfono</label>
+                            {phoneValid && <CheckCircle2 size={16} color="#25d366" />}
+                          </div>
+                          <input 
+                            type="tel" 
+                            required 
+                            value={clientPhone} 
+                            onChange={handlePhoneChange} 
+                            className="form-input" 
+                            placeholder="+56 9..." 
+                            style={getInputStyle(phoneValid)}
+                          />
+                          {!phoneValid && clientPhone.length > 6 && (
+                            <span style={{fontSize:'0.7rem', color:'#ff4444'}}>Faltan números</span>
+                          )}
                         </div>
 
                         {paymentType === 'online' && (
                           <div className="form-group">
                             <label>Comprobante de Transferencia</label>
-                            <div className="upload-box" onClick={() => document.getElementById('receipt-upload').click()}>
-                              <input type="file" id="receipt-upload" accept="image/*" hidden onChange={(e) => setReceiptFile(e.target.files[0])} />
-                              {receiptFile ? (
-                                <div className="file-selected"><FileText size={20} /> <span>{receiptFile.name}</span></div>
+                            <div 
+                              className="upload-box" 
+                              onClick={() => document.getElementById('receipt-upload').click()}
+                              style={{borderColor: receiptPreview ? '#25d366' : 'var(--card-border)'}}
+                            >
+                              <input type="file" id="receipt-upload" accept="image/*" hidden onChange={handleFileChange} />
+                              
+                              {/* VISTA PREVIA DE LA IMAGEN */}
+                              {receiptPreview ? (
+                                <div className="file-preview-container" style={{display:'flex', alignItems:'center', gap: 15, justifyContent:'center'}}>
+                                  <img 
+                                    src={receiptPreview} 
+                                    alt="Comprobante" 
+                                    style={{width: 50, height: 50, borderRadius: 8, objectFit: 'cover', border: '1px solid white'}} 
+                                  />
+                                  <div style={{textAlign:'left'}}>
+                                    <span style={{display:'block', fontSize:'0.85rem', fontWeight:'bold', color:'white'}}>Imagen Cargada</span>
+                                    <span style={{fontSize:'0.75rem', color:'#25d366'}}>Click para cambiar</span>
+                                  </div>
+                                </div>
                               ) : (
-                                <div className="upload-placeholder"><Upload size={24} /><span>Subir captura</span></div>
+                                <div className="upload-placeholder">
+                                  <Upload size={24} />
+                                  <span>Subir captura</span>
+                                </div>
                               )}
                             </div>
                           </div>
                         )}
 
                         <div className="form-actions-col">
-                          <button type="submit" disabled={isSaving} className="btn btn-primary btn-block">
+                          <button type="submit" disabled={isSaving || !phoneValid} className="btn btn-primary btn-block">
                             {isSaving ? 'Enviando...' : 'Confirmar Pedido'}
                           </button>
-                          <button type="button" className="btn btn-text btn-block" onClick={resetPaymentFlow}>Cancelar</button>
+                          <button type="button" className="btn btn-text btn-block" onClick={() => setShowForm(false)}>
+                            <ArrowLeft size={16} style={{marginRight: 5}}/> Volver atrás
+                          </button>
                         </div>
                       </form>
                     ) : (
@@ -345,12 +392,10 @@ const CartModal = React.memo(() => {
                           <div className="bank-info glass">
                             <h4>Datos para Transferir</h4>
                             <ul>
-                              <li><span>Nombre:</span> <b>Jhon Manuel Belandria Dorante</b></li>
-                              <li><span>RUT:</span> <b>26.387.926-0</b></li>
-                              <li><span>Banco:</span> <b>Mercado Pago</b></li>
-                              <li><span>Tipo de Cuenta:</span> <b>Cuenta Vista</b></li>
-                              <li><span>Cuenta:</span> <b>1037593644</b></li>
-                              <li><span>Email:</span> <b>jhonbelandria98@gmail.com</b></li>
+                              <li><span>Banco:</span> <b>Tenpo (Prepago)</b></li>
+                              <li><span>Cuenta:</span> <b>111126281473</b></li>
+                              <li><span>RUT:</span> <b>26.281.473-4</b></li>
+                              <li><span>Email:</span> <b>doranteegrimar@gmail.com</b></li>
                             </ul>
                             <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
                             <button onClick={handlePaid} className="btn btn-primary btn-block mt-4">Ya pagué, subir comprobante</button>
@@ -364,7 +409,9 @@ const CartModal = React.memo(() => {
                             <button onClick={() => setShowForm(true)} className="btn btn-primary btn-block mt-4">Continuar</button>
                           </div>
                         )}
-                        <button onClick={() => setShowPaymentInfo(false)} className="btn btn-text btn-block mt-2">Volver</button>
+                        <button onClick={() => setPaymentType(null)} className="btn btn-text btn-block mt-2">
+                          <ArrowLeft size={16} style={{marginRight: 5}}/> Elegir otro método
+                        </button>
                       </div>
                     )
                   ) : (

@@ -1,17 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Save } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = false }) => {
-    // Permitir cerrar modal con Esc
-    useEffect(() => {
-      if (!isOpen) return;
-      const handleEsc = (e) => {
-        if (e.key === 'Escape') onClose();
-      };
-      window.addEventListener('keydown', handleEsc);
-      return () => window.removeEventListener('keydown', handleEsc);
-    }, [isOpen, onClose]);
+  const nameInputRef = useRef();
+  const [isDirty, setIsDirty] = useState(false); // Dirty State
+
   const [formData, setFormData] = useState({
     name: '',
     order: 0,
@@ -19,20 +13,48 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
   });
 
   useEffect(() => {
-    if (category) {
-      setFormData({
-        name: category.name || '',
-        order: category.order || 0,
-        is_active: category.is_active !== undefined ? category.is_active : true
-      });
-    } else {
-      setFormData({
-        name: '',
-        order: 0,
-        is_active: true
-      });
+    if (isOpen) {
+      if (category) {
+        setFormData({
+          name: category.name || '',
+          order: category.order || 0,
+          is_active: category.is_active !== undefined ? category.is_active : true
+        });
+      } else {
+        setFormData({
+          name: '',
+          order: 0,
+          is_active: true
+        });
+      }
+      setIsDirty(false);
+
+      // Auto-Focus
+      setTimeout(() => {
+        if (nameInputRef.current) nameInputRef.current.focus();
+      }, 100);
     }
-  }, [category]);
+  }, [isOpen, category]);
+
+  // Manejo seguro del cierre
+  const handleSafeClose = () => {
+    if (isDirty && !saving) {
+      if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') handleSafeClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen, isDirty]);
 
   if (!isOpen) return null;
 
@@ -42,6 +64,7 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    setIsDirty(true);
   };
 
   const handleSubmit = (e) => {
@@ -50,11 +73,11 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={category ? 'Editar categoría' : 'Nueva categoría'}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <header className="modal-header">
+    <div className="modal-overlay" onClick={handleSafeClose} role="dialog" aria-modal="true" style={{background: 'rgba(16,24,40,0.92)'}}>
+      <div className="modal-content" onClick={e => e.stopPropagation()} style={{background: 'var(--background-dark, #101828)', color: '#fff', borderRadius: 18, border: '1px solid #334155'}}>
+        <header className="modal-header" style={{borderBottom: '1px solid #334155'}}>
           <h3>{category ? 'Editar Categoría' : 'Nueva Categoría'}</h3>
-          <button onClick={onClose} className="btn-close" aria-label="Cerrar modal"><X size={24} /></button>
+          <button onClick={handleSafeClose} className="btn-close" style={{color:'#fff'}}><X size={24} /></button>
         </header>
 
         <form onSubmit={handleSubmit}>
@@ -62,6 +85,7 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
             <div className="form-group">
               <label>Nombre de la Categoría</label>
               <input 
+                ref={nameInputRef}
                 className="form-input"
                 type="text" 
                 name="name" 
@@ -69,8 +93,7 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
                 onChange={handleChange} 
                 required 
                 placeholder="Ej: Rolls Tradicionales"
-                aria-label="Nombre de la categoría"
-                style={{border: '2px solid #38bdf8'}}
+                style={{background: '#1e293b', color: '#fff', border: '1px solid #334155'}}
               />
             </div>
 
@@ -83,16 +106,15 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
                 value={formData.order} 
                 onChange={handleChange} 
                 required 
-                aria-label="Orden de visualización"
-                style={{border: '2px solid #38bdf8'}}
+                style={{background: '#1e293b', color: '#fff', border: '1px solid #334155'}}
               />
-              <small style={{ color: 'var(--text-secondary)', marginTop: '5px', display: 'block' }}>
+              <small style={{ color: '#94a3b8', marginTop: '5px', display: 'block' }}>
                 Menor número aparece primero (Ej: 1, 2, 3)
               </small>
             </div>
 
             <div className="form-group" style={{display: 'flex', alignItems: 'center', gap: 12, marginTop: 16}}>
-              <label className="label-text" htmlFor="cat-active-switch">Categoría Activa (Visible)</label>
+              <label className="label-text" htmlFor="cat-active-switch" style={{color:'#fff'}}>Categoría Activa</label>
               <label className="switch" style={{marginBottom: 0, cursor: 'pointer'}}>
                 <input
                   id="cat-active-switch"
@@ -107,8 +129,8 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
             </div>
           </div>
 
-          <footer className="modal-footer">
-            <button type="button" onClick={onClose} className="btn btn-secondary" disabled={saving}>Cancelar</button>
+          <footer className="modal-footer" style={{borderTop: '1px solid #334155'}}>
+            <button type="button" onClick={handleSafeClose} className="btn btn-secondary" disabled={saving}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
               <span>{saving ? 'Guardando...' : 'Guardar'}</span>
@@ -117,7 +139,6 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
         </form>
       </div>
     </div>
-
   );
 });
 
