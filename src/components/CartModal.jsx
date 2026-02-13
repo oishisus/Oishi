@@ -106,48 +106,8 @@ const CartModal = React.memo(() => {
         receiptUrl = await uploadReceipt(receiptFile);
       }
 
-      // 2. Buscar o crear cliente
-      let clientId = null;
-      
-      // Buscar cliente existente por nombre y teléfono
-      const { data: existingClient, error: searchError } = await supabase
-        .from('clients')
-        .select('id, is_frequent, total_orders')
-        .eq('phone', clientPhone)
-        .eq('name', clientName)
-        .maybeSingle();
-
-      if (searchError && searchError.code !== 'PGRST116') {
-        // PGRST116 es "no rows returned", que es válido
-        throw searchError;
-      }
-
-      if (existingClient) {
-        // Cliente existente
-        clientId = existingClient.id;
-        console.log(`Cliente frecuente encontrado: ${clientName} (${existingClient.total_orders} pedidos)`);
-      } else {
-        // Crear nuevo cliente
-        const { data: newClient, error: createError } = await supabase
-          .from('clients')
-          .insert({
-            name: clientName,
-            phone: clientPhone,
-            rut: clientRut || null,
-            first_order_at: new Date().toISOString(),
-            last_order_at: new Date().toISOString()
-          })
-          .select('id')
-          .single();
-
-        if (createError) throw createError;
-        clientId = newClient.id;
-        console.log(`Nuevo cliente creado: ${clientName}`);
-      }
-
-      // 3. Guardar pedido en Base de Datos
+      // 2. Guardar en Base de Datos
       const { error } = await supabase.from('orders').insert({
-        client_id: clientId,
         client_name: clientName,
         client_phone: clientPhone,
         client_rut: clientRut,
@@ -161,7 +121,7 @@ const CartModal = React.memo(() => {
 
       if (error) throw error;
 
-      // 4. Éxito y WhatsApp
+      // 3. Éxito y WhatsApp
       setShowForm(false);
       setShowSuccess(true);
       
@@ -345,12 +305,10 @@ const CartModal = React.memo(() => {
                           <div className="bank-info glass">
                             <h4>Datos para Transferir</h4>
                             <ul>
-                              <li><span>Nombre:</span> <b>Jhon Manuel Belandria Dorante</b></li>
-                              <li><span>RUT:</span> <b>26.387.926-0</b></li>
-                              <li><span>Banco:</span> <b>Mercado Pago</b></li>
-                              <li><span>Tipo de Cuenta:</span> <b>Cuenta Vista</b></li>
-                              <li><span>Cuenta:</span> <b>1037593644</b></li>
-                              <li><span>Email:</span> <b>jhonbelandria98@gmail.com</b></li>
+                              <li><span>Banco:</span> <b>Tenpo (Prepago)</b></li>
+                              <li><span>Cuenta:</span> <b>111126281473</b></li>
+                              <li><span>RUT:</span> <b>26.281.473-4</b></li>
+                              <li><span>Email:</span> <b>doranteegrimar@gmail.com</b></li>
                             </ul>
                             <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
                             <button onClick={handlePaid} className="btn btn-primary btn-block mt-4">Ya pagué, subir comprobante</button>

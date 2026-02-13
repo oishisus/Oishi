@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Save, Upload, Image as ImageIcon, AlertCircle, Trash2 } from 'lucide-react';
+import { X, Save, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories, saving = false }) => {
@@ -111,20 +111,6 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
               <button type="button" className="btn btn-xs btn-secondary" style={{marginTop: 2}} onClick={handleUploadClick}>
                 <Upload size={16} style={{marginRight: 4}} /> Subir imagen
               </button>
-              {previewUrl && previewUrl !== '' && (
-                <button 
-                  type="button" 
-                  className="btn btn-xs btn-danger" 
-                  style={{marginTop: 2}} 
-                  onClick={() => {
-                    setPreviewUrl('');
-                    setFormData(prev => ({ ...prev, image_url: '' }));
-                    setLocalFile(null);
-                  }}
-                >
-                  <Trash2 size={16} style={{marginRight: 4}} /> Eliminar imagen
-                </button>
-              )}
               <input
                 type="file"
                 accept="image/*"
