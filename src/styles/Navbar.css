@@ -11,11 +11,10 @@
     z-index: 100;
     width: 100%;
 
-    /* Estilo visual (Solo Blur, muy transparente) */
+    /* Solo blur transparente */
     background: transparent;
-    /* Completamente transparente */
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-bottom: none;
     box-shadow: none;
 
@@ -30,7 +29,8 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 20px;
+    padding: 12px 20px 0px 20px;
+    /* Padding inferior mínimo para pegarse al borde */
 
     /* CRUCIAL: Fondo completamente transparente */
     background: transparent !important;
@@ -70,8 +70,8 @@
 
     /* Estilos base */
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.075);
-    color: var(--text-secondary, #aaa);
+    background: rgba(255, 255, 255, 0.030);
+    color: var(--text-secondary, #970101);
     /* Fallback a gris si no hay variable */
 
     font-weight: 600;

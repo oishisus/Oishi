@@ -9,10 +9,16 @@
     padding: 12px 0;
     margin-bottom: 20px;
     border-bottom: none;
+
+    /* Sin background, solo blur transparente */
     background: transparent;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    box-shadow: none;
+
+    /* El desenfoque hace el resto del trabajo */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    /* Sombra oscura debajo en lugar de background */
+    box-shadow: 0 8px 20px rgba(15, 15, 15, 0.50);
 }
 
 .category-section {
