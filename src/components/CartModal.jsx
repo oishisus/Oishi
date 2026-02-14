@@ -302,10 +302,8 @@ const CartModal = React.memo(() => {
               <button
                 className="btn btn-secondary btn-block"
                 onClick={() => {
-                  clearCart();
                   setShowSuccess(false);
                   resetPaymentFlow();
-                  toggleCart();
                   navigate('/');
                 }}
               >
