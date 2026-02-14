@@ -8,11 +8,11 @@
     z-index: 100;
     padding: 12px 0;
     margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(10, 10, 10, 0.8);
+    border-bottom: none;
+    background: transparent;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: none;
 }
 
 .category-section {

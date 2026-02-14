@@ -16,8 +16,8 @@
     /* Completamente transparente */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    border-bottom: none;
+    box-shadow: none;
 
     /* Para posicionar las máscaras (fades) */
     position: -webkit-sticky;
@@ -70,7 +70,7 @@
 
     /* Estilos base */
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.075);
     color: var(--text-secondary, #aaa);
     /* Fallback a gris si no hay variable */
 
