@@ -4,145 +4,178 @@
 
 /* --- IMAGE UPLOAD AREA --- */
 .product-image-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .upload-dropzone {
-    width: 100px;
-    height: 100px;
-    border-radius: 16px;
-    background: #1e293b;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border: 2px solid #334155;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    position: relative;
-    color: #64748b;
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  background: #1e293b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid #334155;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  color: #64748b;
 }
 
 .upload-dropzone:hover {
-    border-color: #38bdf8;
-    color: #38bdf8;
+  border-color: #38bdf8;
+  color: #38bdf8;
 }
 
 .upload-dropzone.dragging {
-    background: rgba(56, 189, 248, 0.1);
-    border: 2px dashed #38bdf8;
-    color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 2px dashed #38bdf8;
+  color: #38bdf8;
 }
 
 .upload-dropzone img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .dropzone-hint {
-    text-align: center;
+  text-align: center;
 }
 
 .dropzone-hint span {
-    font-size: 10px;
-    display: block;
-    margin-top: 4px;
+  font-size: 10px;
+  display: block;
+  margin-top: 4px;
 }
 
 .file-info {
-    font-size: 11px;
-    color: #cbd5e1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  font-size: 11px;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* --- CUSTOM SWITCH (DESTACAR COMO ESPECIAL) --- */
-.special-switch-container {
-    margin-top: 2px;
+/* --- CUSTOM SWITCHES GRID --- */
+.special-switches-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 5px;
 }
 
 .special-switch {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  background: rgba(30, 41, 59, 0.5);
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  transition: all 0.2s ease;
+}
+
+.special-switch:hover {
+  border-color: #475569;
 }
 
 .switch-toggle {
-    width: 40px;
-    height: 22px;
-    background: #334155;
-    border-radius: 12px;
-    position: relative;
-    transition: background 0.2s;
+  width: 36px;
+  height: 20px;
+  background: #334155;
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
 }
 
 .switch-toggle::after {
-    content: '';
-    position: absolute;
-    left: 2px;
-    top: 2px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #fff;
-    transition: left 0.2s;
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
 }
 
-input[type="checkbox"]:checked+.switch-toggle {
-    background: #38bdf8;
+input[type="checkbox"]:checked + .switch-toggle {
+  background: #38bdf8;
 }
 
-input[type="checkbox"]:checked+.switch-toggle::after {
-    left: 20px;
+input[type="checkbox"]:checked + .switch-toggle.toggle-discount {
+  background: #25d366;
+}
+
+input[type="checkbox"]:checked + .switch-toggle::after {
+  left: 18px;
 }
 
 .switch-label {
-    color: #94a3b8;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: color 0.2s;
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: color 0.2s;
 }
 
-input[type="checkbox"]:checked~.switch-label {
-    color: #38bdf8;
+input[type="checkbox"]:checked ~ .switch-label {
+  color: #fff;
+}
+
+/* --- ANIMATIONS --- */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* --- UTILITIES --- */
 .btn-xs {
-    padding: 4px 10px;
-    font-size: 0.75rem;
+  padding: 4px 10px;
+  font-size: 0.75rem;
 }
 
 .btn-danger-xs {
-    padding: 2px 6px;
-    font-size: 10px;
-    background: #ef4444;
-    border: none;
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
+  padding: 2px 6px;
+  font-size: 10px;
+  background: #ef4444;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
 }
 
 .btn-danger-xs:hover {
-    background: #dc2626;
+  background: #dc2626;
 }
 
 .fw-700 {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .m-0 {
-    margin: 0;
+  margin: 0;
 }
 
 .text-muted {
-    color: #94a3b8;
+  color: #94a3b8;
 }

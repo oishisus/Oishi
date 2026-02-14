@@ -10,7 +10,7 @@ export const CartProvider = ({ children }) => {
 
   // 2. PRECIOS
   const getPrice = (product) => {
-    if (product.discount_price && parseInt(product.discount_price) > 0) {
+    if (product.has_discount && product.discount_price && parseInt(product.discount_price) > 0) {
       return parseInt(product.discount_price);
     }
     return parseInt(product.price);

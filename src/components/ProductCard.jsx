@@ -61,6 +61,12 @@ const ProductCard = React.memo(({ product }) => {
           </span>
         )}
 
+        {product.has_discount && (
+          <span className="badge-discount">
+            OFERTA
+          </span>
+        )}
+
         {/* Badge de cantidad sobre la imagen si hay > 0 */}
         {quantity > 0 && (
           <div className="qty-badge-overlay animate-bounce-in">
@@ -98,7 +104,16 @@ const ProductCard = React.memo(({ product }) => {
         )}
 
         <div className="product-footer">
-          <span className="product-price">${product.price.toLocaleString('es-CL')}</span>
+          <div className="price-container">
+            {product.has_discount && product.discount_price ? (
+              <>
+                <span className="product-price discounted">${parseInt(product.discount_price).toLocaleString('es-CL')}</span>
+                <span className="product-price original">${parseInt(product.price).toLocaleString('es-CL')}</span>
+              </>
+            ) : (
+              <span className="product-price">${parseInt(product.price).toLocaleString('es-CL')}</span>
+            )}
+          </div>
 
           {/* SELECTOR DE CANTIDAD INTELIGENTE */}
           {quantity === 0 ? (
