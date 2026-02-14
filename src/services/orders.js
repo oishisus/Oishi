@@ -1,15 +1,11 @@
 import { supabase } from '../lib/supabase';
+import { uploadImage } from '../lib/cloudinary';
 
 export const createManualOrder = async (orderData, receiptFile) => {
     // 1. Upload Recibo (si aplica)
     let receiptUrl = null;
     if (orderData.payment_type === 'online' && receiptFile) {
-        const fileExt = receiptFile.name.split('.').pop();
-        const fileName = `receipts/${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
-        const { error: upErr } = await supabase.storage.from('images').upload(fileName, receiptFile);
-        if (upErr) throw upErr;
-        const { data } = supabase.storage.from('images').getPublicUrl(fileName);
-        receiptUrl = data.publicUrl;
+        receiptUrl = await uploadImage(receiptFile, 'receipts');
     }
 
     // 2. Client Logic (Upsert)

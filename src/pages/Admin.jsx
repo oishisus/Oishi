@@ -172,10 +172,66 @@ const Admin = () => {
 
   useEffect(() => {
     loadData();
-    const channel = supabase.channel('admin-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadData(true))
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    
+    let channel = null;
+    let isMounted = true;
+    
+    const setupRealtime = async () => {
+      try {
+        // Verificar sesión antes de suscribirse
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.warn('No hay sesión activa, Realtime no se conectará');
+          return;
+        }
+        
+        channel = supabase.channel('admin-realtime', {
+          config: {
+            broadcast: { self: false },
+            presence: { key: '' }
+          }
+        })
+          .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'orders' 
+          }, (payload) => {
+            if (isMounted) {
+              console.log('Cambio detectado en orders:', payload.eventType);
+              loadData(true);
+            }
+          })
+          .subscribe((status, err) => {
+            if (!isMounted) return;
+            
+            if (status === 'SUBSCRIBED') {
+              console.log('✅ Realtime conectado exitosamente');
+            } else if (status === 'CHANNEL_ERROR') {
+              console.error('❌ Error en canal Realtime:', err);
+            } else if (status === 'TIMED_OUT') {
+              console.warn('⏱️ Realtime timeout');
+            } else if (status === 'CLOSED') {
+              console.warn('🔌 Realtime cerrado');
+            }
+          });
+      } catch (error) {
+        console.error('Error configurando Realtime:', error);
+      }
+    };
+    
+    // Pequeño delay para asegurar que la sesión esté lista
+    const timeoutId = setTimeout(() => {
+      setupRealtime();
+    }, 500);
+    
+    return () => { 
+      clearTimeout(timeoutId);
+      isMounted = false;
+      if (channel) {
+        channel.unsubscribe().catch(() => {});
+        supabase.removeChannel(channel).catch(() => {});
+      }
+    };
   }, []);
 
   // --- 2. GESTIÓN DE PEDIDOS ---
