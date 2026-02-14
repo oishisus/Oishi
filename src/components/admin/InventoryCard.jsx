@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, EyeOff, Trash } from 'lucide-react';
 import logo from '../../assets/logo.png';
+import '../../styles/InventoryCard.css';
 
 const InventoryCard = ({ product, toggleProductActive, setEditingProduct, setIsModalOpen, deleteProduct }) => (
     <div className={`inventory-card glass ${!product.is_active ? 'inactive' : ''}`} onClick={() => { setEditingProduct(product); setIsModalOpen(true) }}>

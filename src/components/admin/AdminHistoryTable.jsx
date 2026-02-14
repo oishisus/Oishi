@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../styles/AdminClientsTable.css';
 
 const AdminHistoryTable = ({ orders }) => {
     return (

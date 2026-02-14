@@ -1,0 +1,137 @@
+/* =========================================
+   ADMIN KANBAN BOARD
+   ========================================= */
+
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    height: calc(100vh - 160px);
+    min-height: 500px;
+}
+
+.kanban-column {
+    background: rgba(20, 20, 20, 0.5);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.column-header {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot-orange {
+    background: #f4a261;
+    box-shadow: 0 0 10px #f4a261;
+}
+
+.dot-red {
+    background: #e63946;
+    box-shadow: 0 0 10px #e63946;
+}
+
+.dot-green {
+    background: #25d366;
+    box-shadow: 0 0 10px #25d366;
+}
+
+.count {
+    margin-left: auto;
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+
+.column-body {
+    padding: 15px;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.column-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.column-body::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+.empty-zone {
+    text-align: center;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    font-style: italic;
+    margin-top: 50px;
+    font-size: 0.9rem;
+}
+
+.mobile-tabs {
+    display: none;
+}
+
+/* RESPONSIVE MÓVIL OVERRIDES */
+@media (max-width: 1024px) {
+    .kanban-board {
+        display: block;
+        height: auto;
+        min-height: auto;
+    }
+
+    .kanban-column {
+        height: auto;
+        min-height: 50vh;
+        margin-bottom: 20px;
+    }
+
+    .mobile-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+
+    .mobile-tabs button {
+        flex: 1;
+        padding: 10px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--card-border);
+        color: var(--text-secondary);
+        border-radius: 8px;
+        white-space: nowrap;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .mobile-tabs button.active {
+        background: var(--accent-primary);
+        color: white;
+        border-color: var(--accent-primary);
+    }
+
+    .hidden {
+        display: none;
+    }
+}

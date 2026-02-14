@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Save } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
+import { X, Save, Loader2 } from 'lucide-react';
+import '../styles/Modals.css';
+import '../styles/CategoryModal.css';
 
 const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = false }) => {
   const nameInputRef = useRef();
-  const [isDirty, setIsDirty] = useState(false); // Dirty State
+  const [isDirty, setIsDirty] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -29,14 +30,12 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
       }
       setIsDirty(false);
 
-      // Auto-Focus
       setTimeout(() => {
         if (nameInputRef.current) nameInputRef.current.focus();
       }, 100);
     }
   }, [isOpen, category]);
 
-  // Manejo seguro del cierre
   const handleSafeClose = () => {
     if (isDirty && !saving) {
       if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
@@ -73,63 +72,63 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
   };
 
   return (
-    <div className="modal-overlay" onClick={handleSafeClose} role="dialog" aria-modal="true" style={{background: 'rgba(16,24,40,0.92)'}}>
-      <div className="modal-content" onClick={e => e.stopPropagation()} style={{background: 'var(--background-dark, #101828)', color: '#fff', borderRadius: 18, border: '1px solid #334155'}}>
-        <header className="modal-header" style={{borderBottom: '1px solid #334155'}}>
+    <div className="modal-overlay" onClick={handleSafeClose} role="dialog" aria-modal="true">
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <header className="modal-header">
           <h3>{category ? 'Editar Categoría' : 'Nueva Categoría'}</h3>
-          <button onClick={handleSafeClose} className="btn-close" style={{color:'#fff'}}><X size={24} /></button>
+          <button onClick={handleSafeClose} className="btn-close">
+            <X size={24} />
+          </button>
         </header>
 
         <form onSubmit={handleSubmit}>
           <div className="modal-form">
             <div className="form-group">
               <label>Nombre de la Categoría</label>
-              <input 
+              <input
                 ref={nameInputRef}
                 className="form-input"
-                type="text" 
-                name="name" 
-                value={formData.name} 
-                onChange={handleChange} 
-                required 
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
                 placeholder="Ej: Rolls Tradicionales"
-                style={{background: '#1e293b', color: '#fff', border: '1px solid #334155'}}
               />
             </div>
 
             <div className="form-group">
               <label>Orden de visualización</label>
-              <input 
+              <input
                 className="form-input"
-                type="number" 
-                name="order" 
-                value={formData.order} 
-                onChange={handleChange} 
-                required 
-                style={{background: '#1e293b', color: '#fff', border: '1px solid #334155'}}
+                type="number"
+                name="order"
+                value={formData.order}
+                onChange={handleChange}
+                required
               />
-              <small style={{ color: '#94a3b8', marginTop: '5px', display: 'block' }}>
+              <small className="category-hint">
                 Menor número aparece primero (Ej: 1, 2, 3)
               </small>
             </div>
 
-            <div className="form-group" style={{display: 'flex', alignItems: 'center', gap: 12, marginTop: 16}}>
-              <label className="label-text" htmlFor="cat-active-switch" style={{color:'#fff'}}>Categoría Activa</label>
-              <label className="switch" style={{marginBottom: 0, cursor: 'pointer'}}>
+            <div className="category-active-section">
+              <label className="text-sm fw-700" htmlFor="cat-active-switch">Categoría Activa</label>
+              <label className="switch-slider-container">
                 <input
                   id="cat-active-switch"
                   type="checkbox"
                   name="is_active"
                   checked={formData.is_active}
                   onChange={handleChange}
-                  style={{display: 'none'}}
+                  style={{ display: 'none' }}
                 />
-                <span className="slider"></span>
+                <span className="switch-slider"></span>
               </label>
             </div>
           </div>
 
-          <footer className="modal-footer" style={{borderTop: '1px solid #334155'}}>
+          <footer className="modal-footer" style={{ borderTop: '1px solid #22304a' }}>
             <button type="button" onClick={handleSafeClose} className="btn btn-secondary" disabled={saving}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}

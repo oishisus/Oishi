@@ -1,0 +1,250 @@
+/* =========================================
+   HOME PAGE: TICKET SYSTEM
+   ========================================= */
+
+.home-container {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url("https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=1000");
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+.home-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(10, 10, 10, 0.6), rgba(5, 5, 5, 0.95));
+    z-index: 1;
+    transition: all 0.5s ease;
+}
+
+.home-container:has(.ticket-wrapper:hover) .home-overlay {
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.home-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Wrapper del Boleto */
+.ticket-wrapper {
+    display: flex;
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    background: rgba(15, 15, 15, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    transition: transform 0.4s ease;
+}
+
+.ticket-wrapper:hover {
+    transform: scale(1.02);
+}
+
+/* Sección Izquierda */
+.ticket-main {
+    flex: 1;
+    padding: 40px;
+    z-index: 2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+
+.brand-container-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.home-logo-centered {
+    width: 95px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.brand-text-centered h1 {
+    font-size: 3.5rem;
+    line-height: 0.9;
+    margin: 0;
+    letter-spacing: -1px;
+}
+
+.brand-subtitle {
+    display: block;
+    letter-spacing: 5px;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+
+.home-nav-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 30px;
+    width: 100%;
+    max-width: 450px;
+}
+
+.home-nav-grid> :first-child {
+    grid-column: span 2;
+    height: 60px;
+    font-size: 1.1rem;
+}
+
+.home-nav-grid> :last-child {
+    grid-column: span 2;
+}
+
+.home-nav-grid> :not(:first-child) {
+    height: 50px;
+}
+
+/* Sección Derecha (Stub Roja) */
+.ticket-stub {
+    width: 240px;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, #901c24 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    border-left: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+.qr-box {
+    background: white;
+    padding: 12px;
+    border-radius: 18px;
+    display: inline-block;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease;
+}
+
+.qr-box:hover {
+    transform: scale(1.05) rotate(2deg);
+}
+
+.stub-content {
+    text-align: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stub-badge {
+    font-weight: 900;
+    letter-spacing: 2px;
+    font-size: 0.7rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+}
+
+.stub-scan-text {
+    font-weight: 900;
+    font-size: 1rem;
+    margin: 0;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.stub-info {
+    font-size: 0.6rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+/* Círculos de Recorte */
+.ticket-wrapper::before,
+.ticket-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-primary);
+    border-radius: 50%;
+    z-index: 5;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ticket-wrapper::before {
+    left: -20px;
+}
+
+.ticket-wrapper::after {
+    right: -20px;
+}
+
+/* Bloqueo de carrito en Home */
+.home-container~.cart-float,
+.home-container~.cart-panel {
+    display: none !important;
+}
+
+/* Responsive Home (Móvil) */
+@media (max-width: 850px) {
+    .ticket-wrapper {
+        display: flex;
+        flex-direction: column;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+        margin: 0;
+    }
+
+    .ticket-stub,
+    .ticket-wrapper::before,
+    .ticket-wrapper::after {
+        display: none !important;
+    }
+
+    .ticket-main {
+        padding: 0;
+        width: 100%;
+    }
+
+    .home-nav-grid {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+    }
+
+    .home-nav-grid> :first-child,
+    .home-nav-grid> :last-child {
+        grid-column: span 1;
+    }
+}

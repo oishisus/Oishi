@@ -1,9 +1,10 @@
 import React from 'react';
+import '../../styles/AdminClientsTable.css';
 
 const AdminClientsTable = ({ clients, searchQuery, handleSelectClient }) => {
     return (
         <div className="clients-view glass animate-fade">
-            <div className="admin-toolbar" style={{ padding: 0, border: 'none', marginBottom: 20 }}>
+            <div className="admin-toolbar clients-toolbar-fix">
                 {/* Toolbar provided by parent or included here? Parent has search box. 
             Actually, the search box was inside clients-view in Admin.jsx.
             Let's accept searchQuery as prop, but the input needs to be somewhere.
@@ -40,12 +41,12 @@ const AdminClientsTable = ({ clients, searchQuery, handleSelectClient }) => {
                 </thead>
                 <tbody>
                     {clients.map(c => (
-                        <tr key={c.id} onClick={() => handleSelectClient(c)} style={{ cursor: 'pointer' }}>
-                            <td><b>{c.name}</b></td>
-                            <td>{c.rut || '-'}</td>
-                            <td>{c.phone}</td>
-                            <td>{c.last_order_at ? new Date(c.last_order_at).toLocaleDateString() : 'N/A'}</td>
-                            <td style={{ color: '#25d366', fontWeight: '800' }}>${(c.total_spent || 0).toLocaleString('es-CL')}</td>
+                        <tr key={c.id} onClick={() => handleSelectClient(c)} className="clickable-row">
+                            <td data-label="Nombre"><b>{c.name}</b></td>
+                            <td data-label="RUT">{c.rut || '-'}</td>
+                            <td data-label="Teléfono">{c.phone}</td>
+                            <td data-label="Último Pedido">{c.last_order_at ? new Date(c.last_order_at).toLocaleDateString() : 'N/A'}</td>
+                            <td data-label="Total" className="client-total-amount">${(c.total_spent || 0).toLocaleString('es-CL')}</td>
                         </tr>
                     ))}
                 </tbody>

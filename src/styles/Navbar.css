@@ -1,0 +1,132 @@
+/* =========================================
+   5. NAVBAR STICKY (EXTRACTED)
+   ========================================= */
+.navbar-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 12px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-container {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 15px;
+    gap: 10px;
+    scrollbar-width: none;
+}
+
+.navbar-container::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-item {
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.tab-item.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4);
+}
+
+.tab-item img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+/* =========================================
+   18. MEJORAS NAVBAR (EXTRACTED)
+   ========================================= */
+
+/* Contenedor relativo para posicionar las máscaras */
+.navbar-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100vw;
+    background: transparent;
+}
+
+/* El contenedor original (Navbar Container) */
+.navbar-container {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 20px;
+    /* Un poco de padding extra para los fades */
+    gap: 12px;
+    scrollbar-width: none;
+    /* Firefox */
+    scroll-behavior: smooth;
+    position: relative;
+    z-index: 10;
+}
+
+.navbar-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Chrome/Safari */
+
+/* Máscara Izquierda */
+.nav-fade-left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to right, var(--bg-primary) 20%, transparent);
+    z-index: 20;
+    pointer-events: none;
+    /* Permite hacer clic a través de ella */
+}
+
+/* Máscara Derecha */
+.nav-fade-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to left, var(--bg-primary) 20%, transparent);
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Ajuste: Si el navbar es sticky, asegúrate que el fondo coincida */
+.navbar-sticky .nav-fade-left,
+.navbar-sticky .nav-fade-right {
+    /* Usamos el mismo color del fondo sticky (rgba oscura) */
+    --fade-color: #0a0a0a;
+    background: linear-gradient(to right, var(--fade-color) 10%, transparent);
+}
+
+.navbar-sticky .nav-fade-right {
+    background: linear-gradient(to left, var(--fade-color) 10%, transparent);
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Clock, XCircle, Upload, ImageIcon } from 'lucide-react';
 import { formatTimeElapsed } from '../../utils/formatters';
+import '../../styles/OrderCard.css';
 
 const OrderCard = ({ order, moveOrder, setReceiptModalOrder }) => {
     return (

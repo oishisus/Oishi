@@ -1,0 +1,84 @@
+/* =========================================
+   ADMIN SHARED COMPONENTS (TOOLBARS, SEARCH, ETC)
+   ========================================= */
+
+.admin-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+}
+
+.search-box,
+.filter-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    padding: 8px 15px;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    min-width: 200px;
+}
+
+.search-box input,
+.filter-box select {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    width: 100%;
+    outline: none;
+}
+
+.search-box input::placeholder {
+    color: var(--text-muted);
+}
+
+.filter-box select {
+    cursor: pointer;
+}
+
+.filter-box select option {
+    background: #111;
+}
+
+/* Tooltips or Mini Stats in Toolbars */
+.stats-mini {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 15px;
+}
+
+/* Shared Icon Action Buttons */
+.btn-icon-action {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-icon-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-icon-action.danger:hover {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+    border-color: #ff4444;
+}

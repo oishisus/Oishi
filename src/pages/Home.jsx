@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Utensils, MessageCircle, Instagram, MapPin, Settings } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react'; 
-import logo from '../assets/logo.png'; 
+import { QRCodeSVG } from 'qrcode.react';
+import '../styles/Home.css';
+import logo from '../assets/logo.png';
 
 const Home = () => {
   const navigate = useNavigate();
-  
+
   // Genera automáticamente la URL del menú basada en donde estés alojado
   const menuUrl = `${window.location.origin}/menu`;
 
@@ -20,20 +21,20 @@ const Home = () => {
   return (
     <div className="home-container animate-fade">
       {/* Botón de Login/Admin con alta prioridad de click */}
-        <button 
-          onClick={() => navigate('/login')} 
-          className="settings-btn" 
-          title="Admin Login"
-        >
-          <Settings size={20} />
-        </button>
+      <button
+        onClick={() => navigate('/login')}
+        className="settings-btn"
+        title="Admin Login"
+      >
+        <Settings size={20} />
+      </button>
 
       {/* Capa de fondo para contraste */}
       <div className="home-overlay"></div>
 
       <main className="home-content container">
         <div className="ticket-wrapper">
-          
+
           {/* LADO IZQUIERDO: Branding y Botones (Simetría Total) */}
           <div className="ticket-main">
             <header className="home-header-centered">
@@ -59,7 +60,7 @@ const Home = () => {
                 </button>
               ))}
             </nav>
-            
+
             <div className="ticket-stub-line"></div>
           </div>
 
@@ -67,12 +68,12 @@ const Home = () => {
           <div className="ticket-stub">
             <div className="stub-content">
               <div className="stub-badge">ACCESO DIGITAL</div>
-              
+
               <div className="qr-box">
-                <QRCodeSVG 
-                  value={menuUrl} 
-                  size={130} 
-                  level={"H"} 
+                <QRCodeSVG
+                  value={menuUrl}
+                  size={130}
+                  level={"H"}
                   includeMargin={false}
                 />
               </div>

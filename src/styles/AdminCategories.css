@@ -1,0 +1,51 @@
+/* =========================================
+   ADMIN CATEGORIES LIST
+   ========================================= */
+
+.categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.cat-row-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.cat-row-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cat-name-lg {
+    flex: 1;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    letter-spacing: 0.5px;
+}
+
+.cat-drag-handle {
+    color: var(--text-secondary);
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+}
+
+.cat-drag-handle:hover {
+    opacity: 1;
+}
+
+/* Base list animation */
+.categories-list.animate-fade {
+    animation: fadeIn 0.4s ease-out forwards;
+}

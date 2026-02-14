@@ -15,8 +15,13 @@ import ManualOrderModal from '../components/admin/ManualOrderModal';
 import InventoryCard from '../components/admin/InventoryCard';
 import AdminHistoryTable from '../components/admin/AdminHistoryTable';
 import AdminClientsTable from '../components/admin/AdminClientsTable';
+import ClientDetailsPanel from '../components/admin/ClientDetailsPanel';
 import { supabase } from '../lib/supabase';
 import logo from '../assets/logo.png';
+import '../styles/AdminLayout.css';
+import '../styles/AdminAnalytics.css';
+import '../styles/AdminShared.css';
+import '../styles/AdminCategories.css';
 
 // CLAVE DE SEGURIDAD
 const SECURITY_DELETE_KEY = '1234';
@@ -677,73 +682,14 @@ const Admin = () => {
         )}
       </main>
 
-      {/* PANEL CLIENTE LATERAL */}
-      {selectedClient && (
-        <div className="modal-overlay" onClick={() => setSelectedClient(null)}>
-          <div className="admin-side-panel glass animate-slide-in" onClick={e => e.stopPropagation()}>
-            <div className="admin-side-header">
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ margin: 0 }}>{selectedClient.name}</h3>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>RUT: {selectedClient.rut}</span>
-              </div>
-              <button onClick={() => setSelectedClient(null)} className="btn-close-sidepanel"><X size={24} /></button>
-            </div>
-
-            <div className="admin-side-body">
-              <div className="kpi-grid" style={{ gridTemplateColumns: '1fr 1fr', marginBottom: 20 }}>
-                <div className="kpi-card" style={{ padding: 15, flexDirection: 'column', alignItems: 'flex-start', background: 'rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#aaa' }}>GASTO TOTAL</span>
-                  <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#25d366' }}>${(selectedClient.total_spent || 0).toLocaleString('es-CL')}</span>
-                </div>
-                <div className="kpi-card" style={{ padding: 15, flexDirection: 'column', alignItems: 'flex-start', background: 'rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#aaa' }}>PEDIDOS</span>
-                  <span style={{ fontSize: '1.1rem', fontWeight: '800' }}>{selectedClient.total_orders || 0}</span>
-                </div>
-              </div>
-
-              <h4 style={{ marginBottom: 10, color: 'var(--accent-secondary)' }}>Historial</h4>
-              {clientHistoryLoading ? <div style={{ textAlign: 'center', padding: 20 }}><Loader2 className="animate-spin" /></div> : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {selectedClientOrders.length === 0 ? <p style={{ textAlign: 'center', opacity: 0.6 }}>Sin compras registradas con este ID.</p> :
-                    selectedClientOrders.map(order => (
-                      <div key={order.id} style={{ background: 'rgba(255,255,255,0.03)', padding: 12, borderRadius: 10, border: '1px solid var(--card-border)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: 5 }}>
-                          <span style={{ color: 'var(--text-secondary)' }}>{new Date(order.created_at).toLocaleDateString('es-CL')}</span>
-                          <span style={{ fontWeight: '700' }}>${order.total.toLocaleString('es-CL')}</span>
-                        </div>
-                        <div style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: 8 }}>
-                          {order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                          <span className={`status-badge ${order.status === 'completed' || order.status === 'picked_up' ? 'active' : 'paused'}`} style={{ fontSize: '0.7rem' }}>
-                            {order.status === 'picked_up' ? 'Entregado' : order.status === 'completed' ? 'Completado' : order.status === 'active' ? 'En Cocina' : order.status === 'canceled' ? 'Cancelado' : 'Pendiente'}
-                          </span>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                            {order.payment_ref && order.payment_ref.startsWith('http') ? (
-                              <>
-                                <a href={order.payment_ref} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#3b82f6', fontSize: '0.75rem', textDecoration: 'underline' }}>
-                                  <ImageIcon size={12} /> Ver Comprobante
-                                </a>
-                                <button onClick={() => setReceiptModalOrder(order)} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '0.7rem', cursor: 'pointer', textDecoration: 'underline' }}>
-                                  Cambiar
-                                </button>
-                              </>
-                            ) : order.payment_type === 'online' ? (
-                              <button onClick={() => setReceiptModalOrder(order)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(59, 130, 246, 0.1)', border: '1px solid #3b82f6', color: '#3b82f6', padding: '4px 8px', borderRadius: 6, fontSize: '0.7rem', cursor: 'pointer' }}>
-                                <Upload size={10} /> Agregar
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  }
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* PANEL CLIENTE LATERAL (MODULARIZADO) */}
+      <ClientDetailsPanel
+        selectedClient={selectedClient}
+        setSelectedClient={setSelectedClient}
+        clientHistoryLoading={clientHistoryLoading}
+        selectedClientOrders={selectedClientOrders}
+        setReceiptModalOrder={setReceiptModalOrder}
+      />
 
       {/* MODAL CLAVE */}
       {isDangerModalOpen && (

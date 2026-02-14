@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import '../styles/Navbar.css';
 
 const Navbar = ({ categories, activeCategory, onCategoryClick }) => {
   const scrollRef = useRef(null);
@@ -9,10 +10,10 @@ const Navbar = ({ categories, activeCategory, onCategoryClick }) => {
     if (activeCategory && scrollRef.current) {
       const activeElement = scrollRef.current.querySelector(`.tab-item[data-id="${activeCategory}"]`);
       if (activeElement) {
-        activeElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'nearest', 
-          inline: 'center' 
+        activeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
         });
       }
     }
@@ -34,7 +35,7 @@ const Navbar = ({ categories, activeCategory, onCategoryClick }) => {
           if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
             if (activeCategory !== cat.id) {
               // Llamamos a la función pero marcando que es automático
-              onCategoryClick(cat.id, false); 
+              onCategoryClick(cat.id, false);
             }
             break;
           }
@@ -49,7 +50,7 @@ const Navbar = ({ categories, activeCategory, onCategoryClick }) => {
   const handleClick = (id) => {
     setIsManualClick(true); // Bloqueamos el detector temporalmente
     onCategoryClick(id, true); // True = Es un clic manual (para hacer scroll)
-    
+
     // Desbloqueamos el detector después de la animación de scroll (aprox 1s)
     setTimeout(() => setIsManualClick(false), 1000);
   };
@@ -58,7 +59,7 @@ const Navbar = ({ categories, activeCategory, onCategoryClick }) => {
     <div className="navbar-wrapper">
       {/* Máscaras de degradado para indicar scroll */}
       <div className="nav-fade-left"></div>
-      
+
       <nav className="navbar-container" ref={scrollRef}>
         {categories.map((cat) => (
           <button
@@ -73,7 +74,7 @@ const Navbar = ({ categories, activeCategory, onCategoryClick }) => {
           </button>
         ))}
       </nav>
-      
+
       <div className="nav-fade-right"></div>
     </div>
   );

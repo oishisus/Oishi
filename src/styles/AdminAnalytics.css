@@ -1,0 +1,177 @@
+/* =========================================
+   ADMIN REPORTS & ANALYTICS
+   ========================================= */
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.kpi-card {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kpi-icon.money {
+    background: rgba(37, 211, 102, 0.1);
+    color: #25d366;
+}
+
+.kpi-icon.orders {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.kpi-icon.star {
+    background: rgba(244, 162, 97, 0.1);
+    color: #f4a261;
+}
+
+.kpi-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    margin-top: 5px;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.chart-card {
+    padding: 20px;
+    border-radius: 16px;
+    min-height: 300px;
+    background: rgba(20, 20, 20, 0.5);
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 10px;
+}
+
+.chart-header h3 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Ranking Bar Chart */
+.top-product-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.rank-num {
+    font-weight: 800;
+    color: var(--text-secondary);
+    width: 20px;
+}
+
+.rank-info {
+    flex: 1;
+}
+
+.rank-name {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.rank-bar-bg {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.rank-bar-fill {
+    height: 100%;
+    background: var(--accent-secondary);
+    border-radius: 3px;
+}
+
+.rank-count {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: white;
+}
+
+/* Payment Bars */
+.payment-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pay-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.pay-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.pay-fill {
+    height: 100%;
+    display: block;
+    border-radius: 4px;
+}
+
+.pay-fill.online {
+    background: #38bdf8 !important;
+}
+
+.pay-fill.store {
+    background: #25d366 !important;
+}
+
+/* Dashboard Toolbar Re-use */
+.admin-toolbar-analytics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+}
+
+.stats-mini {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 15px;
+}

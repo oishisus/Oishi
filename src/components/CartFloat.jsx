@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import '../styles/CartFloat.css';
 import { ShoppingBag, ArrowRight } from 'lucide-react'; // Agregué ArrowRight
 import { useCart } from '../context/CartContext';
 
@@ -27,7 +28,7 @@ const CartFloat = () => {
       if (totalItems > 0) {
         timerRef.current = setTimeout(() => {
           setIsIdle(true);
-        }, 10000); 
+        }, 10000);
       }
     };
     window.addEventListener('touchstart', resetTimer);
@@ -46,8 +47,8 @@ const CartFloat = () => {
   // if (!hasItems) return null; 
 
   return (
-    <button 
-      onClick={toggleCart} 
+    <button
+      onClick={toggleCart}
       className={`cart-float ${hasItems ? 'has-items' : ''} ${isIdle && hasItems ? 'pulse-urgent' : ''}`}
     >
       <div className="cart-icon-wrapper">
@@ -60,7 +61,7 @@ const CartFloat = () => {
         <span className="cart-label-text">
           {hasItems ? (
             <>
-              <span style={{opacity:0.8, fontWeight:400}}>Total:</span> ${cartTotal.toLocaleString('es-CL')}
+              <span style={{ opacity: 0.8, fontWeight: 400 }}>Total:</span> ${cartTotal.toLocaleString('es-CL')}
             </>
           ) : (
             "Tu Bandeja"

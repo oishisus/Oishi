@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, ChevronDown, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import '../styles/ProductCard.css';
 
 const ProductCard = React.memo(({ product }) => {
   const { cart, addToCart, decreaseQuantity } = useCart();
@@ -39,27 +40,27 @@ const ProductCard = React.memo(({ product }) => {
   };
 
   return (
-    <div 
+    <div
       className={`product-card glass ${isExpanded ? 'is-viewing-info' : ''}`}
       onClick={() => isLongDesc && setIsExpanded(!isExpanded)}
     >
       {/* IMAGEN CON SKELETON */}
       <div className={`product-image ${isBumping ? 'bump-active' : ''}`}>
         {!imageLoaded && <div className="skeleton-loader absolute inset-0" />}
-        <img 
-          src={product.image_url || FALLBACK_IMAGE} 
-          alt={product.name} 
+        <img
+          src={product.image_url || FALLBACK_IMAGE}
+          alt={product.name}
           loading="lazy"
           onLoad={() => setImageLoaded(true)}
           className={!imageLoaded ? 'opacity-0' : 'opacity-100 transition-opacity duration-500'}
         />
-        
+
         {product.is_special && (
           <span className="badge-special">
             ESPECIAL
           </span>
         )}
-        
+
         {/* Badge de cantidad sobre la imagen si hay > 0 */}
         {quantity > 0 && (
           <div className="qty-badge-overlay animate-bounce-in">
@@ -67,7 +68,7 @@ const ProductCard = React.memo(({ product }) => {
           </div>
         )}
       </div>
-      
+
       <div className="product-info">
         <div className="info-content-wrapper">
           {!isExpanded ? (
@@ -79,7 +80,7 @@ const ProductCard = React.memo(({ product }) => {
             <div className="product-desc-scrollable animate-in-fade">
               <div className="desc-header">
                 <span>Detalles</span>
-                <button onClick={(e) => {e.stopPropagation(); setIsExpanded(false)}} className="btn-icon-sm">
+                <button onClick={(e) => { e.stopPropagation(); setIsExpanded(false) }} className="btn-icon-sm">
                   <X size={14} />
                 </button>
               </div>
@@ -89,16 +90,16 @@ const ProductCard = React.memo(({ product }) => {
             </div>
           )}
         </div>
-        
+
         {isLongDesc && !isExpanded && (
           <div className="info-hint">
             <ChevronDown size={14} /> Ver detalles
           </div>
         )}
-        
+
         <div className="product-footer">
           <span className="product-price">${product.price.toLocaleString('es-CL')}</span>
-          
+
           {/* SELECTOR DE CANTIDAD INTELIGENTE */}
           {quantity === 0 ? (
             <button onClick={handleAdd} className="btn-add">

@@ -1,0 +1,70 @@
+/* =========================================
+   MENU PAGE STYLES
+   ========================================= */
+
+.navbar-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 12px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.category-section {
+    margin-top: 40px;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+.category-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+}
+
+.category-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--accent-secondary);
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(244, 162, 97, 0.4);
+}
+
+.category-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+section {
+    scroll-behavior: smooth;
+    overflow-anchor: none;
+}
+
+@media (max-width: 600px) {
+    .category-title {
+        font-size: 1.1rem;
+        gap: 8px;
+    }
+
+    .category-icon {
+        width: 24px;
+        height: 24px;
+    }
+}

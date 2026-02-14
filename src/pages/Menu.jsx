@@ -4,9 +4,10 @@ import ProductCard from '../components/ProductCard';
 import FloatingWhatsApp from '../components/CartFloat';
 import CartModal from '../components/CartModal';
 import { Search, ChevronLeft, Loader2 } from 'lucide-react';
+import '../styles/Menu.css';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import logo from '../assets/logo.png'; 
+import logo from '../assets/logo.png';
 
 const Menu = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Menu = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(null);
-  
+
   // Referencia para bloquear el Scroll Spy durante el desplazamiento manual
   const isManualScrolling = useRef(false);
 
@@ -41,7 +42,7 @@ const Menu = () => {
         const hasSpecial = (productsData || []).some(p => p.is_special);
         if (hasSpecial) setActiveCategory('special');
         else if (categoriesData?.length > 0) setActiveCategory(categoriesData[0].id);
-        
+
       } catch (error) {
         console.error('Error cargando datos:', error);
       } finally {
@@ -58,7 +59,7 @@ const Menu = () => {
 
     const element = document.getElementById(`section-${id}`);
     if (element) {
-      const headerOffset = 160; 
+      const headerOffset = 160;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -80,13 +81,13 @@ const Menu = () => {
 
       const scrollPosition = window.scrollY + 220;
       const specialSection = document.getElementById('section-special');
-      
+
       if (specialSection) {
         const top = specialSection.offsetTop;
         const height = specialSection.offsetHeight;
         if (scrollPosition >= top && scrollPosition < top + height) {
           setActiveCategory('special');
-          return; 
+          return;
         }
       }
 
@@ -124,7 +125,7 @@ const Menu = () => {
           <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0 }}>
             <ChevronLeft size={28} />
           </button>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <img src={logo} alt="Oishi Logo" style={{ height: '38px', width: 'auto', borderRadius: '6px' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1 }}>
@@ -136,21 +137,21 @@ const Menu = () => {
           <div style={{ width: 24, height: 24 }}></div>
         </div>
 
-        <Navbar 
+        <Navbar
           categories={[
-            ...(specialProducts.length > 0 ? [{ 
-              id: 'special', 
+            ...(specialProducts.length > 0 ? [{
+              id: 'special',
               name: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <img src={FIRE_ICON} style={{ width: '14px', height: '14px' }} alt="🔥" />
                   Solo por hoy
                 </div>
-              ) 
+              )
             }] : []),
             ...categories
-          ]} 
-          activeCategory={activeCategory} 
-          onCategoryClick={scrollToCategory} 
+          ]}
+          activeCategory={activeCategory}
+          onCategoryClick={scrollToCategory}
         />
       </header>
 

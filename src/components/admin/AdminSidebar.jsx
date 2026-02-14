@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChefHat, ShoppingBag, BarChart3, Users, List, Settings, LogOut } from 'lucide-react';
 import logo from '../../assets/logo.png';
+import '../../styles/AdminSidebar.css';
 
 const AdminSidebar = ({ activeTab, setActiveTab, isMobile, kanbanColumns, onLogout }) => {
     const pendingCount = kanbanColumns?.pending?.length || 0;
@@ -8,7 +9,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, isMobile, kanbanColumns, onLogo
     return (
         <aside className="admin-sidebar glass">
             <div className="sidebar-top">
-                <div className="logo-circle"><img src={logo} alt="Logo" /></div>
+                {!isMobile && <div className="logo-circle"><img src={logo} alt="Logo" /></div>}
                 {!isMobile && <h3 className="brand-title">Oishi Admin</h3>}
             </div>
             <nav className="sidebar-menu">

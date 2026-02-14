@@ -1,5 +1,6 @@
 import React from 'react';
 import OrderCard from './OrderCard';
+import '../../styles/AdminKanban.css';
 
 const AdminKanban = ({ columns, isMobile, mobileTab, setMobileTab, moveOrder, setReceiptModalOrder }) => {
     return (

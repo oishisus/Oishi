@@ -1,0 +1,452 @@
+/* =========================================
+   ESTILOS DE TABLAS DE ADMINISTRACIÓN
+   ========================================= */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    padding: 24px;
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.data-table td {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    vertical-align: middle;
+}
+
+/* --- CLIENTS VIEW SPECIFIC --- */
+
+.clients-view {
+    /* Utility class used in Administrative views */
+    min-height: 200px;
+}
+
+.clients-toolbar-fix {
+    padding: 0 !important;
+    border: none !important;
+    margin-bottom: 20px !important;
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.clickable-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.client-total-amount {
+    color: #25d366;
+    font-weight: 800;
+}
+
+/* Reusing some global-ish admin classes if needed */
+.glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.animate-fade {
+    animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-slide-in {
+    animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* --- FORM ELEMENTS NORMALIZATION (ADMIN) --- */
+select,
+select option,
+select optgroup {
+    background: #1e293b !important;
+    color: #fff !important;
+}
+
+select:focus {
+    outline: 2px solid var(--accent-primary);
+}
+
+/* --- ADMIN SIDE PANEL (CRM / DETAILS) --- */
+.admin-side-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    max-width: 500px;
+    background: #111;
+    border-left: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 3000;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7);
+}
+
+.admin-side-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 15, 15, 0.9);
+}
+
+.admin-side-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.admin-side-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.admin-side-footer {
+    padding: 20px;
+    border-top: 1px solid var(--card-border);
+    background: rgba(15, 15, 15, 0.9);
+}
+
+.btn-close-sidepanel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-close-sidepanel:hover {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+    border-color: #ff4444;
+}
+
+/* History Card inside Panel */
+.history-card {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    margin-bottom: 12px;
+}
+
+.history-card-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.history-items-text {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.history-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+/* --- UTILITIES & REFINEMENTS --- */
+.panel-kpi {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.side-kpi {
+    padding: 16px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.kpi-label {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.receipt-link-sm {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #3b82f6;
+    font-size: 0.75rem;
+    text-decoration: underline;
+}
+
+.btn-text-sm {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.btn-upload-sm {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-upload-sm:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.section-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+/* Base Helpers */
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+.p-20 {
+    padding: 20px;
+}
+
+.gap-8 {
+    gap: 8px;
+}
+
+.text-sm {
+    font-size: 0.8rem;
+}
+
+.text-muted {
+    color: #94a3b8;
+}
+
+.text-accent-success {
+    color: #25d366;
+}
+
+.text-accent-secondary {
+    color: var(--accent-secondary);
+}
+
+.fw-700 {
+    font-weight: 700;
+}
+
+.opacity-60 {
+    opacity: 0.6;
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS (CARD VIEW)
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* Reset Parent Container (remove glass/border) */
+    .clients-view {
+        background: transparent !important;
+        border: none !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        padding: 0;
+    }
+
+    .data-table thead {
+        display: none;
+    }
+
+    /* GLOBAL RESET for Mobile Table */
+    .data-table * {
+        box-sizing: border-box;
+    }
+
+    .data-table,
+    .data-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    /* Card Container */
+    .data-table tr {
+        display: block;
+        width: 100% !important;
+        /* Force full width within padding */
+        max-width: 100% !important;
+        /* Never exceed parent */
+        box-sizing: border-box !important;
+        /* Include padding/border */
+        margin: 0 0 16px 0 !important;
+        /* Only bottom margin */
+        padding: 0;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Client Name as Card Header */
+    .data-table td:first-child {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        margin: 0;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--card-border);
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        /* Left align title */
+    }
+
+    .data-table td:first-child::before {
+        display: none;
+    }
+
+    .data-table td:first-child b {
+        font-size: 1.1rem;
+        color: white;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    /* Regular Data Rows using Grid for better alignment */
+    .data-table td {
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr);
+        /* minmax(0, 1fr) prevents overflow */
+        align-items: start;
+        /* Align to top for multi-line text */
+        text-align: left;
+        padding: 12px 16px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+        /* Fainter divider */
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        width: 100%;
+        gap: 12px;
+    }
+
+    /* Content styling (the text inside td excluding the ::before label) */
+    .data-table td {
+        /* This text-align left ensures value sits next to label */
+        text-align: left;
+        overflow-wrap: break-word;
+        /* Wrap long words */
+        word-break: break-word;
+    }
+
+    .data-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 16px;
+        margin-top: 0;
+    }
+
+    /* Disable hover effects on mobile rows */
+    .clickable-row:hover {
+        background: var(--card-bg) !important;
+        /* Reset to default */
+        transform: none !important;
+    }
+
+    /* Labels */
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        margin-right: 15px;
+        text-align: left;
+        flex-shrink: 0;
+        /* Prevent label from shrinking */
+    }
+
+    /* Total Highlight */
+    .data-table td[data-label="Total"] {
+        background: rgba(37, 211, 102, 0.05);
+        margin: 0;
+        padding: 16px 20px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .client-total-amount {
+        font-size: 1.1rem;
+        color: #25d366 !important;
+        /* Force green */
+    }
+}
