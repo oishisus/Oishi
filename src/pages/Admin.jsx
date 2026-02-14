@@ -233,7 +233,12 @@ const Admin = () => {
         finalImageUrl = await uploadImage(localFile, 'menu');
       }
 
-      const payload = { ...formData, image_url: finalImageUrl, price: parseInt(formData.price) };
+      const payload = { 
+        ...formData, 
+        image_url: finalImageUrl, 
+        price: parseInt(formData.price),
+        discount_price: formData.discount_price ? parseInt(formData.discount_price) : null
+      };
 
       if (editingProduct) {
         await supabase.from('products').update(payload).eq('id', editingProduct.id);

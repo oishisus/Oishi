@@ -16,6 +16,8 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
     description: '',
     category_id: '',
     is_special: false,
+    has_discount: false,
+    discount_price: '',
     image_url: ''
   });
   const [localFile, setLocalFile] = useState(null);
@@ -31,6 +33,8 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
           description: product.description || '',
           category_id: product.category_id || categories[0]?.id || '',
           is_special: product.is_special || false,
+          has_discount: product.has_discount || false,
+          discount_price: product.discount_price || '',
           image_url: product.image_url || ''
         });
         setPreviewUrl(product.image_url || '');
@@ -41,6 +45,8 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
           description: '',
           category_id: categories[0]?.id || '',
           is_special: false,
+          has_discount: false,
+          discount_price: '',
           image_url: ''
         });
         setPreviewUrl('');
@@ -246,8 +252,8 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
               ></textarea>
             </div>
 
-            {/* Switch especial */}
-            <div className="special-switch-container">
+            {/* Switch especial y Descuento */}
+            <div className="special-switches-grid">
               <label className="special-switch" htmlFor="is_special_switch">
                 <input
                   id="is_special_switch"
@@ -259,11 +265,39 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
                   style={{ display: 'none' }}
                 />
                 <div className="switch-toggle"></div>
-                <span className="switch-label">
-                  Destacar como Especial
-                </span>
+                <span className="switch-label">Destacar Especial</span>
+              </label>
+
+              <label className="special-switch" htmlFor="has_discount_switch">
+                <input
+                  id="has_discount_switch"
+                  type="checkbox"
+                  name="has_discount"
+                  checked={formData.has_discount}
+                  onChange={handleChange}
+                  className="hidden"
+                  style={{ display: 'none' }}
+                />
+                <div className="switch-toggle toggle-discount"></div>
+                <span className="switch-label">Activar Descuento</span>
               </label>
             </div>
+
+            {formData.has_discount && (
+              <div className="form-group animate-fade-in" style={{ marginTop: '10px' }}>
+                <label>Precio con Descuento ($)</label>
+                <input
+                  className={`form-input ${errors.discount_price ? 'error' : ''}`}
+                  type="number"
+                  name="discount_price"
+                  value={formData.discount_price}
+                  onChange={handleChange}
+                  placeholder="Ej: 5000"
+                  required
+                />
+                {errors.discount_price && <span className="error-text">{errors.discount_price}</span>}
+              </div>
+            )}
           </div>
 
           <footer className="modal-footer">
