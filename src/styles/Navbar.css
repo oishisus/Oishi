@@ -10,16 +10,18 @@
     top: 0;
     z-index: 100;
     width: 100%;
-    
-    /* Estilo visual (Fondo y Blur) */
-    background: rgba(10, 10, 10, 0.85); /* Un poco más opaco para mejor lectura */
+
+    /* Estilo visual (Solo Blur, muy transparente) */
+    background: transparent;
+    /* Completamente transparente */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-    
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+
     /* Para posicionar las máscaras (fades) */
-    position: -webkit-sticky; /* Safari support */
+    position: -webkit-sticky;
+    /* Safari support */
     position: sticky;
 }
 
@@ -28,18 +30,23 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 15px 20px; /* Padding vertical y horizontal */
-    
+    padding: 12px 20px;
+
+    /* CRUCIAL: Fondo completamente transparente */
+    background: transparent !important;
+
     /* Habilitar scroll horizontal */
     overflow-x: auto;
     scroll-behavior: smooth;
-    
+
     /* Evitar saltos de línea */
     white-space: nowrap;
-    
+
     /* Ocultar barra de scroll (Estética) */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
 }
 
 /* Ocultar barra en Chrome/Safari */
@@ -50,26 +57,30 @@
 /* 3. LOS BOTONES (TAB ITEMS) */
 .tab-item {
     /* --- CRUCIAL PARA RESPONSIVIDAD --- */
-    flex-shrink: 0; /* Evita que los botones se aplasten en móviles */
+    flex-shrink: 0;
+    /* Evita que los botones se aplasten en móviles */
     /* ---------------------------------- */
-    
+
     display: flex;
     align-items: center;
     gap: 8px;
-    
+
     padding: 10px 20px;
     border-radius: 50px;
-    
+
     /* Estilos base */
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.03);
-    color: var(--text-secondary, #aaa); /* Fallback a gris si no hay variable */
-    
+    color: var(--text-secondary, #aaa);
+    /* Fallback a gris si no hay variable */
+
     font-weight: 600;
-    font-size: 0.9rem; /* Un poco más grande para facilitar el toque (touch target) */
+    font-size: 0.9rem;
+    /* Un poco más grande para facilitar el toque (touch target) */
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    user-select: none; /* Evita que se seleccione el texto al arrastrar */
+    user-select: none;
+    /* Evita que se seleccione el texto al arrastrar */
 }
 
 /* Hover */
@@ -81,7 +92,8 @@
 
 /* Estado Activo */
 .tab-item.active {
-    background: var(--accent-primary, #ff4e50); /* Fallback a rojo si no hay variable */
+    background: var(--accent-primary, #ff4e50);
+    /* Fallback a rojo si no hay variable */
     color: white;
     border-color: var(--accent-primary, #ff4e50);
     transform: scale(1.05);
@@ -104,18 +116,21 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 40px; /* Un poco más ancho para suavizar */
-    z-index: 101; /* Por encima de los botones */
-    pointer-events: none; /* Permite clicks a través de la sombra */
+    width: 40px;
+    /* Un poco más ancho para suavizar */
+    z-index: 101;
+    /* Por encima de los botones */
+    pointer-events: none;
+    /* Permite clicks a través de la sombra */
 }
 
 .nav-fade-left {
     left: 0;
-    /* El degradado debe coincidir con el fondo del navbar-wrapper (rgb 10,10,10) */
-    background: linear-gradient(to right, rgba(10, 10, 10, 1) 10%, transparent);
+    /* Completamente transparente para que se vea el blur */
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.3) 0%, transparent);
 }
 
 .nav-fade-right {
     right: 0;
-    background: linear-gradient(to left, rgba(10, 10, 10, 1) 10%, transparent);
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.3) 0%, transparent);
 }
