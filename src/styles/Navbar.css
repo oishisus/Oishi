@@ -1,132 +1,121 @@
 /* =========================================
-   5. NAVBAR STICKY (EXTRACTED)
+   NAVBAR STYLES (CORREGIDO)
    ========================================= */
-.navbar-sticky {
+
+/* 1. EL CONTENEDOR PRINCIPAL (WRAPPER)
+   Este es el que debe ser "sticky" y tener el fondo/blur.
+   En tu React se llama 'navbar-wrapper'. */
+.navbar-wrapper {
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 12px 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(10, 10, 10, 0.8);
+    width: 100%;
+    
+    /* Estilo visual (Fondo y Blur) */
+    background: rgba(10, 10, 10, 0.85); /* Un poco más opaco para mejor lectura */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    
+    /* Para posicionar las máscaras (fades) */
+    position: -webkit-sticky; /* Safari support */
+    position: sticky;
 }
 
+/* 2. EL CONTENEDOR DE SCROLL (CONTAINER) */
 .navbar-container {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 0 15px;
-    gap: 10px;
-    scrollbar-width: none;
-}
-
-.navbar-container::-webkit-scrollbar {
-    display: none;
-}
-
-.tab-item {
-    padding: 10px 20px;
-    border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.4s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
-}
-
-.tab-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-}
-
-.tab-item.active {
-    background: var(--accent-primary);
-    color: white;
-    border-color: var(--accent-primary);
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4);
-}
-
-.tab-item img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-}
-
-/* =========================================
-   18. MEJORAS NAVBAR (EXTRACTED)
-   ========================================= */
-
-/* Contenedor relativo para posicionar las máscaras */
-.navbar-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 100vw;
-    background: transparent;
-}
-
-/* El contenedor original (Navbar Container) */
-.navbar-container {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 0 20px;
-    /* Un poco de padding extra para los fades */
     gap: 12px;
-    scrollbar-width: none;
-    /* Firefox */
+    padding: 15px 20px; /* Padding vertical y horizontal */
+    
+    /* Habilitar scroll horizontal */
+    overflow-x: auto;
     scroll-behavior: smooth;
-    position: relative;
-    z-index: 10;
+    
+    /* Evitar saltos de línea */
+    white-space: nowrap;
+    
+    /* Ocultar barra de scroll (Estética) */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
 }
 
+/* Ocultar barra en Chrome/Safari */
 .navbar-container::-webkit-scrollbar {
     display: none;
 }
 
-/* Chrome/Safari */
-
-/* Máscara Izquierda */
-.nav-fade-left {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 30px;
-    background: linear-gradient(to right, var(--bg-primary) 20%, transparent);
-    z-index: 20;
-    pointer-events: none;
-    /* Permite hacer clic a través de ella */
+/* 3. LOS BOTONES (TAB ITEMS) */
+.tab-item {
+    /* --- CRUCIAL PARA RESPONSIVIDAD --- */
+    flex-shrink: 0; /* Evita que los botones se aplasten en móviles */
+    /* ---------------------------------- */
+    
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    padding: 10px 20px;
+    border-radius: 50px;
+    
+    /* Estilos base */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary, #aaa); /* Fallback a gris si no hay variable */
+    
+    font-weight: 600;
+    font-size: 0.9rem; /* Un poco más grande para facilitar el toque (touch target) */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    user-select: none; /* Evita que se seleccione el texto al arrastrar */
 }
 
-/* Máscara Derecha */
+/* Hover */
+.tab-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Estado Activo */
+.tab-item.active {
+    background: var(--accent-primary, #ff4e50); /* Fallback a rojo si no hay variable */
+    color: white;
+    border-color: var(--accent-primary, #ff4e50);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 78, 80, 0.3);
+}
+
+/* Iconos dentro de los tabs */
+.tab-item img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* 4. MÁSCARAS DE DESVANECIMIENTO (FADES) 
+   Dan el efecto visual de que el contenido continúa */
+
+.nav-fade-left,
 .nav-fade-right {
     position: absolute;
-    right: 0;
     top: 0;
     bottom: 0;
-    width: 30px;
-    background: linear-gradient(to left, var(--bg-primary) 20%, transparent);
-    z-index: 20;
-    pointer-events: none;
+    width: 40px; /* Un poco más ancho para suavizar */
+    z-index: 101; /* Por encima de los botones */
+    pointer-events: none; /* Permite clicks a través de la sombra */
 }
 
-/* Ajuste: Si el navbar es sticky, asegúrate que el fondo coincida */
-.navbar-sticky .nav-fade-left,
-.navbar-sticky .nav-fade-right {
-    /* Usamos el mismo color del fondo sticky (rgba oscura) */
-    --fade-color: #0a0a0a;
-    background: linear-gradient(to right, var(--fade-color) 10%, transparent);
+.nav-fade-left {
+    left: 0;
+    /* El degradado debe coincidir con el fondo del navbar-wrapper (rgb 10,10,10) */
+    background: linear-gradient(to right, rgba(10, 10, 10, 1) 10%, transparent);
 }
 
-.navbar-sticky .nav-fade-right {
-    background: linear-gradient(to left, var(--fade-color) 10%, transparent);
+.nav-fade-right {
+    right: 0;
+    background: linear-gradient(to left, rgba(10, 10, 10, 1) 10%, transparent);
 }
