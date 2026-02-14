@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
+import { uploadImage } from '../lib/cloudinary';
 
 const CartModal = React.memo(() => {
   const {
@@ -113,15 +114,7 @@ const CartModal = React.memo(() => {
 
   // --- SUBIDA A SUPABASE ---
   const uploadReceipt = async (file) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
-    const filePath = `receipts/${fileName}`;
-
-    const { error } = await supabase.storage.from('images').upload(filePath, file);
-    if (error) throw error;
-
-    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
-    return data.publicUrl;
+    return await uploadImage(file, 'receipts');
   };
 
   const handleSendOrder = async (e) => {

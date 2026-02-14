@@ -17,6 +17,7 @@ import AdminHistoryTable from '../components/admin/AdminHistoryTable';
 import AdminClientsTable from '../components/admin/AdminClientsTable';
 import ClientDetailsPanel from '../components/admin/ClientDetailsPanel';
 import { supabase } from '../lib/supabase';
+import { uploadImage } from '../lib/cloudinary';
 import logo from '../assets/logo.png';
 import '../styles/AdminLayout.css';
 import '../styles/AdminAnalytics.css';
@@ -196,12 +197,7 @@ const Admin = () => {
     if (!file) return;
     setUploadingReceipt(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `receipts/${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
-      const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
-      if (upErr) throw upErr;
-      const { data } = supabase.storage.from('images').getPublicUrl(fileName);
-      const receiptUrl = data.publicUrl;
+      const receiptUrl = await uploadImage(file, 'receipts');
 
       const { error } = await supabase.from('orders').update({ payment_ref: receiptUrl }).eq('id', orderId);
       if (error) throw error;
@@ -234,12 +230,7 @@ const Admin = () => {
     try {
       let finalImageUrl = formData.image_url;
       if (localFile) {
-        const fileExt = localFile.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const { error: upErr } = await supabase.storage.from('images').upload(`menu/${fileName}`, localFile);
-        if (upErr) throw upErr;
-        const { data } = supabase.storage.from('images').getPublicUrl(`menu/${fileName}`);
-        finalImageUrl = data.publicUrl;
+        finalImageUrl = await uploadImage(localFile, 'menu');
       }
 
       const payload = { ...formData, image_url: finalImageUrl, price: parseInt(formData.price) };
