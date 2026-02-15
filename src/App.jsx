@@ -31,7 +31,7 @@ function InnerApp() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Efecto "Anti-Zoom" Robusto (RESTAURADO)
+  // Efecto "Anti-Zoom" Robusto (RESTAURADO A ESTADO ESTABLE)
   useEffect(() => {
     const handleVisualLock = () => {
       const contentLayer = document.getElementById('app-content-layer');
@@ -42,7 +42,9 @@ function InnerApp() {
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       const isIPad = /iPad|Macintosh/.test(navigator.userAgent) && isTouchDevice;
 
-      if (window.screen.width >= 100 && !isIPad && !isTouchDevice) {
+      // RESTAURAMOS LA GUARDIA: No aplicar zoom forzado en Móviles ni iPads
+      // Estos dispositivos ya manejan su propio escalado de forma óptima
+      if (window.screen.width >= 100 && !isIPad && !isTouchDevice) { 
         const dpr = window.devicePixelRatio || 1;
         const inverseScale = 1 / dpr;
 
@@ -82,6 +84,7 @@ function InnerApp() {
 
         document.body.style.overflowX = 'hidden';
       } else {
+        // RESET TOTAL PARA MÓVILES (IPHONE/ANDROID)
         document.body.style.zoom = '';
         document.body.style.overflowX = '';
 
@@ -91,15 +94,12 @@ function InnerApp() {
           contentLayer.style.width = '';
           contentLayer.style.height = '';
           contentLayer.style.minHeight = '';
-          contentLayer.style.overflowY = '';
         }
 
         if (uiLayer) {
           uiLayer.style.transform = '';
           uiLayer.style.transformOrigin = '';
           uiLayer.style.position = 'fixed';
-          uiLayer.style.top = '0';
-          uiLayer.style.left = '0';
           uiLayer.style.width = '100%';
           uiLayer.style.height = '100%';
           uiLayer.style.pointerEvents = 'none';
@@ -117,32 +117,32 @@ function InnerApp() {
   return (
     <div style={{ position: 'relative', width: '100%', minHeight: '100vh', background: '#0a0a0a' }}>
       {/* CAPA DE FONDO MAESTRA CON PARALLAX */}
-      <div
-        className="app-bg-layer"
-        style={{
+      <div 
+        className="app-bg-layer" 
+        style={{ 
           position: 'fixed',
-          inset: '-50% -20%', // Margen de seguridad gigante para evitar cualquier corte
+          inset: '-50% -20%', 
           zIndex: 0,
           backgroundImage: `url(${menuPattern})`,
           backgroundRepeat: 'repeat',
-          backgroundSize: '1200px', // Imagen ligeramente más grande
+          backgroundSize: '1200px', 
           opacity: 0.5,
           filter: 'brightness(0.18) blur(3px)',
-          transform: `translateY(${-scrollY * 0.1}px)`, // Dirección original: el fondo sube al bajar scroll
+          transform: `translateY(${-scrollY * 0.1}px)`,
           transition: 'transform 0.1s ease-out',
           pointerEvents: 'none',
-          willChange: 'transform' // Optimización de performance
+          willChange: 'transform'
         }}
       ></div>
 
       {/* Capa de Contenido Principal (Scrollable) */}
-      <div
-        id="app-content-layer"
-        className="app-wrapper"
-        style={{
+      <div 
+        id="app-content-layer" 
+        className="app-wrapper" 
+        style={{ 
           position: 'relative',
           zIndex: 1,
-          background: 'transparent'
+          background: 'transparent' 
         }}
       >
         <Routes>

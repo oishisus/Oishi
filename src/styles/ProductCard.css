@@ -1,39 +1,38 @@
 /* =========================================
-   6. PRODUCTOS (LOGICA HÍBRIDA PC/MÓVIL)
+   6. PRODUCTOS (DISEÑO MEJORADO & LIMPIO)
    ========================================= */
 
 /* --- GRID PRINCIPAL (VERSIÓN PC) --- */
 .product-grid {
   display: grid;
-  /* Grid amplio: Mínimo 240px */
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 24px;
   margin-top: 20px;
-  /* align-items: start; <-- REMOVED to allow stretch (equal height) */
 }
 
-/* --- TARJETA BASE (VERSIÓN PC - ALTA) --- */
+/* --- TARJETA BASE (VERSIÓN PC - MEJORADA) --- */
 .product-card {
   min-height: 460px;
-  /* Cambio de height fijo a min-height para evitar cortes */
   height: auto;
   display: flex;
   flex-direction: column;
-  /* Fondo Glass oscuro */
-  background: linear-gradient(145deg, rgba(35, 35, 35, 0.7) 0%, rgba(20, 20, 20, 0.4) 100%);
-  backdrop-filter: blur(10px);
+  /* Fondo más oscuro y elegante para contraste */
+  background: linear-gradient(145deg, rgba(30, 30, 30, 0.95) 0%, rgba(15, 15, 15, 0.9) 100%);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
   overflow: hidden;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Transición suave para todos los estados */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  /* Borde sutil con color de marca al hover */
+  border-color: rgba(255, 71, 87, 0.3);
 }
 
 /* --- IMAGEN --- */
@@ -53,7 +52,7 @@
 }
 
 .product-card:hover .product-image img {
-  transform: scale(1.1);
+  transform: scale(1.08); /* Zoom un poco más sutil y elegante */
 }
 
 /* --- BADGES --- */
@@ -84,15 +83,12 @@
   padding: 6px 12px;
   border-radius: 50px;
   font-size: 0.75rem;
-  /* Igualar al special */
   font-weight: 800;
   z-index: 11;
-  /* Un nivel más arriba que special por si coinciden */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Si ambos están presentes, movemos el de descuento */
-.badge-special+.badge-discount {
+.badge-special + .badge-discount {
   top: 45px;
 }
 
@@ -115,16 +111,14 @@
   border: 2px solid white;
 }
 
-/* --- INFO PRODUCTO --- */
+/* --- INFO PRODUCTO (MEJORADA) --- */
 .product-info {
-  padding: 18px;
+  padding: 20px 22px; /* Espacio restaurado en PC para mayor elegancia */
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
   position: relative;
-  /* Para posicionar el boton de ver detalles absolute */
-  /* PC */
 }
 
 .info-content-wrapper {
@@ -133,23 +127,23 @@
   display: flex;
   flex-direction: column;
   min-height: 100px;
-  /* Reducido para mayor flexibilidad */
   overflow: hidden;
   margin-bottom: 8px;
 }
 
 .product-name {
-  font-size: 1.15rem;
+  font-size: 1.2rem; /* Título más grande */
   font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--text-primary, #fff);
-  line-height: 1.25;
+  margin-bottom: 8px;
+  color: #fff;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
 }
 
 .product-desc-clamped {
-  font-size: 0.85rem;
-  color: var(--text-secondary, #ccc);
-  line-height: 1.4;
+  font-size: 0.9rem;
+  color: #b0b0b0; /* Gris más claro para mejor lectura */
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
@@ -166,15 +160,11 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: rgba(20, 20, 20, 0.95);
-  /* Fondo oscuro solido para tapar el texto de abajo */
+  background: rgba(20, 20, 20, 0.98); /* Casi sólido */
   backdrop-filter: blur(4px);
   z-index: 20;
-  /* Asegurar que este encima */
   border-radius: 8px;
-  /* Opcional: para que se vea mas bonito dentro del contenedor */
   padding: 4px;
-  /* Un poco de padding interno */
   animation: fadeInText 0.3s ease-out forwards;
 }
 
@@ -182,7 +172,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Alineación vertical perfecta */
   padding-bottom: 8px;
   font-weight: 800;
   color: var(--accent-secondary, #f4a261);
@@ -195,11 +184,8 @@
   overflow-y: auto;
   padding-right: 8px;
   font-size: 0.9rem;
-  /* Un poco mas grande */
   color: #fff;
-  /* Blanco puro para asegurar contraste */
   font-style: normal;
-  /* Quitar italica por si acaso */
 }
 
 .scroll-area p {
@@ -220,17 +206,8 @@
 .info-hint {
   font-size: 0.65rem;
   color: var(--accent-secondary, #f4a261);
-  font-size: 0.65rem;
-  color: var(--accent-secondary, #f4a261);
-  /* margin-bottom: 8px; <-- Quitamos margin */
-  /* position: absolute; <-- Eliminamos absolute para evitar problemas con zoom */
-  /* bottom: 70px; */
-  /* left: 18px; */
-  /* z-index: 5; */
   margin-top: auto;
-  /* Empujado hacia abajo por el wrapper */
   margin-bottom: 4px;
-  /* Espacio con el footer */
   font-weight: 700;
   text-transform: uppercase;
   display: flex;
@@ -238,19 +215,18 @@
   gap: 4px;
 }
 
-/* --- FOOTER (PC) --- */
+/* --- FOOTER (PC - MEJORADO) --- */
 .product-footer {
   margin-top: auto;
   display: flex;
-  align-items: center;
-  /* Alineacion central otra vez */
+  /* Alineamos los contenedores por su parte superior */
+  align-items: flex-start; 
   justify-content: space-between;
-  padding-top: 12px;
-  padding-bottom: 4px;
-  /* Un poco de aire abajo para que los precios no se vean pegados */
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  height: 62px;
-  /* Altura fija para alinear el borde en todas las cards */
+  padding-top: 22px; 
+  padding-bottom: 12px; /* Espacio restaurado en PC */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  height: auto;
+  min-height: 70px;
   box-sizing: border-box;
 }
 
@@ -258,139 +234,109 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  /* Para el absolute del precio tachado */
 }
 
+/* Solo cuando hay descuento, hacemos espacio arriba para el precio viejo */
 .price-container.has-discount {
-  margin-top: -8px;
-  /* Subimos más (-4 -> -8) */
+  padding-top: 1.1rem; 
+}
+
+/* Alineamos el precio para que su centro coincida con el ícono '+' del botón */
+.price-container:not(.has-discount) .product-price {
+  margin-top: 8px; /* Bajado 4 niveles (8px) */
 }
 
 .product-price {
   font-weight: 800;
-  font-size: 1.25rem;
-  color: white;
-  text-shadow: 0 0 20px rgba(244, 162, 97, 0.2);
-  /* margin-top: -4px; <-- Quitamos para que se centre natural con flex */
+  font-size: 1.4rem;
+  color: var(--accent-primary, #ff4757);
+  letter-spacing: -0.03em;
+  line-height: 1; 
 }
 
 .product-price.original {
-  font-size: 0.85rem;
-  color: #94a3b8;
+  font-size: 0.9rem;
+  color: #64748b;
   text-decoration: line-through;
-  text-shadow: none;
   font-weight: 500;
   position: absolute;
-  top: 24px;
-  /* Pegadito debajo del precio principal */
+  top: 0; /* A LA PAR DEL INICIO DEL BOTÓN */
   left: 0;
-  /* margin-top: -2px; <-- Quitamos */
-  /* Pequeño ajuste visual */
+  line-height: 1;
 }
 
 .product-price.discounted {
-  color: #25d366;
-  text-shadow: 0 0 15px rgba(37, 211, 102, 0.3);
+  color: #25d366; /* Verde si tiene descuento específico */
 }
 
-/* Botón Agregar PC (Píldora) */
+/* Botón Agregar PC (MEJORADO - STYLE "PILL") */
 .btn-add {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: white;
-  color: black;
+  background: var(--accent-primary, #ff4757); /* Color Marca Sólido */
+  color: white;
   border: none;
-  padding: 10px 16px;
+  padding: 10px 20px;
   border-radius: 50px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
   white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); /* Glow suave */
+}
+
+.btn-add:hover {
+  background: #ff2e40;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5);
 }
 
 .btn-add.added {
   background: #25d366;
   color: white;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
 }
 
 .btn-icon-sm {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #ccc);
   cursor: pointer;
 }
 
 /* Animaciones */
 @keyframes fadeInText {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.bump-active {
-  animation: bump 0.2s ease-out;
-}
-
+.bump-active { animation: bump 0.2s ease-out; }
 @keyframes bump {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(0.95);
-  }
-
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
 }
 
 .skeleton-loader {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(90deg, #2a2a2a 25%, #333 50%, #2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   z-index: 1;
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
-.opacity-0 {
-  opacity: 0;
-}
-
-.opacity-100 {
-  opacity: 1;
-}
-
-.transition-opacity {
-  transition: opacity 0.5s ease;
-}
-
-.absolute.inset-0 {
-  position: absolute;
-  inset: 0;
-}
+.opacity-0 { opacity: 0; }
+.opacity-100 { opacity: 1; }
+.transition-opacity { transition: opacity 0.5s ease; }
+.absolute.inset-0 { position: absolute; inset: 0; }
 
 /* Stepper PC */
 .stepper-control {
@@ -399,13 +345,13 @@
   background: white;
   border-radius: 50px;
   padding: 2px;
-  height: 36px;
+  height: 40px; /* Un poco más alto */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .step-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: none;
   display: flex;
@@ -415,28 +361,16 @@
   transition: background 0.2s;
 }
 
-.step-btn.minus {
-  background: transparent;
-  color: #333;
-}
+.step-btn.minus { background: transparent; color: #333; }
+.step-btn.minus:hover { background: #f0f0f0; }
 
-.step-btn.minus:hover {
-  background: #f0f0f0;
-}
-
-.step-btn.plus {
-  background: var(--accent-primary, #ff4757);
-  color: white;
-}
-
-.step-btn.plus:hover {
-  background: #ff4d5a;
-}
+.step-btn.plus { background: var(--accent-primary, #ff4757); color: white; }
+.step-btn.plus:hover { background: #ff4d5a; }
 
 .step-count {
   font-weight: 800;
   color: #000;
-  width: 24px;
+  width: 28px;
   text-align: center;
   font-size: 1rem;
 }
@@ -446,90 +380,61 @@
    MEDIA QUERIES - ADAPTACIÓN RESPONSIVA
    ========================================= */
 
-/* 1. DISEÑO POR DEFECTO / ESCRITORIO / ZOOM
-   Usamos auto-fill para que sea estable al hacer zoom */
+/* 1. DISEÑO POR DEFECTO / ESCRITORIO */
 .product-grid {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 24px;
 }
 
-/* 2. TABLETAS (iPad Air, iPad Pro) - Solo cuando se detecta sistema TÁCTIL */
-/* Esto evita que el zoom de PC active este diseño */
+/* 2. TABLETAS (iPad Air, iPad Pro - Táctil) */
 @media (min-width: 769px) and (max-width: 1024px) and (pointer: coarse) {
   .product-grid {
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 16px;
   }
-
-  .product-card {
-    height: auto;
-    min-height: 420px;
-  }
+  .product-card { min-height: 420px; }
 }
 
-/* 3. TABLETAS PORTRAIT / IPAD MINI - Solo Táctil */
+/* 3. TABLETAS PORTRAIT / IPAD MINI */
 @media (max-width: 768px) and (pointer: coarse) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-
-  .product-card {
-    height: auto;
-    min-height: 380px;
-  }
-
-  .product-name {
-    font-size: 1rem;
-  }
+  .product-card { min-height: 380px; }
+  .product-name { font-size: 1rem; }
 }
 
-/* 3. MÓVILES - Solo Táctil */
+/* 4. MÓVILES - Optimización UX Táctil */
 @media (max-width: 500px) and (pointer: coarse) {
-
-  /* 1. Tarjeta Flexible */
+  
+  /* Tarjeta Móvil */
   .product-card {
     height: 100%;
     min-height: 280px;
     border-radius: 16px;
   }
 
-  .product-image {
-    aspect-ratio: 4/3;
-    flex-shrink: 0;
-  }
+  .product-image { aspect-ratio: 4/3; }
 
   .product-info {
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
+    padding: 12px 8px 0px 8px; /* Reducción máxima lateral */
     justify-content: flex-start;
-    flex-grow: 1;
     min-height: 140px;
-    /* Aseguramos espacio base */
   }
-
-  /* Cuando estamos viendo info, subimos todo para ganar espacio */
+  
   .is-viewing-info .product-info {
     min-height: 160px;
     padding-top: 4px;
   }
 
-  .info-content-wrapper {
-    margin-bottom: 0px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  /* Solo cuando se expande el detalle, dejamos que crezca para llenar el espacio */
-  .is-viewing-info .info-content-wrapper {
-    height: 100%;
-    flex-grow: 1;
-  }
+  .info-content-wrapper { margin-bottom: 0px; }
+  
+  .is-viewing-info .info-content-wrapper { height: 100%; }
 
   .product-name {
-    font-size: 0.9rem;
-    line-height: 1.2;
+    font-size: 0.9rem; /* Un poco más compacto */
+    line-height: 1.25;
     margin-bottom: 4px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -539,223 +444,140 @@
   }
 
   .info-hint {
-    margin-top: -6px;
-    /* SUBE EL BOTÓN PARA PEGARLO AL TEXTO */
-    margin-bottom: 10px;
+    margin-top: 4px; /* Bajado para mayor separación */
+    margin-bottom: 12px;
     font-size: 0.65rem;
   }
 
   .product-desc-clamped {
-    display: -webkit-box;
     -webkit-line-clamp: 4;
     line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-size: 0.75rem;
-    color: #ccc;
-    line-height: 1.3;
+    font-size: 0.8rem;
+    color: #b0b0b0;
   }
 
   .product-footer {
     padding-top: 10px;
     margin-top: auto;
     height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 5px;
+    gap: 0px; /* Eliminado gap para máximo aprovechamiento */
   }
 
   .product-price {
-    font-size: 1rem;
-    font-weight: 800;
+    font-size: 1.05rem; /* Ajuste fino de tipografía */
   }
 
-  .price-container.has-discount {
-    margin-top: -17px;
-  }
-
-  /* 2. Botón "Agregar" Base Móvil (38px) */
+  .price-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-width: 50%; /* Aseguramos que no empuje al botón */
+}
+  /* Botón Agregar Móvil (ULTRA COMPACTO) */
   .btn-add {
-    width: 38px !important;
+    width: 38px !important; 
     height: 38px !important;
     min-width: 38px !important;
-    flex-shrink: 0;
     padding: 0;
     border-radius: 50%;
-    background: white;
-    color: black;
-    border: none;
-    display: flex;
-    align-items: center;
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 
-  /* Ajustes para ver mas texto en detalles (Mobile) */
-  .product-desc-scrollable {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  .desc-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    /* Crucial para la misma altura */
-    padding-bottom: 2px;
-    /* Reducimos el espacio con el texto de abajo */
-    font-size: 0.7rem;
-  }
-
-  .btn-icon-sm {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin-right: -4px;
-    /* Ajuste fino para pegar al borde */
-  }
-
-  .scroll-area {
-    font-size: 0.8rem;
-    /* Un pelín más grande para legibilidad */
-    line-height: 1.4;
-    max-height: 120px;
-    /* Limitamos para que no rompa la card pero sea generoso */
-  }
-
-  .scroll-area p {
-    padding-bottom: 4px;
-  }
-
-  .btn-add span {
-    display: none;
-  }
-
+  .btn-add span { display: none; } /* Ocultar texto "Agregar" */
+  
   .btn-add svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     margin: 0;
+    fill: white;
   }
 
-  /* 3. Stepper Base Móvil */
+  /* Ajustes descripción overlay */
+  .product-desc-scrollable { padding: 0; }
+  .desc-header { padding-bottom: 2px; font-size: 0.7rem; }
+  .scroll-area { font-size: 0.85rem; max-height: 120px; }
+
+  /* Stepper Móvil (AJUSTADO PARA PRO MAX) */
   .stepper-control {
     height: 38px;
-    background: white;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
+    width: auto;
     padding: 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    width: auto;
-  }
-
-  .step-btn.minus {
-    width: 30px;
-    height: 100%;
-    color: #333;
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding-left: 4px;
   }
-
-  .step-btn.minus svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .step-count {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: black;
-    width: auto;
-    min-width: 18px;
-    text-align: center;
-    margin-right: 4px;
-  }
-
+  
+  .step-btn.minus { width: 28px; }
   .step-btn.plus {
     width: 38px;
     height: 38px;
-    border-radius: 50%;
-    background: var(--accent-primary, #ff4757);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid white;
     margin: -1px;
+    border: 2px solid white;
   }
+  
+  .step-count { font-size: 0.9rem; min-width: 16px; }
 
-  .step-btn.plus svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .badge-special {
-    top: 8px;
-    left: 8px;
+  /* Ajuste badges móvil */
+  .badge-special, .badge-discount {
+    top: 8px; left: 8px;
     padding: 3px 8px;
-    font-size: 0.6rem;
+    font-size: 0.65rem;
   }
-
-  .badge-discount {
-    top: 8px;
-    left: 8px;
-    padding: 3px 8px;
-    font-size: 0.6rem;
-  }
-
-  .badge-special+.badge-discount {
-    top: 32px;
-  }
-
-  .qty-badge-overlay {
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    font-size: 0.75rem;
-  }
+  .badge-special + .badge-discount { top: 34px; }
+  
+  .qty-badge-overlay { top: 8px; right: 8px; width: 26px; height: 26px; }
 }
 
-/* 4. CELULARES PEQUEÑOS */
+/* 5. CELULARES PEQUEÑOS (iPhone SE, etc) */
 @media (max-width: 425px) {
   .stepper-control {
     background: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
-    width: 38px !important;
+    width: 44px !important;
     justify-content: flex-end;
   }
 
-  .step-btn.minus,
-  .step-count {
-    display: none !important;
-  }
+  .step-btn.minus, .step-count { display: none !important; }
 
   .step-btn.plus {
-    width: 38px !important;
-    height: 38px !important;
+    width: 44px !important;
+    height: 44px !important;
     margin: 0 !important;
     border: none !important;
-    box-shadow: 0 0 10px rgba(255, 71, 87, 0.6), 0 0 20px rgba(255, 71, 87, 0.3) !important;
-    animation: pulseGlow 2s infinite;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4) !important;
+    animation: none; /* Sin animaciones molestas */
   }
 }
-
-@keyframes pulseGlow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+/* =========================================
+   PARCHE PARA PANTALLAS MUY PEQUEÑAS (< 370px)
+   ========================================= */
+@media (max-width: 370px) {
+  
+  .product-footer {
+    /* [CORRECCIÓN] Forzamos alineación superior también aquí */
+    align-items: flex-start !important; 
+    padding-top: 18px !important; /* Espacio para el precio tachado */
+    height: auto !important;
   }
 
-  70% {
-    box-shadow: 0 0 10px 10px rgba(255, 71, 87, 0);
+  .product-price {
+    font-size: 1.1rem !important;
+    margin-top: 2px !important; /* Ajustado para alineación óptica con el botón circular pequeño */
+    line-height: 1 !important;
   }
 
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+  /* Ajustar botón pequeño */
+  .btn-add {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    margin-top: 0 !important;
+  }
+
+  /* Precio tachado en móvil pequeño */
+  .product-price.original {
+    font-size: 0.75rem !important;
+    top: -14px !important;
   }
 }

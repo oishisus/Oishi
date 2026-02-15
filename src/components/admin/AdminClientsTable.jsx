@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../styles/AdminClientsTable.css';
 
-const AdminClientsTable = ({ clients, searchQuery, handleSelectClient }) => {
+const AdminClientsTable = ({ clients, handleSelectClient }) => {
     return (
         <div className="clients-view glass animate-fade">
             <div className="admin-toolbar clients-toolbar-fix">
