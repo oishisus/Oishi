@@ -438,3 +438,61 @@
 .form-group {
     margin-bottom: 15px;
 }
+
+/* Fondo extra oscuro para el carrito */
+.modal-overlay.cart-overlay {
+    background: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Utilidades Senior */
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mr-5 {
+    margin-right: 5px;
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-white {
+    color: white;
+}
+
+.gap-15 {
+    gap: 15px;
+}
+
+.receipt-thumb-mini {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.file-status-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: white;
+}
+
+.file-status-sub {
+    font-size: 0.75rem;
+    color: var(--accent-secondary);
+}

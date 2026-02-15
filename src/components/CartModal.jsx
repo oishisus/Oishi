@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import '../styles/CartModal.css';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,8 +7,10 @@ import {
   AlertCircle, CheckCircle2
 } from 'lucide-react';
 import { useCart } from '../context/useCart';
-import { supabase } from '../lib/supabase';
-import { uploadImage } from '../lib/cloudinary';
+import { ordersService } from '../services/orders';
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&q=80&w=400';
+const WHATSAPP_NUMBER = "56976645547";
 
 const CartModal = React.memo(() => {
   const {
@@ -18,298 +20,167 @@ const CartModal = React.memo(() => {
   } = useCart();
 
   const navigate = useNavigate();
-  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&q=80&w=400';
 
-  // --- ESTADOS ---
-  const [showPaymentInfo, setShowPaymentInfo] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-
-  // Datos del Cliente
-  const [clientName, setClientName] = useState("");
-  const [clientPhone, setClientPhone] = useState("+56 9 ");
-  const [clientRut, setClientRut] = useState("");
-  const [receiptFile, setReceiptFile] = useState(null);
-  const [receiptPreview, setReceiptPreview] = useState(null); // Nuevo estado para la miniatura
+  // --- ESTADOS DE FLUJO ---
+  const [viewState, setViewState] = useState({
+    showPaymentInfo: false,
+    showForm: false,
+    showSuccess: false,
+    isSaving: false
+  });
 
   const [paymentType, setPaymentType] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
 
-  // Estados de Validación Visual
-  const [phoneValid, setPhoneValid] = useState(null); // null = sin validar, true = valido, false = error
-  const [rutValid, setRutValid] = useState(null);
+  // --- ESTADOS DE DATOS DEL CLIENTE ---
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "+56 9 ",
+    rut: "",
+    receiptFile: null,
+    receiptPreview: null
+  });
 
-  // --- UTILIDADES DE VALIDACIÓN ---
-
-  // 1. Formateador de RUT (Mantiene formato 12.345.678-9)
-  const formatRut = (rut) => {
-    let value = rut.replace(/[^0-9kK]/g, '');
-    if (value.length > 1) {
-      const dv = value.slice(-1);
-      const cuerpo = value.slice(0, -1);
-      let cuerpoFormateado = "";
-      for (let i = cuerpo.length - 1, j = 1; i >= 0; i--, j++) {
-        cuerpoFormateado = cuerpo.charAt(i) + cuerpoFormateado;
-        if (j % 3 === 0 && i !== 0) {
-          cuerpoFormateado = "." + cuerpoFormateado;
-        }
+  // --- LIMPIEZA DE MEMORIA (SENIOR) ---
+  useEffect(() => {
+    // Cleanup de la URL de previsualización para evitar fugas de memoria
+    return () => {
+      if (formData.receiptPreview) {
+        URL.revokeObjectURL(formData.receiptPreview);
       }
-      return `${cuerpoFormateado}-${dv}`;
-    }
-    return value;
-  };
+    };
+  }, [formData.receiptPreview]);
 
-  const handleRutChange = (e) => {
-    const formatted = formatRut(e.target.value);
-    setClientRut(formatted);
-    // Validación simple de largo (mínimo para un RUT corto: 1.111.111-1 son 11 chars)
-    setRutValid(formatted.length >= 11);
-  };
+  // --- LÓGICA DE VALIDACIÓN (MEMOIZADA) ---
+  const validation = useMemo(() => {
+    const rutClean = formData.rut.replace(/[^0-9kK]/g, '');
+    const phoneDigits = formData.phone.replace(/\D/g, '').length;
 
-  // 2. Manejador de Teléfono Inteligente (Máscara +56 9)
-  const handlePhoneChange = (e) => {
-    let input = e.target.value;
+    return {
+      rut: rutClean.length >= 8, // RUT básico válido (ej: 11111111-1)
+      phone: phoneDigits >= 11, // 569 + 8 dígitos
+      isReady: formData.name.trim().length > 2 && phoneDigits >= 11 && rutClean.length >= 8
+    };
+  }, [formData.rut, formData.phone, formData.name]);
 
-    // Si el usuario intenta borrar el prefijo, lo reseteamos
-    if (!input.startsWith("+56 9")) {
-      input = "+56 9 ";
-    }
+  // --- MANEJADORES DE INPUT ---
+  const formatRut = useCallback((value) => {
+    let clean = value.replace(/[^0-9kK]/g, '');
+    if (clean.length <= 1) return clean;
 
-    // Solo permitimos números y espacios extra después del prefijo
-    const numbersOnly = input.replace(/[^0-9+ ]/g, '');
-    setClientPhone(numbersOnly);
+    const dv = clean.slice(-1);
+    const body = clean.slice(0, -1);
+    let formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${formattedBody}-${dv}`;
+  }, []);
 
-    // Validar largo: +56 9 xxxx xxxx son 12 a 13 caracteres aprox
-    // Un número chileno tiene 9 dígitos. +56 9 (5 chars) + 8 dígitos = 13 chars min
-    const digitCount = numbersOnly.replace(/\D/g, '').length;
-    setPhoneValid(digitCount >= 11); // 569 + 8 dígitos = 11 dígitos total
-  };
+  const handleInputChange = useCallback((field, value) => {
+    setFormData(prev => {
+      if (field === 'rut') value = formatRut(value);
+      if (field === 'phone' && !value.startsWith("+56 9")) value = "+56 9 ";
 
-  // 3. Manejo de Archivo con Preview
-  const handleFileChange = (e) => {
+      return { ...prev, [field]: value };
+    });
+  }, [formatRut]);
+
+  const handleFileChange = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
-      setReceiptFile(file);
-      setReceiptPreview(URL.createObjectURL(file)); // Creamos URL temporal
+      if (formData.receiptPreview) URL.revokeObjectURL(formData.receiptPreview);
+      setFormData(prev => ({
+        ...prev,
+        receiptFile: file,
+        receiptPreview: URL.createObjectURL(file)
+      }));
     }
-  };
+  }, [formData.receiptPreview]);
 
-  const resetPaymentFlow = () => {
-    setShowPaymentInfo(false);
-    setShowForm(false);
+  const resetFlow = useCallback(() => {
+    setViewState({
+      showPaymentInfo: false,
+      showForm: false,
+      showSuccess: false,
+      isSaving: false
+    });
     setPaymentType(null);
-    setClientName("");
-    setClientPhone("+56 9 ");
-    setClientRut("");
-    setReceiptFile(null);
-    setReceiptPreview(null);
-    setIsSaving(false);
-    setPhoneValid(null);
-    setRutValid(null);
-  };
+    setFormData({
+      name: "",
+      phone: "+56 9 ",
+      rut: "",
+      receiptFile: null,
+      receiptPreview: null
+    });
+  }, []);
 
-  if (!isCartOpen) return null;
-
-  const handlePaid = () => setShowForm(true);
-
-  // --- SUBIDA A SUPABASE ---
-  const uploadReceipt = async (file) => {
-    return await uploadImage(file, 'receipts');
-  };
-
+  // --- LÓGICA DE ENVÍO (SENIOR SERVICE) ---
   const handleSendOrder = async (e) => {
     e.preventDefault();
-    if (isSaving) return;
+    if (viewState.isSaving) return;
 
-    if (!phoneValid) {
-      alert("Por favor completa el número de teléfono.");
+    if (!validation.phone) {
+      alert("Por favor completa un número de teléfono válido.");
       return;
     }
 
-    setIsSaving(true);
+    setViewState(v => ({ ...v, isSaving: true }));
 
     try {
-      let receiptUrl = null;
-
-      if (paymentType === 'online') {
-        if (!receiptFile) {
-          alert("Debes adjuntar el comprobante de transferencia.");
-          setIsSaving(false);
-          return;
-        }
-        receiptUrl = await uploadReceipt(receiptFile);
-      }
-
-      // --- LÓGICA CLIENTE (UPsert por RUT) ---
-      // 1) Buscar cliente por RUT
-      const { data: clientRows, error: clientSelectError } = await supabase
-        .from('clients')
-        .select('id,total_spent,total_orders')
-        .eq('rut', clientRut);
-
-      if (clientSelectError) throw clientSelectError;
-
-      let clientId = null;
-
-      if (!clientRows || clientRows.length === 0) {
-        // 2a) Cliente NO existe: crear nuevo
-        const { data: insertedClient, error: insertClientError } = await supabase
-          .from('clients')
-          .insert({
-            name: clientName,
-            phone: clientPhone,
-            rut: clientRut,
-            total_spent: cartTotal,
-            total_orders: 1
-          })
-          .select('id')
-          .single();
-
-        if (insertClientError) throw insertClientError;
-        clientId = insertedClient.id;
-      } else {
-        // 2b) Cliente YA existe: actualizar estadísticas
-        const existing = clientRows[0];
-        const { data: updatedClient, error: updateClientError } = await supabase
-          .from('clients')
-          .update({
-            name: clientName,
-            phone: clientPhone,
-            total_spent: (existing.total_spent || 0) + cartTotal,
-            total_orders: (existing.total_orders || 0) + 1
-          })
-          .eq('id', existing.id)
-          .select('id')
-          .single();
-
-        if (updateClientError) throw updateClientError;
-        clientId = updatedClient.id;
-      }
-
-      // 3) Insertar pedido vinculado al cliente (client_id)
-      const { error: orderError } = await supabase.from('orders').insert({
-        client_id: clientId,
-        client_name: clientName,
-        client_phone: clientPhone,
-        client_rut: clientRut,
-        payment_ref: receiptUrl ? receiptUrl : 'Pago en Local',
+      const orderPayload = {
+        client_name: formData.name,
+        client_phone: formData.phone,
+        client_rut: formData.rut,
         payment_type: paymentType,
         total: cartTotal,
         items: cart,
         note: orderNote,
         status: 'pending'
-      });
+      };
 
-      if (orderError) throw orderError;
+      // Llamada al servicio senior
+      await ordersService.createOrder(orderPayload, formData.receiptFile);
 
-      setShowForm(false);
-      setShowSuccess(true);
+      // UI Success
+      setViewState(v => ({ ...v, showForm: false, showSuccess: true, isSaving: false }));
 
+      // Generación de Mensaje de WhatsApp
       setTimeout(() => {
-        const phoneNumber = "56976645547";
-        let message = '';
-        message += '*NUEVO PEDIDO WEB - OISHI*\n';
-        message += '================================\n\n';
+        const message = generateWSMessage(formData, cart, cartTotal, paymentType, orderNote);
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
 
-        message += `Cliente: ${clientName}\n`;
-        message += `RUT: ${clientRut}\n`;
-        message += `Fono: ${clientPhone}\n\n`;
-
-        message += 'DETALLE:\n';
-        cart.forEach(item => {
-          message += `+ ${item.quantity} x ${item.name.toUpperCase()}\n`;
-        });
-
-        message += `\n*TOTAL: $${cartTotal.toLocaleString('es-CL')}*\n`;
-
-        if (paymentType === 'online') {
-          message += `Pago: Transferencia (Comprobante Adjunto)\n`;
-        } else {
-          message += `Pago: En Local\n`;
-        }
-
-        if (orderNote.trim()) message += `\nNota: ${orderNote}\n`;
-
-        window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
-
-        // Limpieza post-venta: vaciar carrito y resetear formulario,
-        // pero mantenemos el panel de éxito activo para que el usuario
-        // pueda volver a ver la información de retiro.
         clearCart();
-        resetPaymentFlow();
-        toggleCart();
-      }, 1500);
+        // toggleCart(); // Comentado por petición previa del usuario
+      }, 4000);
 
     } catch (error) {
-      console.error(error);
-      alert("Error al procesar: " + error.message);
-      setIsSaving(false);
+      console.error('Checkout error:', error);
+      alert("Lo sentimos, hubo un problema al procesar tu pedido: " + (error.message || 'Error de red'));
+      setViewState(v => ({ ...v, isSaving: false }));
     }
   };
 
-  // Función auxiliar para estilo de validación
-  const getInputStyle = (isValid) => {
-    if (isValid === true) return { borderColor: '#25d366', boxShadow: '0 0 0 1px #25d366' }; // Verde
-    if (isValid === false) return { borderColor: '#ff4444', boxShadow: '0 0 0 1px #ff4444' }; // Rojo
-    return {}; // Normal
-  };
+  // Helper para el estilo de los inputs
+  const getInputStyle = useCallback((isValid) => {
+    if (isValid === true) return { borderColor: '#25d366', boxShadow: '0 0 0 1px #25d366' };
+    if (isValid === false) return { borderColor: '#ff4444', boxShadow: '0 0 0 1px #ff4444' };
+    return {};
+  }, []);
 
-  // Cerrar carrito
-  const handleCloseCart = () => {
-    // Si ya estamos en el panel de éxito, solo cerramos el modal,
-    // pero mantenemos el estado de éxito para que al abrir de nuevo
-    // siga mostrando la información de retiro.
-    if (showSuccess) {
+  const handleCloseCart = useCallback(() => {
+    if (viewState.showSuccess) {
       toggleCart();
       return;
     }
-
-    // Si NO estamos en éxito, cerramos y limpiamos el flujo de pago/formulario
-    setShowSuccess(false);
-    resetPaymentFlow();
+    resetFlow();
     toggleCart();
-  };
+  }, [viewState.showSuccess, toggleCart, resetFlow]);
+
+  if (!isCartOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={handleCloseCart}>
+    <div className="modal-overlay cart-overlay" onClick={handleCloseCart}>
       <div className="cart-panel glass animate-slide-in" onClick={e => e.stopPropagation()}>
 
-        {showSuccess ? (
-          <div className="cart-success-view">
-            <div className="success-icon-circle">
-              <Check size={40} />
-            </div>
-            <h2 className="text-gradient">¡Pedido Recibido!</h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-              Estamos validando tu pago. Te contactaremos por WhatsApp.
-            </p>
-
-            <div className="order-summary-card animate-fade">
-              <div className="summary-label">Lugar de Retiro</div>
-              <div className="summary-value" style={{ marginBottom: 4 }}>
-                Castelar Nte. 141
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                8940000 San Joaquín<br />Región Metropolitana, Chile
-              </div>
-            </div>
-
-            <div className="success-actions">
-              <button className="btn btn-primary btn-block" onClick={() => { clearCart(); setShowSuccess(false); resetPaymentFlow(); }}>
-                Nuevo Pedido
-              </button>
-              <button
-                className="btn btn-secondary btn-block"
-                onClick={() => {
-                  setShowSuccess(false);
-                  resetPaymentFlow();
-                  navigate('/');
-                }}
-              >
-                Volver al Menú
-              </button>
-            </div>
-          </div>
+        {viewState.showSuccess ? (
+          <SuccessView onNewOrder={resetFlow} onGoHome={() => { resetFlow(); navigate('/'); }} />
         ) : (
           <>
             <header className="cart-header">
@@ -323,40 +194,30 @@ const CartModal = React.memo(() => {
 
             <div className="cart-body">
               {cart.length === 0 ? (
-                <div className="empty-state">
-                  <span className="empty-emoji">🍣</span>
-                  <h3>Bandeja Vacía</h3>
-                  <button onClick={handleCloseCart} className="btn btn-secondary mt-20">Ir al Menú</button>
-                </div>
+                <EmptyState onMenu={handleCloseCart} />
               ) : (
                 <>
                   <div className="cart-items-list">
-                    {cart.map(item => {
-                      const unitPrice = getPrice(item);
-                      return (
-                        <div key={item.id} className="cart-item">
-                          <img src={item.image_url || FALLBACK_IMAGE} alt={item.name} className="item-thumb" onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE; }} />
-                          <div className="item-details">
-                            <div className="item-top">
-                              <h4>{item.name}</h4>
-                              <button onClick={() => removeFromCart(item.id)} className="btn-trash"><Trash2 size={16} /></button>
-                            </div>
-                            <div className="item-bottom">
-                              <span className="item-price">${(unitPrice * item.quantity).toLocaleString('es-CL')}</span>
-                              <div className="qty-control-sm">
-                                <button onClick={() => decreaseQuantity(item.id)}><Minus size={12} /></button>
-                                <span>{item.quantity}</span>
-                                <button onClick={() => addToCart(item)}><Plus size={12} /></button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {cart.map(item => (
+                      <CartItem
+                        key={item.id}
+                        item={item}
+                        unitPrice={getPrice(item)}
+                        onRemove={removeFromCart}
+                        onAdd={addToCart}
+                        onDecrease={decreaseQuantity}
+                      />
+                    ))}
                   </div>
                   <div className="cart-notes">
                     <label>Notas de cocina</label>
-                    <textarea className="form-input" placeholder="Ej: Sin sésamo..." value={orderNote} onChange={(e) => setOrderNote(e.target.value)} rows="2" />
+                    <textarea
+                      className="form-input"
+                      placeholder="Ej: Sin sésamo..."
+                      value={orderNote}
+                      onChange={(e) => setOrderNote(e.target.value)}
+                      rows="2"
+                    />
                   </div>
                 </>
               )}
@@ -364,149 +225,29 @@ const CartModal = React.memo(() => {
 
             {cart.length > 0 && (
               <footer className="cart-footer">
-                {!showPaymentInfo && (
+                {!viewState.showPaymentInfo && (
                   <div className="total-row"><span>Total</span><span className="total-price">${cartTotal.toLocaleString('es-CL')}</span></div>
                 )}
 
-                {showPaymentInfo ? (
-                  (paymentType === 'online' || paymentType === 'tienda') ? (
-                    showForm ? (
-                      <form onSubmit={handleSendOrder} className="checkout-form animate-fade">
-                        <h4 className="form-title"><MessageCircle size={18} /> Datos del Cliente</h4>
-
-                        <div className="form-group">
-                          <label>Nombre Completo</label>
-                          <input type="text" required value={clientName} onChange={e => setClientName(e.target.value)} className="form-input" placeholder="Tu nombre" />
-                        </div>
-
-                        <div className="form-group">
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <label>RUT</label>
-                            {rutValid && <CheckCircle2 size={16} color="#25d366" />}
-                          </div>
-                          <input
-                            type="text"
-                            required
-                            value={clientRut}
-                            onChange={handleRutChange}
-                            className="form-input"
-                            placeholder="12.345.678-9"
-                            maxLength={12}
-                            style={getInputStyle(rutValid)}
-                          />
-                        </div>
-
-                        <div className="form-group">
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <label>Teléfono</label>
-                            {phoneValid && <CheckCircle2 size={16} color="#25d366" />}
-                          </div>
-                          <input
-                            type="tel"
-                            required
-                            value={clientPhone}
-                            onChange={handlePhoneChange}
-                            className="form-input"
-                            placeholder="+56 9..."
-                            style={getInputStyle(phoneValid)}
-                          />
-                          {!phoneValid && clientPhone.length > 6 && (
-                            <span style={{ fontSize: '0.7rem', color: '#ff4444' }}>Faltan números</span>
-                          )}
-                        </div>
-
-                        {paymentType === 'online' && (
-                          <div className="form-group">
-                            <label>Comprobante de Transferencia</label>
-                            <div
-                              className="upload-box"
-                              onClick={() => document.getElementById('receipt-upload').click()}
-                              style={{ borderColor: receiptPreview ? '#25d366' : 'var(--card-border)' }}
-                            >
-                              <input type="file" id="receipt-upload" accept="image/*" hidden onChange={handleFileChange} />
-
-                              {/* VISTA PREVIA DE LA IMAGEN */}
-                              {receiptPreview ? (
-                                <div className="file-preview-container" style={{ display: 'flex', alignItems: 'center', gap: 15, justifyContent: 'center' }}>
-                                  <img
-                                    src={receiptPreview}
-                                    alt="Comprobante"
-                                    style={{ width: 50, height: 50, borderRadius: 8, objectFit: 'cover', border: '1px solid white' }}
-                                  />
-                                  <div style={{ textAlign: 'left' }}>
-                                    <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: 'white' }}>Imagen Cargada</span>
-                                    <span style={{ fontSize: '0.75rem', color: '#25d366' }}>Click para cambiar</span>
-                                    <button 
-                                      type="button" 
-                                      className="btn-text" 
-                                      style={{ color: '#ff4444', fontSize: '0.75rem', padding: 0, marginTop: 4, display: 'block' }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setReceiptFile(null);
-                                        setReceiptPreview(null);
-                                      }}
-                                    >
-                                      Quitar
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="upload-placeholder">
-                                  <Upload size={24} />
-                                  <span>Subir captura</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="form-actions-col">
-                          <button type="submit" disabled={isSaving || !phoneValid} className="btn btn-primary btn-block">
-                            {isSaving ? 'Enviando...' : 'Confirmar Pedido'}
-                          </button>
-                          <button type="button" className="btn btn-text btn-block" onClick={() => setShowForm(false)}>
-                            <ArrowLeft size={16} style={{ marginRight: 5 }} /> Volver atrás
-                          </button>
-                        </div>
-                      </form>
-                    ) : (
-                      <div className="payment-details animate-fade">
-                        {paymentType === 'online' ? (
-                          <div className="bank-info glass">
-                            <h4>Datos para Transferir</h4>
-                            <ul>
-                              <li><span>Banco:</span> <b>Tenpo (Prepago)</b></li>
-                              <li><span>Cuenta:</span> <b>111126281473</b></li>
-                              <li><span>RUT:</span> <b>26.281.473-4</b></li>
-                              <li><span>Email:</span> <b>doranteegrimar@gmail.com</b></li>
-                            </ul>
-                            <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
-                            <button onClick={handlePaid} className="btn btn-primary btn-block mt-4">Ya pagué, subir comprobante</button>
-                          </div>
-                        ) : (
-                          <div className="store-pay-info glass">
-                            <Store size={32} className="text-accent" />
-                            <h4>Pagar en Local</h4>
-                            <p>Pagas en efectivo o tarjeta al retirar.</p>
-                            <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
-                            <button onClick={() => setShowForm(true)} className="btn btn-primary btn-block mt-4">Continuar</button>
-                          </div>
-                        )}
-                        <button onClick={() => setPaymentType(null)} className="btn btn-text btn-block mt-2">
-                          <ArrowLeft size={16} style={{ marginRight: 5 }} /> Elegir otro método
-                        </button>
-                      </div>
-                    )
-                  ) : (
-                    <div className="payment-options animate-fade">
-                      <h4 style={{ textAlign: 'center', marginBottom: 15, color: 'white' }}>Método de Pago</h4>
-                      <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('online')}><CreditCard size={20} /> Transferencia</button>
-                      <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('tienda')}><Store size={20} /> Pagar en Local</button>
-                      <button onClick={resetPaymentFlow} className="btn btn-text btn-block">Cancelar</button>
-                    </div>
-                  )
+                {viewState.showPaymentInfo ? (
+                  <PaymentFlow
+                    paymentType={paymentType}
+                    setPaymentType={setPaymentType}
+                    showForm={viewState.showForm}
+                    setShowForm={(val) => setViewState(v => ({ ...v, showForm: val }))}
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    onFileChange={handleFileChange}
+                    onSubmit={handleSendOrder}
+                    isSaving={viewState.isSaving}
+                    validation={validation}
+                    getInputStyle={getInputStyle}
+                    cartTotal={cartTotal}
+                    onBack={() => setViewState(v => ({ ...v, showPaymentInfo: false }))}
+                    resetFlow={resetFlow}
+                  />
                 ) : (
-                  <button onClick={() => setShowPaymentInfo(true)} className="btn btn-primary btn-block btn-lg">Ir a Pagar</button>
+                  <button onClick={() => setViewState(v => ({ ...v, showPaymentInfo: true }))} className="btn btn-primary btn-block btn-lg">Ir a Pagar</button>
                 )}
               </footer>
             )}
@@ -516,5 +257,211 @@ const CartModal = React.memo(() => {
     </div>
   );
 });
+
+// --- SUB-COMPONENTES PARA LIMPIEZA ---
+
+const SuccessView = ({ onNewOrder, onGoHome }) => (
+  <div className="cart-success-view">
+    <div className="success-icon-circle"><Check size={40} /></div>
+    <h2 className="text-gradient">¡Pedido Recibido!</h2>
+    <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+      Estamos validando tu pago. Te contactaremos por WhatsApp.
+    </p>
+
+    <div className="order-summary-card animate-fade">
+      <div className="summary-label">Lugar de Retiro</div>
+      <div className="summary-value" style={{ marginBottom: 4 }}>Castelar Nte. 141</div>
+      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+        8940000 San Joaquín<br />Región Metropolitana, Chile
+      </div>
+    </div>
+
+    <div className="success-actions">
+      <button className="btn btn-primary btn-block" onClick={onNewOrder}>Nuevo Pedido</button>
+      <button className="btn btn-secondary btn-block" onClick={onGoHome}>Volver al Menú</button>
+    </div>
+  </div>
+);
+
+const EmptyState = ({ onMenu }) => (
+  <div className="empty-state">
+    <span className="empty-emoji">🍣</span>
+    <h3>Bandeja Vacía</h3>
+    <button onClick={onMenu} className="btn btn-secondary mt-20">Ir al Menú</button>
+  </div>
+);
+
+const CartItem = ({ item, unitPrice, onRemove, onAdd, onDecrease }) => (
+  <div className="cart-item">
+    <img
+      src={item.image_url || FALLBACK_IMAGE}
+      alt={item.name}
+      className="item-thumb"
+      onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE; }}
+    />
+    <div className="item-details">
+      <div className="item-top">
+        <h4>{item.name}</h4>
+        <button onClick={() => onRemove(item.id)} className="btn-trash"><Trash2 size={16} /></button>
+      </div>
+      <div className="item-bottom">
+        <span className="item-price">${(unitPrice * item.quantity).toLocaleString('es-CL')}</span>
+        <div className="qty-control-sm">
+          <button onClick={() => onDecrease(item.id)}><Minus size={12} /></button>
+          <span>{item.quantity}</span>
+          <button onClick={() => onAdd(item)}><Plus size={12} /></button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const PaymentFlow = ({
+  paymentType, setPaymentType, showForm, setShowForm,
+  formData, onInputChange, onFileChange, onSubmit,
+  isSaving, validation, getInputStyle, cartTotal, onBack, resetFlow
+}) => {
+  if (paymentType && showForm) {
+    return (
+      <form onSubmit={onSubmit} className="checkout-form animate-fade">
+        <h4 className="form-title"><MessageCircle size={18} /> Datos del Cliente</h4>
+
+        <div className="form-group">
+          <label>Nombre Completo</label>
+          <input
+            type="text" required
+            value={formData.name}
+            onChange={e => onInputChange('name', e.target.value)}
+            className="form-input" placeholder="Tu nombre"
+          />
+        </div>
+
+        <div className="form-group">
+          <div className="flex-between">
+            <label>RUT</label>
+            {validation.rut && <CheckCircle2 size={16} color="#25d366" />}
+          </div>
+          <input
+            type="text" required
+            value={formData.rut}
+            onChange={e => onInputChange('rut', e.target.value)}
+            className="form-input"
+            placeholder="12.345.678-9"
+            maxLength={12}
+            style={getInputStyle(formData.rut.length > 5 ? validation.rut : null)}
+          />
+        </div>
+
+        <div className="form-group">
+          <div className="flex-between">
+            <label>Teléfono</label>
+            {validation.phone && <CheckCircle2 size={16} color="#25d366" />}
+          </div>
+          <input
+            type="tel" required
+            value={formData.phone}
+            onChange={e => onInputChange('phone', e.target.value)}
+            className="form-input"
+            placeholder="+56 9..."
+            style={getInputStyle(formData.phone.length > 6 ? validation.phone : null)}
+          />
+        </div>
+
+        {paymentType === 'online' && (
+          <div className="form-group">
+            <label>Comprobante de Transferencia</label>
+            <div
+              className="upload-box"
+              onClick={() => document.getElementById('receipt-upload').click()}
+              style={{ borderColor: formData.receiptPreview ? '#25d366' : 'var(--card-border)' }}
+            >
+              <input type="file" id="receipt-upload" accept="image/*" hidden onChange={onFileChange} />
+              {formData.receiptPreview ? (
+                <div className="file-preview-container flex-center gap-15">
+                  <img src={formData.receiptPreview} alt="Comprobante" className="receipt-thumb-mini" />
+                  <div className="text-left">
+                    <span className="file-status-label">Imagen Cargada</span>
+                    <span className="file-status-sub">Click para cambiar</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="upload-placeholder">
+                  <Upload size={24} />
+                  <span>Subir captura</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="form-actions-col">
+          <button type="submit" disabled={isSaving || !validation.phone} className="btn btn-primary btn-block">
+            {isSaving ? 'Enviando...' : 'Confirmar Pedido'}
+          </button>
+          <button type="button" className="btn btn-text btn-block" onClick={() => setShowForm(false)}>
+            <ArrowLeft size={16} className="mr-5" /> Volver atrás
+          </button>
+        </div>
+      </form>
+    );
+  }
+
+  if (paymentType) {
+    return (
+      <div className="payment-details animate-fade">
+        {paymentType === 'online' ? (
+          <div className="bank-info glass">
+            <h4>Datos para Transferir</h4>
+            <ul>
+              <li><span>Banco:</span> <b>Tenpo (Prepago)</b></li>
+              <li><span>Cuenta:</span> <b>111126281473</b></li>
+              <li><span>RUT:</span> <b>26.281.473-4</b></li>
+              <li><span>Email:</span> <b>doranteegrimar@gmail.com</b></li>
+            </ul>
+            <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
+            <button onClick={() => setShowForm(true)} className="btn btn-primary btn-block mt-4">Ya pagué, subir comprobante</button>
+          </div>
+        ) : (
+          <div className="store-pay-info glass">
+            <Store size={32} className="text-accent" />
+            <h4>Pagar en Local</h4><p>Pagas en efectivo o tarjeta al retirar.</p>
+            <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
+            <button onClick={() => setShowForm(true)} className="btn btn-primary btn-block mt-4">Continuar</button>
+          </div>
+        )}
+        <button onClick={() => setPaymentType(null)} className="btn btn-text btn-block mt-2">
+          <ArrowLeft size={16} className="mr-5" /> Elegir otro método
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="payment-options animate-fade">
+      <h4 className="text-center mb-15 text-white">Método de Pago</h4>
+      <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('online')}><CreditCard size={20} /> Transferencia</button>
+      <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('tienda')}><Store size={20} /> Pagar en Local</button>
+      <button onClick={onBack} className="btn btn-text btn-block">Cancelar</button>
+    </div>
+  );
+};
+
+// --- HELPERS DE TEXTO ---
+
+const generateWSMessage = (formData, cart, total, paymentType, note) => {
+  let msg = '*NUEVO PEDIDO WEB - OISHI*\n';
+  msg += '================================\n\n';
+  msg += `Cliente: ${formData.name}\n`;
+  msg += `RUT: ${formData.rut}\n`;
+  msg += `Fono: ${formData.phone}\n\n`;
+  msg += 'DETALLE:\n';
+  cart.forEach(item => {
+    msg += `+ ${item.quantity} x ${item.name.toUpperCase()}\n`;
+  });
+  msg += `\n*TOTAL: $${total.toLocaleString('es-CL')}*\n`;
+  msg += `Pago: ${paymentType === 'online' ? 'Transferencia (Comprobante Adjunto)' : 'En Local'}\n`;
+  if (note.trim()) msg += `\nNota: ${note}\n`;
+  return msg;
+};
 
 export default CartModal;

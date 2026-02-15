@@ -1,73 +1,110 @@
 import { supabase } from '../lib/supabase';
 import { uploadImage } from '../lib/cloudinary';
 
-export const createManualOrder = async (orderData, receiptFile) => {
-    // 1. Upload Recibo (si aplica)
-    let receiptUrl = null;
-    if (orderData.payment_type === 'online' && receiptFile) {
-        receiptUrl = await uploadImage(receiptFile, 'receipts');
-    }
+/**
+ * Servicio Senior de Órdenes
+ * Encapsula la lógica de negocio de creación de pedidos tanto para 
+ * clientes (Web) como para administración (Manual).
+ */
+export const ordersService = {
+    /**
+     * Crea un pedido completo vinculándolo a un cliente (o creando uno nuevo)
+     */
+    async createOrder(orderData, receiptFile = null) {
+        try {
+            // 1. Subida de comprobante (si aplica)
+            let receiptUrl = null;
+            if (orderData.payment_type === 'online' && receiptFile) {
+                receiptUrl = await uploadImage(receiptFile, 'receipts');
+            }
 
-    // 2. Client Logic (Upsert)
-    let clientId = null;
+            // 2. Lógica de Cliente (Upsert)
+            const clientId = await this._ensureClient(orderData);
 
-    // Buscar por RUT
-    if (orderData.client_rut && orderData.client_rut.length > 7) {
-        const { data: existingClient } = await supabase
+            // 3. Inserción del Pedido
+            const { data: newOrder, error: orderError } = await supabase
+                .from('orders')
+                .insert({
+                    client_id: clientId,
+                    client_name: orderData.client_name,
+                    client_rut: orderData.client_rut || '',
+                    client_phone: orderData.client_phone,
+                    items: orderData.items,
+                    total: orderData.total,
+                    payment_type: orderData.payment_type,
+                    payment_ref: receiptUrl || orderData.payment_ref || (orderData.payment_type === 'online' ? '' : 'Pago Presencial'),
+                    note: orderData.note,
+                    status: orderData.status || 'pending',
+                    created_at: new Date().toISOString()
+                })
+                .select()
+                .maybeSingle();
+
+            if (orderError) throw orderError;
+            return newOrder;
+        } catch (error) {
+            console.error('Error in ordersService.createOrder:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Asegura que el cliente exista y actualiza sus estadísticas
+     * @private
+     */
+    async _ensureClient(orderData) {
+        const { client_rut, client_name, client_phone, total } = orderData;
+
+        // Determinar un RUT único si no viene
+        const rutToUse = client_rut && client_rut.length > 7
+            ? client_rut
+            : `SIN-RUT-${Date.now().toString().slice(-6)}`;
+
+        // 1. Buscar cliente
+        const { data: clients, error: searchError } = await supabase
             .from('clients')
             .select('id, total_spent, total_orders')
-            .eq('rut', orderData.client_rut)
-            .single();
+            .eq('rut', rutToUse);
+
+        if (searchError) throw searchError;
+
+        const existingClient = clients?.[0];
 
         if (existingClient) {
-            clientId = existingClient.id;
-            await supabase.from('clients').update({
-                name: orderData.client_name,
-                phone: orderData.client_phone,
-                total_spent: (existingClient.total_spent || 0) + orderData.total,
-                total_orders: (existingClient.total_orders || 0) + 1,
-                last_order_at: new Date().toISOString(),
-            }).eq('id', clientId);
+            // 2. Actualizar existente
+            const { error: updateError } = await supabase
+                .from('clients')
+                .update({
+                    name: client_name,
+                    phone: client_phone,
+                    total_spent: (existingClient.total_spent || 0) + total,
+                    total_orders: (existingClient.total_orders || 0) + 1,
+                    last_order_at: new Date().toISOString(),
+                })
+                .eq('id', existingClient.id);
+
+            if (updateError) throw updateError;
+            return existingClient.id;
         } else {
-            // Nuevo con RUT
-            const { data: newClient } = await supabase.from('clients').insert({
-                name: orderData.client_name,
-                phone: orderData.client_phone,
-                rut: orderData.client_rut,
-                total_spent: orderData.total,
-                total_orders: 1,
-                last_order_at: new Date().toISOString()
-            }).select('id').single();
-            clientId = newClient.id;
+            // 3. Crear nuevo
+            const { data: newClient, error: createError } = await supabase
+                .from('clients')
+                .insert({
+                    name: client_name,
+                    phone: client_phone,
+                    rut: rutToUse,
+                    total_spent: total,
+                    total_orders: 1,
+                    last_order_at: new Date().toISOString()
+                })
+                .select('id')
+                .maybeSingle();
+
+            if (createError) throw createError;
+            return newClient.id;
         }
-    } else {
-        // Cliente sin RUT
-        const { data: newClient } = await supabase.from('clients').insert({
-            name: orderData.client_name,
-            phone: orderData.client_phone,
-            rut: 'SIN-RUT-' + Date.now().toString().slice(-4),
-            total_spent: orderData.total,
-            total_orders: 1,
-            last_order_at: new Date().toISOString()
-        }).select('id').single();
-        clientId = newClient.id;
     }
-
-    // 3. Crear Pedido
-    const { error } = await supabase.from('orders').insert({
-        client_id: clientId,
-        client_name: orderData.client_name,
-        client_rut: orderData.client_rut || '',
-        client_phone: orderData.client_phone,
-        items: orderData.items,
-        total: orderData.total,
-        payment_type: orderData.payment_type,
-        payment_ref: receiptUrl ? receiptUrl : (orderData.payment_type === 'online' ? '' : 'Pago Presencial'),
-        note: orderData.note,
-        status: 'pending',
-        created_at: new Date().toISOString()
-    });
-
-    if (error) throw error;
-    return true;
 };
+
+// Mantener compatibilidad con exportación antigua si se requiere
+export const createManualOrder = (orderData, receiptFile) => ordersService.createOrder(orderData, receiptFile);
