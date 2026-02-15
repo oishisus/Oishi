@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 
@@ -7,6 +7,9 @@ import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+
+// Assets
+import menuPattern from "./assets/menu-pattern.webp";
 
 // Componentes Globales
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -17,9 +20,19 @@ import CartModal from "./components/CartModal";
 function InnerApp() {
   const location = useLocation();
   const showCartUI = location.pathname === '/menu';
+  const [scrollY, setScrollY] = useState(0);
+
+  // Efecto Parallax Suave para el fondo
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Efecto "Anti-Zoom" Robusto (RESTAURADO)
-  React.useEffect(() => {
+  useEffect(() => {
     const handleVisualLock = () => {
       const contentLayer = document.getElementById('app-content-layer');
       const uiLayer = document.getElementById('app-ui-layer');
@@ -27,18 +40,14 @@ function InnerApp() {
       if (!contentLayer || !uiLayer) return;
 
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      // Detección específica para iPad que reporta ser Mac
       const isIPad = /iPad|Macintosh/.test(navigator.userAgent) && isTouchDevice;
 
-      // Bajamos el umbral a 100px para que aguante cualquier nivel de zoom sin desactivarse explorando
       if (window.screen.width >= 100 && !isIPad && !isTouchDevice) {
         const dpr = window.devicePixelRatio || 1;
         const inverseScale = 1 / dpr;
 
-        // ESTRATEGIA: ZOOM NATIVO (Chrome/Edge/Safari Desktop)
         document.body.style.zoom = inverseScale;
 
-        // Fallback para Firefox (Tu lógica original con transform)
         if (typeof document.body.style.zoom === 'undefined' || document.body.style.zoom === '') {
           const transformProps = `scale(${inverseScale})`;
           const originProps = 'top left';
@@ -55,7 +64,6 @@ function InnerApp() {
           uiLayer.style.width = widthProps;
           uiLayer.style.height = heightProps;
         } else {
-          // Limpieza robusta si usamos zoom nativo
           contentLayer.style.transform = '';
           contentLayer.style.width = '100%';
           contentLayer.style.height = '';
@@ -66,7 +74,6 @@ function InnerApp() {
           uiLayer.style.height = '100%';
         }
 
-        // Ajustes de capa UI
         uiLayer.style.position = 'fixed';
         uiLayer.style.top = '0';
         uiLayer.style.left = '0';
@@ -75,7 +82,6 @@ function InnerApp() {
 
         document.body.style.overflowX = 'hidden';
       } else {
-        // Reset para Móviles e iPads
         document.body.style.zoom = '';
         document.body.style.overflowX = '';
 
@@ -109,9 +115,36 @@ function InnerApp() {
   }, []);
 
   return (
-    <>
+    <div style={{ position: 'relative', width: '100%', minHeight: '100vh', background: '#0a0a0a' }}>
+      {/* CAPA DE FONDO MAESTRA CON PARALLAX */}
+      <div
+        className="app-bg-layer"
+        style={{
+          position: 'fixed',
+          inset: '-50% -20%', // Margen de seguridad gigante para evitar cualquier corte
+          zIndex: 0,
+          backgroundImage: `url(${menuPattern})`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '1200px', // Imagen ligeramente más grande
+          opacity: 0.5,
+          filter: 'brightness(0.18) blur(3px)',
+          transform: `translateY(${-scrollY * 0.1}px)`, // Dirección original: el fondo sube al bajar scroll
+          transition: 'transform 0.1s ease-out',
+          pointerEvents: 'none',
+          willChange: 'transform' // Optimización de performance
+        }}
+      ></div>
+
       {/* Capa de Contenido Principal (Scrollable) */}
-      <div id="app-content-layer" className="app-wrapper">
+      <div
+        id="app-content-layer"
+        className="app-wrapper"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          background: 'transparent'
+        }}
+      >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
@@ -129,12 +162,9 @@ function InnerApp() {
         </Routes>
       </div>
 
-      {/* Capa de UI Flotante (Fuera del flujo del contenido) */}
-      <div id="app-ui-layer">
-        {/* Portal para Navbar (Siempre disponible por si el Menu lo requiere) */}
+      {/* Capa de UI Flotante */}
+      <div id="app-ui-layer" style={{ position: 'fixed', inset: 0, zIndex: 100, pointerEvents: 'none' }}>
         <div id="navbar-portal-root" style={{ pointerEvents: 'auto', width: '100%' }}></div>
-
-        {/* Elementos del Carrito (Render condicional solo en /menu) */}
         {showCartUI && (
           <div style={{ pointerEvents: 'auto' }}>
             <CartFloat />
@@ -142,7 +172,7 @@ function InnerApp() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
