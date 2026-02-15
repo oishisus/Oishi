@@ -181,6 +181,8 @@
 .desc-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  /* Alineación vertical perfecta */
   padding-bottom: 8px;
   font-weight: 800;
   color: var(--accent-secondary, #f4a261);
@@ -503,22 +505,44 @@
     flex-direction: column;
     justify-content: flex-start;
     flex-grow: 1;
+    min-height: 140px;
+    /* Aseguramos espacio base */
+  }
+
+  /* Cuando estamos viendo info, subimos todo para ganar espacio */
+  .is-viewing-info .product-info {
+    min-height: 160px;
+    padding-top: 4px;
   }
 
   .info-content-wrapper {
-    height: 115px;
-    margin-bottom: 12px;
+    margin-bottom: 0px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Solo cuando se expande el detalle, dejamos que crezca para llenar el espacio */
+  .is-viewing-info .info-content-wrapper {
+    height: 100%;
+    flex-grow: 1;
   }
 
   .product-name {
     font-size: 0.9rem;
-    line-height: 1.25;
-    margin-bottom: 6px;
+    line-height: 1.2;
+    margin-bottom: 4px;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .info-hint {
+    margin-top: -6px;
+    /* SUBE EL BOTÓN PARA PEGARLO AL TEXTO */
+    margin-bottom: 10px;
+    font-size: 0.65rem;
   }
 
   .product-desc-clamped {
@@ -534,7 +558,7 @@
 
   .product-footer {
     padding-top: 10px;
-    margin-top: 0;
+    margin-top: auto;
     height: auto;
     display: flex;
     align-items: center;
@@ -569,14 +593,36 @@
   }
 
   /* Ajustes para ver mas texto en detalles (Mobile) */
+  .product-desc-scrollable {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
   .desc-header {
-    padding-bottom: 4px;
-    font-size: 0.65rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Crucial para la misma altura */
+    padding-bottom: 2px;
+    /* Reducimos el espacio con el texto de abajo */
+    font-size: 0.7rem;
+  }
+
+  .btn-icon-sm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-right: -4px;
+    /* Ajuste fino para pegar al borde */
   }
 
   .scroll-area {
-    font-size: 0.75rem;
-    line-height: 1.3;
+    font-size: 0.8rem;
+    /* Un pelín más grande para legibilidad */
+    line-height: 1.4;
+    max-height: 120px;
+    /* Limitamos para que no rompa la card pero sea generoso */
   }
 
   .scroll-area p {

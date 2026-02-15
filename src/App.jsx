@@ -55,26 +55,21 @@ function InnerApp() {
           uiLayer.style.width = widthProps;
           uiLayer.style.height = heightProps;
         } else {
-          // Limpieza y ajuste de dimensiones para Zoom Nativo
-          // A 500% zoom, 100% de ancho es insuficiente o errático. Ajustamos al ancho virtual.
-          const widthProps = `${dpr * 100}vw`;
-          const heightProps = `${dpr * 100}vh`;
-
+          // Limpieza robusta si usamos zoom nativo
           contentLayer.style.transform = '';
-          contentLayer.style.width = widthProps;
+          contentLayer.style.width = '100%';
           contentLayer.style.height = '';
           contentLayer.style.overflowY = '';
 
           uiLayer.style.transform = '';
-          uiLayer.style.width = widthProps;
-          uiLayer.style.height = heightProps;
+          uiLayer.style.width = '100%';
+          uiLayer.style.height = '100%';
         }
 
         // Ajustes de capa UI
         uiLayer.style.position = 'fixed';
         uiLayer.style.top = '0';
         uiLayer.style.left = '0';
-        // width/height ya definidos arriba para mayor precisión
         uiLayer.style.pointerEvents = 'none';
         uiLayer.style.zIndex = '9999';
 

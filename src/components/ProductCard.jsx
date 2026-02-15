@@ -97,7 +97,7 @@ const ProductCard = React.memo(({ product }) => {
           )}
         </div>
 
-        <div className="info-hint" style={{ visibility: (isLongDesc && !isExpanded) ? 'visible' : 'hidden' }}>
+        <div className="info-hint" style={{ display: (isLongDesc && !isExpanded) ? 'flex' : 'none' }}>
           <ChevronDown size={14} /> Ver detalles
         </div>
 
