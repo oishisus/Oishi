@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '../context/useCart';
 import { ordersService } from '../services/orders';
+import { cashService } from '../services/caja/cashService';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&q=80&w=400';
 const WHATSAPP_NUMBER = "56976645547";
@@ -123,23 +124,42 @@ const CartModal = React.memo(() => {
 
     setViewState(v => ({ ...v, isSaving: true }));
 
-    try {
-      const orderPayload = {
-        client_name: formData.name,
-        client_phone: formData.phone,
-        client_rut: formData.rut,
-        payment_type: paymentType,
-        total: cartTotal,
-        items: cart,
-        note: orderNote,
-        status: 'pending'
-      };
+try {
+  const orderPayload = {
+    client_name: formData.name,
+    client_phone: formData.phone,
+    client_rut: formData.rut,
+    payment_type: paymentType,
+    total: cartTotal,
+    items: cart,
+    note: orderNote,
+    status: 'pending',
+    receiptFile: formData.receiptFile
+  };
 
-      // Llamada al servicio senior
-      await ordersService.createOrder(orderPayload, formData.receiptFile);
+// Llamada al servicio senior
+await ordersService.createOrder(orderPayload, formData.receiptFile);
 
-      // UI Success
-      setViewState(v => ({ ...v, showForm: false, showSuccess: true, isSaving: false }));
+// 4) Registrar movimiento de caja (venta) si hay turno abierto
+try {
+  const activeShift = await cashService.getActiveShift();
+  if (activeShift) {
+    await cashService.addMovement({
+      shift_id: activeShift.id,
+      type: 'sale',
+      amount: cartTotal,
+      description: `Venta - ${formData.name}`,
+      payment_method: paymentType === 'online' ? 'online' : 'cash',
+      order_id: null
+    });
+  }
+} catch (cashError) {
+  console.warn('Error registering cash movement:', cashError);
+  // No bloqueamos la orden si falla el registro de caja
+}
+
+// UI Success
+setViewState(v => ({ ...v, showForm: false, showSuccess: true, isSaving: false }));
 
       // Generación de Mensaje de WhatsApp
       setTimeout(() => {
@@ -244,7 +264,6 @@ const CartModal = React.memo(() => {
                     getInputStyle={getInputStyle}
                     cartTotal={cartTotal}
                     onBack={() => setViewState(v => ({ ...v, showPaymentInfo: false }))}
-                    resetFlow={resetFlow}
                   />
                 ) : (
                   <button onClick={() => setViewState(v => ({ ...v, showPaymentInfo: true }))} className="btn btn-primary btn-block btn-lg">Ir a Pagar</button>
@@ -319,7 +338,7 @@ const CartItem = ({ item, unitPrice, onRemove, onAdd, onDecrease }) => (
 const PaymentFlow = ({
   paymentType, setPaymentType, showForm, setShowForm,
   formData, onInputChange, onFileChange, onSubmit,
-  isSaving, validation, getInputStyle, cartTotal, onBack, resetFlow
+  isSaving, validation, getInputStyle, cartTotal, onBack
 }) => {
   if (paymentType && showForm) {
     return (

@@ -245,11 +245,8 @@ const Admin = () => {
       const { error } = await supabase.from('orders').update({ status: nextStatus }).eq('id', orderId);
       if (error) throw error;
       
-      // Si el pedido se marca como completado o retirado, lo registramos en caja
-      if (nextStatus === 'completed' || nextStatus === 'picked_up') {
-        const order = orders.find(o => o.id === orderId);
-        if (order) registerSale(order);
-      }
+      // Nota: No registramos venta aquí porque ya se registró en CartModal al crear la orden
+      // Admin solo cambia estado/kanban, la caja se actualiza desde CartModal
 
       showNotify('Pedido actualizado');
     } catch (error) {

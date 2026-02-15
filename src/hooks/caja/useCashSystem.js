@@ -47,6 +47,28 @@ export const useCashSystem = (showNotify) => {
     }, [loadActiveShift]);
 
     /**
+     * Listener Realtime para recargar movimientos cuando se agreguen nuevos
+     */
+    useEffect(() => {
+        if (!activeShift) return;
+
+        const subscription = supabase
+            .channel(`cash_movements_${activeShift.id}`)
+            .on('postgres_changes', 
+                { event: 'INSERT', schema: 'public', table: 'cash_movements', filter: `shift_id=eq.${activeShift.id}` },
+                (payload) => {
+                    // Agregar el movimiento nuevo al estado
+                    setMovements(prev => [payload.new, ...prev]);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [activeShift]);
+
+    /**
      * Abre un nuevo turno
      */
     const openShift = async (amount) => {
@@ -118,7 +140,7 @@ export const useCashSystem = (showNotify) => {
                 shift_id: activeShift.id,
                 type: 'sale',
                 amount: order.total,
-                description: `Venta #${order.id.slice(-4)} - ${order.client_name}`,
+                description: `Venta #${String(order.id).slice(-4)} - ${order.client_name}`,
                 payment_method: order.payment_type === 'online' ? 'online' : (order.payment_type === 'tarjeta' ? 'card' : 'cash'),
                 order_id: order.id
             };
