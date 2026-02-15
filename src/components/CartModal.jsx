@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   X, Trash2, Plus, Minus, MessageCircle, ShoppingBag,
   CreditCard, Store, Check, Upload, FileText, ArrowLeft,
-  AlertCircle, CheckCircle2
+  AlertCircle, CheckCircle2, Copy
 } from 'lucide-react';
 import { useCart } from '../context/useCart';
 import { ordersService } from '../services/orders';
@@ -51,37 +51,69 @@ const CartModal = React.memo(() => {
     };
   }, [formData.receiptPreview]);
 
+  // --- VALIDACIÓN DE RUT (Módulo 11) ---
+  const validateRut = (rut) => {
+    if (!rut || rut.trim().length < 3) return false;
+    const cleanRut = rut.replace(/[^0-9kK]/g, '');
+    if (cleanRut.length < 2) return false;
+    
+    const body = cleanRut.slice(0, -1);
+    const dv = cleanRut.slice(-1).toUpperCase();
+    
+    let sum = 0;
+    let multiplier = 2;
+    
+    for (let i = body.length - 1; i >= 0; i--) {
+      sum += parseInt(body.charAt(i)) * multiplier;
+      multiplier = multiplier === 7 ? 2 : multiplier + 1;
+    }
+    
+    const expectedDv = 11 - (sum % 11);
+    const calculatedDv = expectedDv === 11 ? '0' : expectedDv === 10 ? 'K' : expectedDv.toString();
+    return dv === calculatedDv;
+  };
+
+  const formatRut = (rut) => {
+    const clean = rut.replace(/[^0-9kK]/g, '');
+    if (clean.length <= 1) return clean;
+    const body = clean.slice(0, -1);
+    const dv = clean.slice(-1).toUpperCase();
+    return `${body.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}-${dv}`;
+  };
+
   // --- LÓGICA DE VALIDACIÓN (MEMOIZADA) ---
   const validation = useMemo(() => {
-    const rutClean = formData.rut.replace(/[^0-9kK]/g, '');
     const phoneDigits = formData.phone.replace(/\D/g, '').length;
+    const isRutValid = validateRut(formData.rut);
 
     return {
-      rut: rutClean.length >= 8, // RUT básico válido (ej: 11111111-1)
+      rut: isRutValid,
       phone: phoneDigits >= 11, // 569 + 8 dígitos
-      isReady: formData.name.trim().length > 2 && phoneDigits >= 11 && rutClean.length >= 8
+      isReady: formData.name.trim().length > 2 
+               && phoneDigits >= 11 
+               && isRutValid
+               && (paymentType === 'online' ? !!formData.receiptFile : true)
     };
-  }, [formData.rut, formData.phone, formData.name]);
+  }, [formData.rut, formData.phone, formData.name, formData.receiptFile, paymentType]);
 
   // --- MANEJADORES DE INPUT ---
-  const formatRut = useCallback((value) => {
-    let clean = value.replace(/[^0-9kK]/g, '');
-    if (clean.length <= 1) return clean;
-
-    const dv = clean.slice(-1);
-    const body = clean.slice(0, -1);
-    let formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    return `${formattedBody}-${dv}`;
-  }, []);
-
   const handleInputChange = useCallback((field, value) => {
     setFormData(prev => {
-      if (field === 'rut') value = formatRut(value);
-      if (field === 'phone' && !value.startsWith("+56 9")) value = "+56 9 ";
-
-      return { ...prev, [field]: value };
+        let finalValue = value;
+        if (field === 'rut') {
+             // Lógica simple de formato mientras escribe
+             finalValue = formatRut(value);
+        }
+        if (field === 'phone') {
+            if(!value.startsWith("+56 9")) {
+                if(value.length < 6) return { ...prev, [field]: "+56 9" };
+            }
+            finalValue = value;
+        } 
+        
+        return { ...prev, [field]: finalValue };
     });
-  }, [formatRut]);
+  }, []);
 
   const handleFileChange = useCallback((e) => {
     const file = e.target.files[0];
@@ -122,17 +154,26 @@ const CartModal = React.memo(() => {
       return;
     }
 
+    // VALIDACIÓN CRÍTICA: Comprobante Obligatorio para Pagos Online
+    if (paymentType === 'online' && !formData.receiptFile) {
+        alert("⚠️ Por favor sube la captura de tu transferencia para procesar el pedido.");
+        return;
+    }
+
     setViewState(v => ({ ...v, isSaving: true }));
 
 try {
+  // SANITIZACIÓN MANUAL (Seguridad UX) - Previene inyecciones básicas en el cliente
+  const sanitizeInput = (text) => text.replace(/<[^>]*>?/gm, "").trim(); 
+
   const orderPayload = {
-    client_name: formData.name,
+    client_name: sanitizeInput(formData.name),
     client_phone: formData.phone,
     client_rut: formData.rut,
     payment_type: paymentType,
     total: cartTotal,
     items: cart,
-    note: orderNote,
+    note: sanitizeInput(orderNote),
     status: 'pending',
     receiptFile: formData.receiptFile
   };
@@ -414,7 +455,7 @@ const PaymentFlow = ({
         )}
 
         <div className="form-actions-col">
-          <button type="submit" disabled={isSaving || !validation.phone} className="btn btn-primary btn-block">
+          <button type="submit" disabled={isSaving || !validation.isReady} className="btn btn-primary btn-block">
             {isSaving ? 'Enviando...' : 'Confirmar Pedido'}
           </button>
           <button type="button" className="btn btn-text btn-block" onClick={() => setShowForm(false)}>
@@ -431,14 +472,39 @@ const PaymentFlow = ({
         {paymentType === 'online' ? (
           <div className="bank-info glass">
             <h4>Datos para Transferir</h4>
-            <ul>
+            <ul className="bank-details-list">
               <li><span>Banco:</span> <b>Tenpo (Prepago)</b></li>
-              <li><span>Cuenta:</span> <b>111126281473</b></li>
-              <li><span>RUT:</span> <b>26.281.473-4</b></li>
-              <li><span>Email:</span> <b>doranteegrimar@gmail.com</b></li>
+              
+              <li className="copy-row">
+                <span>Cuenta:</span> <b>****281473</b> 
+                <button className="btn-copy-icon" onClick={() => { navigator.clipboard.writeText('111126281473'); alert('Cuenta copiada'); }}>
+                  <Copy size={14} />
+                </button>
+              </li>
+
+              <li className="copy-row">
+                <span>RUT:</span> <b>26.281.***-*</b> 
+                <button className="btn-copy-icon" onClick={() => { navigator.clipboard.writeText('26.281.473-4'); alert('RUT copiado'); }}>
+                  <Copy size={14} />
+                </button>
+              </li>
+
+              <li className="copy-row">
+                <span>Email:</span> <b>dora****@gmail.com</b> 
+                <button className="btn-copy-icon" onClick={() => { navigator.clipboard.writeText('doranteegrimar@gmail.com'); alert('Email copiado'); }}>
+                  <Copy size={14} />
+                </button>
+              </li>
             </ul>
             <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
-            <button onClick={() => setShowForm(true)} className="btn btn-primary btn-block mt-4">Ya pagué, subir comprobante</button>
+
+            <button onClick={() => setShowForm(true)} className="btn btn-primary btn-block mt-4">
+              Ya pagué
+            </button>
+            
+            <button onClick={() => setPaymentType(null)} className="btn btn-text btn-block mt-3">
+              <ArrowLeft size={16} className="mr-5" /> Elegir otro método
+            </button>
           </div>
         ) : (
           <div className="store-pay-info glass">
@@ -446,11 +512,11 @@ const PaymentFlow = ({
             <h4>Pagar en Local</h4><p>Pagas en efectivo o tarjeta al retirar.</p>
             <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
             <button onClick={() => setShowForm(true)} className="btn btn-primary btn-block mt-4">Continuar</button>
+            <button onClick={() => setPaymentType(null)} className="btn btn-text btn-block mt-3">
+              <ArrowLeft size={16} className="mr-5" /> Elegir otro método
+            </button>
           </div>
         )}
-        <button onClick={() => setPaymentType(null)} className="btn btn-text btn-block mt-2">
-          <ArrowLeft size={16} className="mr-5" /> Elegir otro método
-        </button>
       </div>
     );
   }

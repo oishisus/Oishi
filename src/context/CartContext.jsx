@@ -22,6 +22,9 @@ export const CartProvider = ({ children }) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
+        // LÍMITE DE SEGURIDAD: Máximo 20 unidades por producto para evitar errores/ataques
+        if (existing.quantity >= 20) return prev; 
+        
         return prev.map(item => 
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );

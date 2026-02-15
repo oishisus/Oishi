@@ -54,45 +54,64 @@ export const ordersService = {
      */
     async _ensureClient(orderData) {
         const { client_rut, client_name, client_phone, total } = orderData;
+        const hasValidRut = client_rut && client_rut.length > 7;
 
-        // Determinar un RUT único si no viene
-        const rutToUse = client_rut && client_rut.length > 7
-            ? client_rut
-            : `SIN-RUT-${Date.now().toString().slice(-6)}`;
+        // 1. Intentar buscar cliente existente por Teléfono (Prioridad por ser único) o RUT
+        let query = supabase.from('clients').select('*');
 
-        // 1. Buscar cliente
-        const { data: clients, error: searchError } = await supabase
-            .from('clients')
-            .select('id, total_spent, total_orders')
-            .eq('rut', rutToUse);
+        if (hasValidRut) {
+            // Si tenemos RUT válido, buscamos coincidencia por RUT o por Teléfono
+            query = query.or(`rut.eq.${client_rut},phone.eq.${client_phone}`);
+        } else {
+            // Si no hay RUT, buscamos por Teléfono
+            query = query.eq('phone', client_phone);
+        }
 
-        if (searchError) throw searchError;
+        const { data: foundClients, error: searchError } = await query;
+        
+        if (searchError) {
+            console.error("Error buscando cliente:", searchError);
+            throw searchError;
+        }
 
-        const existingClient = clients?.[0];
+        // Tomamos el primer match (dado que teléfono es único, debería ser uno solo)
+        const existingClient = foundClients?.[0];
 
         if (existingClient) {
-            // 2. Actualizar existente
+            // 2. Actualizar cliente existente
+            const updateData = {
+                name: client_name, // Actualizamos nombre reciente
+                last_order_at: new Date().toISOString(),
+                total_spent: (existingClient.total_spent || 0) + total,
+                total_orders: (existingClient.total_orders || 0) + 1
+            };
+
+            // Si el cliente ya existe pero tenía un RUT temporal, y ahora traemos uno real, lo actualizamos
+            if (hasValidRut && (!existingClient.rut || existingClient.rut.startsWith('SIN-RUT'))) {
+                updateData.rut = client_rut;
+            }
+            // Si el cliente tiene un RUT real en BD, NO lo sobreescribimos con uno temporal,
+            // pero sí actualizamos el teléfono si por alguna razón coinciden por RUT y no por teléfono.
+            updateData.phone = client_phone;
+
             const { error: updateError } = await supabase
                 .from('clients')
-                .update({
-                    name: client_name,
-                    phone: client_phone,
-                    total_spent: (existingClient.total_spent || 0) + total,
-                    total_orders: (existingClient.total_orders || 0) + 1,
-                    last_order_at: new Date().toISOString(),
-                })
+                .update(updateData)
                 .eq('id', existingClient.id);
 
             if (updateError) throw updateError;
             return existingClient.id;
         } else {
-            // 3. Crear nuevo
+            // 3. Crear nuevo cliente
+            // Si no exite, usamos el RUT válido o generamos uno temporal
+            const rutToSave = hasValidRut ? client_rut : `SIN-RUT-${Date.now().toString().slice(-6)}`;
+
             const { data: newClient, error: createError } = await supabase
                 .from('clients')
                 .insert({
                     name: client_name,
                     phone: client_phone,
-                    rut: rutToUse,
+                    rut: rutToSave,
                     total_spent: total,
                     total_orders: 1,
                     last_order_at: new Date().toISOString()

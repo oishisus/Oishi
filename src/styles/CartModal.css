@@ -435,8 +435,49 @@
     font-weight: 600;
 }
 
+/* Upload Box Premium Design */
+.upload-box {
+    border: 2px dashed var(--card-border);
+    border-radius: 12px;
+    padding: 12px; /* Reducido para ser más bajito */
+    display: flex; /* Flex para centrar contenido horizontalmente */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.02);
+    margin-top: 5px;
+    position: relative;
+    overflow: hidden;
+    min-height: 50px; /* Altura mínima controlada */
+}
+
+.upload-box:hover {
+    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: row; /* Horizontal para ahorrar altura */
+    align-items: center;
+    gap: 15px;
+    color: var(--text-muted);
+}
+
+.upload-placeholder svg {
+    color: var(--accent-secondary);
+    margin-bottom: 0; /* Sin margen abajo */
+}
+
+.upload-placeholder span {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 /* Fondo extra oscuro para el carrito */
@@ -495,4 +536,66 @@
 .file-status-sub {
     font-size: 0.75rem;
     color: var(--accent-secondary);
+}
+
+/* Estilos para la lista de datos bancarios con botón copiar */
+.bank-details-list {
+  padding: 0;
+  list-style: none;
+  margin: 15px 0;
+  font-size: 0.95rem;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bank-details-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.bank-details-list li:last-child {
+  border-bottom: none;
+}
+
+.copy-row b {
+  color: #fff;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+  margin-right: 5px;
+}
+
+.btn-copy-icon {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 10px;
+}
+
+.btn-copy-icon:hover {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+.btn-copy-icon:active {
+  transform: scale(0.95);
+}
+
+.bank-info h4 {
+  margin-bottom: 15px;
+  color: var(--accent-secondary);
+  text-align: center;
 }
