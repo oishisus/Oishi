@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Loader2, Search, Filter, CheckCircle2, AlertCircle,
-  Eye, EyeOff, BarChart3, Package, DollarSign,
-  Star, Trophy, PieChart,
-  Image as ImageIcon, Upload, PlusCircle,
-  X, XCircle, Trash2, FileText, Plus, Edit, RefreshCw
+  Package, DollarSign, Star, Trophy, PieChart,
+  Upload, PlusCircle, X, XCircle, Trash2, FileText, Plus, Edit, RefreshCw
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProductModal from '../components/ProductModal';
@@ -18,7 +16,8 @@ import AdminClientsTable from '../components/admin/AdminClientsTable';
 import ClientDetailsPanel from '../components/admin/ClientDetailsPanel';
 import { supabase } from '../lib/supabase';
 import { uploadImage } from '../lib/cloudinary';
-import logo from '../assets/logo.png';
+import CashManager from '../components/admin/caja/CashManager';
+import { useCashSystem } from '../hooks/caja/useCashSystem';
 import '../styles/AdminLayout.css';
 import '../styles/AdminAnalytics.css';
 import '../styles/AdminShared.css';
@@ -105,10 +104,13 @@ const Admin = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const showNotify = (msg, type = 'success') => {
+  const showNotify = useCallback((msg, type = 'success') => {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 3000);
-  };
+  }, []);
+
+  // --- SISTEMA DE CAJA ---
+  const { registerSale } = useCashSystem(showNotify);
 
   // --- 1. CARGA DE DATOS ---
   const loadData = async (isRefresh = false) => {
@@ -242,6 +244,13 @@ const Admin = () => {
     try {
       const { error } = await supabase.from('orders').update({ status: nextStatus }).eq('id', orderId);
       if (error) throw error;
+      
+      // Si el pedido se marca como completado o retirado, lo registramos en caja
+      if (nextStatus === 'completed' || nextStatus === 'picked_up') {
+        const order = orders.find(o => o.id === orderId);
+        if (order) registerSale(order);
+      }
+
       showNotify('Pedido actualizado');
     } catch (error) {
       setOrders(previousOrders);
@@ -290,10 +299,14 @@ const Admin = () => {
       }
 
       const payload = { 
-        ...formData, 
-        image_url: finalImageUrl, 
-        price: parseInt(formData.price),
-        discount_price: formData.discount_price ? parseInt(formData.discount_price) : null
+        name: formData.name,
+        description: formData.description,
+        category_id: formData.category_id,
+        image_url: finalImageUrl,
+        price: parseInt(formData.price) || 0,
+        is_special: formData.is_special || false,
+        has_discount: formData.has_discount || false,
+        discount_price: formData.has_discount ? (parseInt(formData.discount_price) || 0) : null
       };
 
       if (editingProduct) {
@@ -508,7 +521,10 @@ const Admin = () => {
         setActiveTab={setActiveTab}
         isMobile={isMobile}
         kanbanColumns={kanbanColumns}
-        onLogout={() => navigate('/')}
+        onLogout={async () => {
+          await supabase.auth.signOut();
+          navigate('/login');
+        }}
       />
 
       <main className="admin-content">
@@ -518,7 +534,8 @@ const Admin = () => {
               activeTab === 'products' ? 'Inventario' :
                 activeTab === 'analytics' ? 'Rendimiento' :
                   activeTab === 'clients' ? 'Clientes' :
-                    activeTab === 'settings' ? 'Herramientas' : 'Categorías'}
+                    activeTab === 'caja' ? 'Caja y Turnos' :
+                      activeTab === 'settings' ? 'Herramientas' : 'Categorías'}
           </h1>
 
           <div className="header-actions">
@@ -682,6 +699,11 @@ const Admin = () => {
           />
         )}
 
+        {/* 4.5 CAJA */}
+        {activeTab === 'caja' && (
+          <CashManager showNotify={showNotify} />
+        )}
+
         {/* 5. CATEGORÍAS */}
         {activeTab === 'categories' && (
           <div className="categories-list glass animate-fade">
@@ -793,11 +815,23 @@ const Admin = () => {
                 <div className="upload-box" onClick={() => document.getElementById('receipt-upload-modal').click()} style={{ borderColor: receiptPreview ? '#25d366' : 'var(--card-border)' }}>
                   <input type="file" id="receipt-upload-modal" accept="image/*" hidden onChange={handleReceiptFileChange} />
                   {receiptPreview ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 15, justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 15, justifyContent: 'center', position: 'relative' }}>
                       <img src={receiptPreview} alt="Preview" style={{ width: 80, height: 80, borderRadius: 8, objectFit: 'cover', border: '1px solid white' }} />
                       <div style={{ textAlign: 'left' }}>
                         <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: 'white' }}>Imagen Seleccionada</span>
                         <span style={{ fontSize: '0.75rem', color: '#25d366' }}>Click para cambiar</span>
+                        <button 
+                          type="button" 
+                          className="btn-text" 
+                          style={{ color: '#ff4444', fontSize: '0.75rem', padding: 0, marginTop: 4 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setReceiptPreview(null);
+                            document.getElementById('receipt-upload-modal').value = '';
+                          }}
+                        >
+                          Quitar
+                        </button>
                       </div>
                     </div>
                   ) : (

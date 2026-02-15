@@ -26,59 +26,62 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
 
   useEffect(() => {
     if (isOpen) {
-      if (product) {
-        setFormData({
-          name: product.name || '',
-          price: product.price || '',
-          description: product.description || '',
-          category_id: product.category_id || categories[0]?.id || '',
-          is_special: product.is_special || false,
-          has_discount: product.has_discount || false,
-          discount_price: product.discount_price || '',
-          image_url: product.image_url || ''
-        });
-        setPreviewUrl(product.image_url || '');
-      } else {
-        setFormData({
-          name: '',
-          price: '',
-          description: '',
-          category_id: categories[0]?.id || '',
-          is_special: false,
-          has_discount: false,
-          discount_price: '',
-          image_url: ''
-        });
-        setPreviewUrl('');
-      }
-      setLocalFile(null);
-      setErrors({});
-      setIsDirty(false);
+      queueMicrotask(() => {
+        if (product) {
+          setFormData({
+            name: product.name || '',
+            price: product.price || '',
+            description: product.description || '',
+            category_id: product.category_id || categories[0]?.id || '',
+            is_special: product.is_special || false,
+            has_discount: product.has_discount || false,
+            discount_price: product.discount_price || '',
+            image_url: product.image_url || ''
+          });
+          setPreviewUrl(product.image_url || '');
+        } else {
+          setFormData({
+            name: '',
+            price: '',
+            description: '',
+            category_id: categories[0]?.id || '',
+            is_special: false,
+            has_discount: false,
+            discount_price: '',
+            image_url: ''
+          });
+          setPreviewUrl('');
+        }
+        setLocalFile(null);
+        setErrors({});
+        setIsDirty(false);
 
-      setTimeout(() => {
-        if (nameInputRef.current) nameInputRef.current.focus();
-      }, 100);
+        setTimeout(() => {
+          if (nameInputRef.current) nameInputRef.current.focus();
+        }, 100);
+      });
     }
   }, [isOpen, product, categories]);
 
-  const handleSafeClose = () => {
-    if (isDirty && !saving) {
-      if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
-        onClose();
-      }
-    } else {
-      onClose();
-    }
-  };
-
   useEffect(() => {
     if (!isOpen) return;
+
+    const handleSafeClose = () => {
+      if (isDirty && !saving) {
+        if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
+          onClose();
+        }
+      } else {
+        onClose();
+      }
+    };
+
     const handleEsc = (e) => {
       if (e.key === 'Escape') handleSafeClose();
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, isDirty]);
+  }, [isOpen, isDirty, saving, onClose]);
 
   if (!isOpen) return null;
 
@@ -122,11 +125,27 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
   };
 
   return (
-    <div className="modal-overlay" onClick={handleSafeClose} role="dialog" aria-modal="true">
+    <div className="modal-overlay" onClick={() => {
+      if (isDirty && !saving) {
+        if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
+          onClose();
+        }
+      } else {
+        onClose();
+      }
+    }} role="dialog" aria-modal="true">
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <header className="modal-header">
           <h3 className="fw-700">{product ? 'Editar Producto' : 'Nuevo Producto'}</h3>
-          <button onClick={handleSafeClose} className="btn-close" aria-label="Cerrar modal">
+          <button onClick={() => {
+            if (isDirty && !saving) {
+              if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
+                onClose();
+              }
+            } else {
+              onClose();
+            }
+          }} className="btn-close" aria-label="Cerrar modal">
             <X size={24} />
           </button>
         </header>
@@ -155,13 +174,34 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
                 )}
               </div>
 
-              <button
-                type="button"
-                className="btn btn-secondary btn-xs"
-                onClick={handleUploadClick}
-              >
-                <Upload size={14} style={{ marginRight: 4 }} /> Seleccionar foto
-              </button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-xs"
+                  onClick={handleUploadClick}
+                >
+                  <Upload size={14} style={{ marginRight: 4 }} /> Seleccionar foto
+                </button>
+
+                {previewUrl && (
+                  <button
+                    type="button"
+                    className="btn btn-danger-xs"
+                    style={{ padding: '0 12px', height: '32px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('¿Eliminar la imagen actual?')) {
+                        setLocalFile(null);
+                        setPreviewUrl('');
+                        setFormData(prev => ({ ...prev, image_url: '' }));
+                        setIsDirty(true);
+                      }
+                    }}
+                  >
+                    Borrar Imagen
+                  </button>
+                )}
+              </div>
 
               <input
                 type="file"
@@ -301,7 +341,15 @@ const ProductModal = React.memo(({ isOpen, onClose, onSave, product, categories,
           </div>
 
           <footer className="modal-footer">
-            <button type="button" onClick={handleSafeClose} className="btn btn-secondary" disabled={saving}>Cancelar</button>
+            <button type="button" onClick={() => {
+              if (isDirty && !saving) {
+                if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
+                  onClose();
+                }
+              } else {
+                onClose();
+              }
+            }} className="btn btn-secondary" disabled={saving}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
               <span>{saving ? 'Guardando...' : 'Guardar'}</span>

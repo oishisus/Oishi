@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../styles/CartFloat.css';
 import { ShoppingBag, ArrowRight } from 'lucide-react'; // Agregué ArrowRight
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/useCart';
 
 const CartFloat = () => {
   const { totalItems, cartTotal, toggleCart } = useCart();

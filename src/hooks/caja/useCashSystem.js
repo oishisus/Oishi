@@ -1,0 +1,143 @@
+import { useState, useEffect, useCallback } from 'react';
+import { cashService } from '../../services/caja/cashService';
+import { supabase } from '../../lib/supabase';
+
+export const useCashSystem = (showNotify) => {
+    const [activeShift, setActiveShift] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [movements, setMovements] = useState([]);
+    const [loadingMovements, setLoadingMovements] = useState(false);
+
+    /**
+     * Carga los movimientos de un turno
+     */
+    const loadMovements = useCallback(async (shiftId) => {
+        setLoadingMovements(true);
+        try {
+            const data = await cashService.getShiftMovements(shiftId);
+            setMovements(data);
+        } catch (error) {
+            console.error('Error loading movements:', error);
+        } finally {
+            setLoadingMovements(false);
+        }
+    }, []);
+
+    /**
+     * Carga el turno activo inicial
+     */
+    const loadActiveShift = useCallback(async () => {
+        setLoading(true);
+        try {
+            const shift = await cashService.getActiveShift();
+            setActiveShift(shift);
+            if (shift) {
+                loadMovements(shift.id);
+            }
+        } catch (error) {
+            console.error('Error loading active shift:', error);
+            if (showNotify) showNotify('Error al cargar datos de caja', 'error');
+        } finally {
+            setLoading(false);
+        }
+    }, [showNotify, loadMovements]);
+
+    useEffect(() => {
+        loadActiveShift();
+    }, [loadActiveShift]);
+
+    /**
+     * Abre un nuevo turno
+     */
+    const openShift = async (amount) => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const newShift = await cashService.openShift(amount, user?.id);
+            setActiveShift(newShift);
+            setMovements([]);
+            if (showNotify) showNotify('Caja abierta con éxito');
+            return true;
+        } catch (error) {
+            console.error('Error opening shift:', error);
+            if (showNotify) showNotify('Error al abrir caja', 'error');
+            return false;
+        }
+    };
+
+    /**
+     * Cierra el turno actual
+     */
+    const closeShift = async (actualBalance) => {
+        if (!activeShift) return false;
+        try {
+            await cashService.closeShift(activeShift.id, actualBalance);
+            setActiveShift(null);
+            setMovements([]);
+            if (showNotify) showNotify('Caja cerrada correctamente');
+            return true;
+        } catch (error) {
+            console.error('Error closing shift:', error);
+            if (showNotify) showNotify('Error al cerrar caja', 'error');
+            return false;
+        }
+    };
+
+    /**
+     * Agrega un movimiento manual (Ingreso/Egreso)
+     */
+    const addManualMovement = async (type, amount, description, paymentMethod = 'cash') => {
+        if (!activeShift) return false;
+        try {
+            const movement = {
+                shift_id: activeShift.id,
+                type,
+                amount,
+                description,
+                payment_method: paymentMethod
+            };
+            await cashService.addMovement(movement);
+            
+            // Recargamos el turno para actualizar el balance esperado
+            await loadActiveShift();
+            if (showNotify) showNotify(type === 'income' ? 'Ingreso registrado' : 'Egreso registrado');
+            return true;
+        } catch (error) {
+            console.error('Error adding movement:', error);
+            if (showNotify) showNotify('Error al registrar movimiento', 'error');
+            return false;
+        }
+    };
+
+    /**
+     * Registra una venta automáticamente
+     */
+    const registerSale = async (order) => {
+        if (!activeShift) return;
+        try {
+            const movement = {
+                shift_id: activeShift.id,
+                type: 'sale',
+                amount: order.total,
+                description: `Venta #${order.id.slice(-4)} - ${order.client_name}`,
+                payment_method: order.payment_type === 'online' ? 'online' : (order.payment_type === 'tarjeta' ? 'card' : 'cash'),
+                order_id: order.id
+            };
+            await cashService.addMovement(movement);
+            await loadActiveShift();
+        } catch (error) {
+            console.error('Error registering sale in cash system:', error);
+        }
+    };
+
+    return {
+        activeShift,
+        loading,
+        movements,
+        loadingMovements,
+        openShift,
+        closeShift,
+        addManualMovement,
+        registerSale,
+        refresh: loadActiveShift
+    };
+};

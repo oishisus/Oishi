@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, ChevronDown, X } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/useCart';
 import '../styles/ProductCard.css';
 
 const ProductCard = React.memo(({ product }) => {

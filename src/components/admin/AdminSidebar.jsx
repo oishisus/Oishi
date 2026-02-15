@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChefHat, ShoppingBag, BarChart3, Users, List, Settings, LogOut } from 'lucide-react';
+import { ChefHat, ShoppingBag, BarChart3, Users, List, Settings, LogOut, DollarSign } from 'lucide-react';
 import logo from '../../assets/logo.png';
 import '../../styles/AdminSidebar.css';
 
@@ -28,6 +28,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, isMobile, kanbanColumns, onLogo
                 </button>
                 <button onClick={() => setActiveTab('categories')} className={`nav-item ${activeTab === 'categories' ? 'active' : ''}`}>
                     <List size={22} /> {!isMobile && 'Categorías'}
+                </button>
+                <button onClick={() => setActiveTab('caja')} className={`nav-item ${activeTab === 'caja' ? 'active' : ''}`}>
+                    <DollarSign size={22} /> {!isMobile && 'Caja'}
                 </button>
                 <button onClick={() => setActiveTab('settings')} className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}>
                     <Settings size={22} /> {!isMobile && 'Herramientas'}

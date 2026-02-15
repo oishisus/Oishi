@@ -14,7 +14,7 @@ const ManualOrderModal = ({ isOpen, onClose, products, onOrderSaved, showNotify,
         manualOrder, loading, rutValid, phoneValid,
         receiptFile, receiptPreview,
         updateClientName, updateNote, updatePaymentType, handleRutChange,
-        handlePhoneChange, handleFileChange, addItem, updateQuantity, removeItem,
+        handlePhoneChange, handleFileChange, removeReceipt, addItem, updateQuantity, removeItem,
         submitOrder, isValid, getInputStyle
     } = useManualOrder(showNotify, onOrderSaved, onClose);
 
@@ -581,7 +581,8 @@ const ManualOrderModal = ({ isOpen, onClose, products, onOrderSaved, showNotify,
                                             marginTop: '12px',
                                             borderRadius: '6px',
                                             overflow: 'hidden',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            position: 'relative'
                                         }}>
                                             <img
                                                 src={receiptPreview}
@@ -593,6 +594,29 @@ const ManualOrderModal = ({ isOpen, onClose, products, onOrderSaved, showNotify,
                                                     objectFit: 'cover'
                                                 }}
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    removeReceipt();
+                                                }}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '8px',
+                                                    right: '8px',
+                                                    background: 'rgba(230, 57, 70, 0.9)',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    padding: '4px 8px',
+                                                    fontSize: '10px',
+                                                    fontWeight: '700',
+                                                    cursor: 'pointer',
+                                                    boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
+                                                }}
+                                            >
+                                                QUITAR
+                                            </button>
                                         </div>
                                     )}
                                 </div>

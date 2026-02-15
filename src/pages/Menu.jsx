@@ -63,18 +63,6 @@ const Menu = () => {
     return window;
   };
 
-  // Helper para obtener posición interna segura (ignorando transformaciones visuales)
-  const getInternalTop = (element, container) => {
-    let top = 0;
-    let el = element;
-    // Sumamos offsetTop hasta encontrar el contenedor o body
-    while (el && el !== container && el !== document.body) {
-      top += el.offsetTop;
-      el = el.offsetParent;
-    }
-    return top;
-  };
-
   // Función de scroll mejorada: Usa scrollIntoView nativo + scrollMarginTop CSS
   const scrollToCategory = (id) => {
     isManualScrolling.current = true;

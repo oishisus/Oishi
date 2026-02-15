@@ -60,6 +60,11 @@ export const useManualOrder = (showNotify, onOrderSaved, onClose) => {
         }
     };
 
+    const removeReceipt = () => {
+        setReceiptFile(null);
+        setReceiptPreview(null);
+    };
+
     // --- LÓGICA DEL CARRITO ---
     const addItem = useCallback((product) => {
         setManualOrder(prev => {
@@ -171,6 +176,7 @@ export const useManualOrder = (showNotify, onOrderSaved, onClose) => {
         handleRutChange,
         handlePhoneChange,
         handleFileChange,
+        removeReceipt,
         addItem,
         updateQuantity,
         removeItem,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Save, Loader2 } from 'lucide-react';
 import '../styles/Modals.css';
 import '../styles/CategoryModal.css';
@@ -15,28 +15,27 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
 
   useEffect(() => {
     if (isOpen) {
-      if (category) {
-        setFormData({
-          name: category.name || '',
-          order: category.order || 0,
-          is_active: category.is_active !== undefined ? category.is_active : true
-        });
-      } else {
-        setFormData({
-          name: '',
-          order: 0,
-          is_active: true
-        });
-      }
-      setIsDirty(false);
-
       setTimeout(() => {
+        if (category) {
+          setFormData({
+            name: category.name || '',
+            order: category.order || 0,
+            is_active: category.is_active !== undefined ? category.is_active : true
+          });
+        } else {
+          setFormData({
+            name: '',
+            order: 0,
+            is_active: true
+          });
+        }
+        setIsDirty(false);
         if (nameInputRef.current) nameInputRef.current.focus();
-      }, 100);
+      }, 0);
     }
   }, [isOpen, category]);
 
-  const handleSafeClose = () => {
+  const handleSafeClose = useCallback(() => {
     if (isDirty && !saving) {
       if (window.confirm('Tienes cambios sin guardar. ¿Seguro quieres cerrar?')) {
         onClose();
@@ -44,7 +43,7 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
     } else {
       onClose();
     }
-  };
+  }, [isDirty, saving, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -53,7 +52,7 @@ const CategoryModal = React.memo(({ isOpen, onClose, onSave, category, saving = 
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, isDirty]);
+  }, [isOpen, handleSafeClose]);
 
   if (!isOpen) return null;
 

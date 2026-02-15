@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../styles/CartModal.css';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -6,7 +6,7 @@ import {
   CreditCard, Store, Check, Upload, FileText, ArrowLeft,
   AlertCircle, CheckCircle2
 } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/useCart';
 import { supabase } from '../lib/supabase';
 import { uploadImage } from '../lib/cloudinary';
 
@@ -217,7 +217,6 @@ const CartModal = React.memo(() => {
 
         message += 'DETALLE:\n';
         cart.forEach(item => {
-          const price = getPrice(item);
           message += `+ ${item.quantity} x ${item.name.toUpperCase()}\n`;
         });
 
@@ -437,6 +436,18 @@ const CartModal = React.memo(() => {
                                   <div style={{ textAlign: 'left' }}>
                                     <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: 'white' }}>Imagen Cargada</span>
                                     <span style={{ fontSize: '0.75rem', color: '#25d366' }}>Click para cambiar</span>
+                                    <button 
+                                      type="button" 
+                                      className="btn-text" 
+                                      style={{ color: '#ff4444', fontSize: '0.75rem', padding: 0, marginTop: 4, display: 'block' }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setReceiptFile(null);
+                                        setReceiptPreview(null);
+                                      }}
+                                    >
+                                      Quitar
+                                    </button>
                                   </div>
                                 </div>
                               ) : (

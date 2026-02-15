@@ -1,0 +1,174 @@
+/* --- CASH SYSTEM SHARED STYLES --- */
+
+.cash-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    animation: fadeIn 0.4s ease;
+}
+
+/* CARDS DE RESUMEN (KPIs) */
+.cash-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.cash-kpi-card {
+    padding: 25px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.cash-kpi-card:hover {
+    transform: translateY(-3px);
+}
+
+.cash-kpi-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cash-kpi-icon.balance { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.cash-kpi-icon.income { background: rgba(37, 211, 102, 0.15); color: #25d366; }
+.cash-kpi-icon.expense { background: rgba(230, 57, 70, 0.15); color: #e63946; }
+
+.cash-kpi-info h4 {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cash-kpi-value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: white;
+    margin-top: 4px;
+}
+
+/* ACCIONES DE CAJA */
+.cash-actions-bar {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cash-primary-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* HISTORIAL DE MOVIMIENTOS */
+.cash-history-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cash-movements-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.cash-movements-table th {
+    text-align: left;
+    padding: 10px 15px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.movement-row {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+}
+
+.movement-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.movement-row td {
+    padding: 15px;
+    font-size: 0.9rem;
+}
+
+.movement-row td:first-child { border-radius: 10px 0 0 10px; }
+.movement-row td:last-child { border-radius: 0 10px 10px 0; }
+
+.movement-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.type-sale { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
+.type-income { background: rgba(37, 211, 102, 0.1); color: #25d366; }
+.type-expense { background: rgba(230, 57, 70, 0.1); color: #e63946; }
+
+.movement-amount {
+    font-weight: 700;
+}
+
+.amount-plus { color: #25d366; }
+.amount-minus { color: #e63946; }
+
+/* ESTADO CERRADO (EMPTY STATE) */
+.cash-closed-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.cash-closed-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--text-secondary);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .cash-actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .cash-primary-actions {
+        flex-direction: column;
+    }
+    
+    .hide-mobile {
+        display: none;
+    }
+}
