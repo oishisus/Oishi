@@ -15,9 +15,11 @@ export const useCashSystem = (showNotify) => {
         setLoadingMovements(true);
         try {
             const data = await cashService.getShiftMovements(shiftId);
-            setMovements(data);
+            console.log('Movimientos cargados:', data);
+            setMovements(data || []);
         } catch (error) {
             console.error('Error loading movements:', error);
+            setMovements([]);
         } finally {
             setLoadingMovements(false);
         }
@@ -47,24 +49,40 @@ export const useCashSystem = (showNotify) => {
     }, [loadActiveShift]);
 
     /**
-     * Listener Realtime para recargar movimientos cuando se agreguen nuevos
+     * Listener Realtime para actualizar movimientos cuando se agreguen nuevos
      */
     useEffect(() => {
         if (!activeShift) return;
 
-        const subscription = supabase
-            .channel(`cash_movements_${activeShift.id}`)
-            .on('postgres_changes', 
-                { event: 'INSERT', schema: 'public', table: 'cash_movements', filter: `shift_id=eq.${activeShift.id}` },
+        // Subscribe a cambios en cash_movements para este shift
+        const channel = supabase
+            .channel(`cash_movements:shift_id=eq.${activeShift.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*', // Escuchar INSERT, UPDATE, DELETE
+                    schema: 'public',
+                    table: 'cash_movements',
+                    filter: `shift_id=eq.${activeShift.id}`
+                },
                 (payload) => {
-                    // Agregar el movimiento nuevo al estado
-                    setMovements(prev => [payload.new, ...prev]);
+                    console.log('Cambio en cash_movements:', payload);
+                    if (payload.eventType === 'INSERT') {
+                        // Agregar el movimiento nuevo al inicio
+                        setMovements(prev => [payload.new, ...prev]);
+                    } else if (payload.eventType === 'DELETE') {
+                        // Remover si se borra
+                        setMovements(prev => prev.filter(m => m.id !== payload.old.id));
+                    } else if (payload.eventType === 'UPDATE') {
+                        // Actualizar si cambia
+                        setMovements(prev => prev.map(m => m.id === payload.new.id ? payload.new : m));
+                    }
                 }
             )
             .subscribe();
 
         return () => {
-            subscription.unsubscribe();
+            channel.unsubscribe();
         };
     }, [activeShift]);
 
