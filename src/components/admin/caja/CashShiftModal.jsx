@@ -85,9 +85,18 @@ const CashShiftModal = ({ isOpen, onClose, type, onConfirm, activeShift }) => {
                                         <Calculator size={16} /> <span>Caja cuadrada perfectamente</span>
                                     </div>
                                 ) : (
-                                    <div style={{ color: '#f4a261', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div style={{ 
+                                        color: parseFloat(amount) > activeShift?.expected_balance ? '#25d366' : '#f4a261', 
+                                        fontSize: '0.85rem', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: 8 
+                                    }}>
                                         <AlertTriangle size={16} /> 
-                                        <span>Diferencia: ${ (parseFloat(amount) - activeShift?.expected_balance).toLocaleString('es-CL') }</span>
+                                        <span>
+                                            {parseFloat(amount) > activeShift?.expected_balance ? 'Sobrante: ' : 'Faltante: '}
+                                            ${ Math.abs(parseFloat(amount) - activeShift?.expected_balance).toLocaleString('es-CL') }
+                                        </span>
                                     </div>
                                 )}
                             </div>

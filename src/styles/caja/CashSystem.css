@@ -157,6 +157,107 @@
     color: var(--text-secondary);
 }
 
+/* TABS */
+.cash-tabs {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 10px;
+}
+
+.cash-tab {
+    padding: 12px 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.cash-tab:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.cash-tab.active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+    background: rgba(56, 189, 248, 0.05);
+}
+
+/* MINI KPIs CHICOS */
+.cash-mini-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.mini-kpi {
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mini-kpi label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.mini-kpi span {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* LISTA DE HISTORIAL */
+.shift-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.shift-history-item {
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.shift-history-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.shift-date-info h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.shift-date-info span {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.shift-balance-info {
+    text-align: right;
+}
+
+.shift-profit {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.profit-plus { color: #25d366; }
+.profit-minus { color: #e63946; }
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .cash-actions-bar {
@@ -170,5 +271,9 @@
     
     .hide-mobile {
         display: none;
+    }
+
+    .cash-tabs {
+        overflow-x: auto;
     }
 }

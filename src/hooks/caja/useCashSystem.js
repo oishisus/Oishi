@@ -178,6 +178,24 @@ export const useCashSystem = (showNotify) => {
         closeShift,
         addManualMovement,
         registerSale,
-        refresh: loadActiveShift
+        refresh: loadActiveShift,
+        // Nuevas funciones para historia
+        getPastShifts: cashService.getPastShifts,
+        getShiftMovements: cashService.getShiftMovements,
+        // Cálculos rápidos para KPIs detallados (ahora acepta movimientos por parámetro)
+        getTotals: (movementsData = movements) => {
+            return movementsData.reduce((acc, m) => {
+                const amount = m.amount || 0;
+                if (m.type === 'expense') {
+                    acc.expenses += amount;
+                } else {
+                    if (m.payment_method === 'cash') acc.cash += amount;
+                    else if (m.payment_method === 'card') acc.card += amount;
+                    else if (m.payment_method === 'online') acc.online += amount;
+                    acc.income += amount;
+                }
+                return acc;
+            }, { cash: 0, card: 0, online: 0, expenses: 0, income: 0 });
+        }
     };
 };

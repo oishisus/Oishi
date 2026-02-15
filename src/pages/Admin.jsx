@@ -23,8 +23,6 @@ import '../styles/AdminAnalytics.css';
 import '../styles/AdminShared.css';
 import '../styles/AdminCategories.css';
 
-// CLAVE DE SEGURIDAD
-const SECURITY_DELETE_KEY = '1234';
 
 // --- CAPA DE SANEAMIENTO (EL PORTERO) ---
 const sanitizeOrder = (rawOrder) => {
@@ -36,7 +34,7 @@ const sanitizeOrder = (rawOrder) => {
       try {
         const parsed = JSON.parse(rawOrder.items);
         cleanItems = Array.isArray(parsed) ? parsed : [];
-      } catch (e) {
+      } catch {
         cleanItems = [];
       }
     }
@@ -89,7 +87,10 @@ const Admin = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedClientOrders, setSelectedClientOrders] = useState([]);
   const [clientHistoryLoading, setClientHistoryLoading] = useState(false);
-  const [analyticsDate, setAnalyticsDate] = useState(new Date().toISOString().split('T')[0]);
+  const [analyticsDate, setAnalyticsDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
 
   // --- ZONA DE PELIGRO ---
   const [isDangerModalOpen, setIsDangerModalOpen] = useState(false);
@@ -110,10 +111,10 @@ const Admin = () => {
   }, []);
 
   // --- SISTEMA DE CAJA ---
-  const { registerSale } = useCashSystem(showNotify);
+  useCashSystem(showNotify);
 
   // --- 1. CARGA DE DATOS ---
-  const loadData = async (isRefresh = false) => {
+  const loadData = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
@@ -144,7 +145,7 @@ const Admin = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [showNotify]);
 
   const loadClientHistory = async (client) => {
     if (!client) return;
@@ -160,7 +161,7 @@ const Admin = () => {
       const cleanHistory = (data || []).map(sanitizeOrder);
       setSelectedClientOrders(cleanHistory);
 
-    } catch (error) {
+    } catch {
       showNotify('Error al cargar historial', 'error');
     } finally {
       setClientHistoryLoading(false);
@@ -234,7 +235,7 @@ const Admin = () => {
         supabase.removeChannel(channel).catch(() => {});
       }
     };
-  }, []);
+  }, [loadData]);
 
   // --- 2. GESTIÓN DE PEDIDOS ---
   const moveOrder = async (orderId, nextStatus) => {
@@ -249,7 +250,7 @@ const Admin = () => {
       // Admin solo cambia estado/kanban, la caja se actualiza desde CartModal
 
       showNotify('Pedido actualizado');
-    } catch (error) {
+    } catch {
       setOrders(previousOrders);
       showNotify("Error al actualizar", "error");
     }
@@ -328,7 +329,7 @@ const Admin = () => {
       await supabase.from('products').delete().eq('id', id);
       showNotify("Producto eliminado");
       loadData(true);
-    } catch (error) {
+    } catch {
       showNotify("No se puede eliminar (tiene ventas asociadas)", 'error');
     }
   };
@@ -340,7 +341,7 @@ const Admin = () => {
     try {
       await supabase.from('products').update({ is_active: newActive }).eq('id', product.id);
       showNotify(newActive ? 'Producto activado' : 'Producto pausado');
-    } catch (error) {
+    } catch {
       loadData(true);
       showNotify('Error al cambiar estado', 'error');
     }
@@ -358,7 +359,7 @@ const Admin = () => {
       setIsCategoryModalOpen(false);
       loadData(true);
       showNotify('Categoría guardada');
-    } catch (error) {
+    } catch {
       showNotify('Error al guardar', 'error');
     }
   };
@@ -409,28 +410,46 @@ const Admin = () => {
     showNotify('Reporte Excel generado', 'success');
   };
 
-  // --- 5. ZONA DE PELIGRO ---
   const executeDangerAction = async () => {
-    const trimmedName = dangerUserName.trim();
-    if (!trimmedName || dangerPassword !== SECURITY_DELETE_KEY) {
-      setDangerError('Credenciales incorrectas');
+    const trimmedEmail = dangerUserName.trim();
+    if (!trimmedEmail || !dangerPassword) {
+      setDangerError('Ingresa credenciales de administrador');
       return;
     }
 
-    setIsDangerModalOpen(false);
+    setDangerError(null);
     setLoading(true);
 
     try {
+      // Validar con Supabase Auth (re-autenticación)
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password: dangerPassword
+      });
+
+      if (authError) {
+        setDangerError('Credenciales de administrador inválidas');
+        setLoading(false);
+        return;
+      }
+
+      setIsDangerModalOpen(false);
+
       if (dangerAction === 'monthlyOrders') {
         const [year, month] = analyticsDate.split('-');
         const start = new Date(year, month - 1, 1).toISOString();
         const end = new Date(year, month, 0, 23, 59, 59).toISOString();
 
-        const { data, error } = await supabase.from('orders').delete()
+        // 1. Borrar movimientos de caja del mes para evitar error de FK
+        await supabase.from('cash_movements').delete()
+          .gte('created_at', start).lte('created_at', end);
+
+        // 2. Borrar las órdenes
+        const { error } = await supabase.from('orders').delete()
           .gte('created_at', start).lte('created_at', end).select();
 
         if (error) throw error;
-        showNotify(`Eliminados ${data.length} pedidos`, 'success');
+        showNotify(`Registros del mes eliminados con éxito`, 'success');
 
       } else if (dangerAction === 'allClients') {
         const { count, error } = await supabase.from('clients').delete().neq('phone', '0000').select('*', { count: 'exact' });
@@ -438,11 +457,16 @@ const Admin = () => {
         showNotify(`Base de clientes purgada (${count} registros)`, 'success');
       }
 
-      await supabase.from('audit_logs').insert({
-        actor_name: trimmedName,
-        action: dangerAction,
-        created_at: new Date().toISOString()
-      }).catch(() => { });
+      // Registro de auditoría (opcional, no bloquea)
+      try {
+        await supabase.from('audit_logs').insert({
+          actor_name: trimmedEmail,
+          action: dangerAction,
+          created_at: new Date().toISOString()
+        });
+      } catch {
+        console.warn('No se pudo guardar el log de auditoría');
+      }
 
       loadData(true);
     } catch (e) {
@@ -765,25 +789,44 @@ const Admin = () => {
       {/* MODAL CLAVE */}
       {isDangerModalOpen && (
         <div className="modal-overlay" onClick={() => setIsDangerModalOpen(false)}>
-          <div className="admin-side-panel glass animate-slide-in" style={{ maxWidth: 350 }} onClick={e => e.stopPropagation()}>
+          <div className="admin-side-panel glass animate-slide-in" style={{ maxWidth: 350, maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
             <div className="admin-side-header">
               <div className="flex-center"><AlertCircle size={22} className="text-accent" /><h3>Confirmar</h3></div>
               <button onClick={() => setIsDangerModalOpen(false)} className="btn-close-sidepanel"><XCircle size={24} /></button>
             </div>
-            <div className="admin-side-body">
+            <div className="admin-side-body" style={{ overflowY: 'auto', flex: 1 }}>
               <p style={{ fontSize: '0.9rem', marginBottom: 20 }}>Acción irreversible. Ingresa credenciales.</p>
               <div className="form-group">
-                <label>Usuario</label>
-                <input className="form-input" value={dangerUserName} onChange={e => setDangerUserName(e.target.value)} />
+                <label>Email Admin</label>
+                <input 
+                  className="form-input" 
+                  placeholder="admin@ejemplo.com" 
+                  value={dangerUserName} 
+                  onChange={e => setDangerUserName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && executeDangerAction()}
+                />
               </div>
               <div className="form-group">
                 <label>Clave</label>
-                <input type="password" className="form-input" value={dangerPassword} onChange={e => setDangerPassword(e.target.value)} />
+                <input 
+                  type="password" 
+                  className="form-input" 
+                  value={dangerPassword} 
+                  onChange={e => setDangerPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && executeDangerAction()}
+                />
               </div>
               {dangerError && <div style={{ color: '#ff4444', fontSize: '0.85rem', marginTop: 10 }}>{dangerError}</div>}
             </div>
-            <div className="admin-side-footer">
-              <button className="btn btn-primary btn-block" onClick={executeDangerAction}>Confirmar</button>
+            <div className="admin-side-footer" style={{ marginTop: 'auto' }}>
+              <button 
+                className="btn btn-primary btn-block" 
+                onClick={executeDangerAction}
+                disabled={loading}
+                style={{ background: '#ff4444', color: 'white', border: 'none' }}
+              >
+                {loading ? <Loader2 size={18} className="animate-spin" /> : 'Confirmar y Borrar'}
+              </button>
             </div>
           </div>
         </div>

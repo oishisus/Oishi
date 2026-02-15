@@ -111,7 +111,7 @@ const CashMovementModal = ({ isOpen, onClose, type, onConfirm }) => {
                                 </button>
                             </div>
                             <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: 8 }}>
-                                * Solo los movimientos en <b>Efectivo</b> afectan el arqueo de caja física.
+                                * Solo los movimientos en <b>Efectivo</b> afectan el arqueo de caja física. Las Transferencias y Tarjetas se registran como saldo digital.
                             </p>
                         </div>
 

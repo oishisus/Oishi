@@ -123,5 +123,34 @@ export const cashService = {
 
         if (error) throw error;
         return data;
+    },
+
+    /**
+     * Obtiene el historial de turnos cerrados
+     */
+    getPastShifts: async (limit = 20) => {
+        const { data, error } = await supabase
+            .from('cash_shifts')
+            .select('*')
+            .eq('status', 'closed')
+            .order('closed_at', { ascending: false })
+            .limit(limit);
+
+        if (error) throw error;
+        return data;
+    },
+
+    /**
+     * Obtiene un turno específico por ID
+     */
+    getShiftById: async (shiftId) => {
+        const { data, error } = await supabase
+            .from('cash_shifts')
+            .select('*')
+            .eq('id', shiftId)
+            .single();
+
+        if (error) throw error;
+        return data;
     }
 };
