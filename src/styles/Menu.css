@@ -1,13 +1,33 @@
 /* =========================================
    MENU PAGE STYLES
    ========================================= */
+:root {
+    --menu-header-height: 130px;
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --menu-header-height: 110px;
+    }
+}
+
+/* Modo Horizontal (Landscape) para ahorrar espacio vertical */
+@media (max-height: 600px) and (orientation: landscape) {
+    :root {
+        --menu-header-height: 90px;
+    }
+}
 
 .navbar-sticky {
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 100;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10000;
     padding: 12px 0;
-    margin-bottom: 20px;
+    pointer-events: auto;
+    /* IMPORTANTE: Permitir clicks en una capa pointer-events: none */
     border-bottom: none;
 
     /* Sin background, solo blur transparente */
@@ -27,6 +47,8 @@
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
+    scroll-margin-top: calc(var(--menu-header-height) + 10px);
+    /* Asegura que el título no quede tapado por el header */
 }
 
 .category-title {
@@ -63,7 +85,7 @@ section {
     overflow-anchor: none;
 }
 
-@media (max-width: 600px) {
+@container (max-width: 600px) {
     .category-title {
         font-size: 1.1rem;
         gap: 8px;

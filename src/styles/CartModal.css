@@ -5,14 +5,15 @@
     position: fixed;
     right: 0;
     top: 0;
-    height: 100vh;
+    bottom: 0;
+    height: 100%;
     width: 100%;
     max-width: 400px;
     background: #121212;
     border-left: 1px solid var(--card-border);
     display: flex;
     flex-direction: column;
-    z-index: 2001;
+    z-index: 12000;
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
 }
 

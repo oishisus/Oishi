@@ -59,6 +59,8 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  container-type: inline-size;
+  /* Enable Layout Locking for Container Queries */
 }
 
 .page-wrapper {

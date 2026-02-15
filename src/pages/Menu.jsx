@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Navbar from '../components/Navbar';
 import ProductCard from '../components/ProductCard';
-import FloatingWhatsApp from '../components/CartFloat';
-import CartModal from '../components/CartModal';
 import { Search, ChevronLeft, Loader2 } from 'lucide-react';
 import '../styles/Menu.css';
 import { useNavigate } from 'react-router-dom';
@@ -52,20 +51,40 @@ const Menu = () => {
     loadData();
   }, []);
 
-  // Función de scroll mejorada para evitar conflictos con el detector
+  // Helper para detectar el contenedor de scroll activo dinámicamente
+  const getScrollParent = () => {
+    const wrapper = document.querySelector('.app-wrapper');
+    if (wrapper) {
+      const style = window.getComputedStyle(wrapper);
+      if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
+        return wrapper;
+      }
+    }
+    return window;
+  };
+
+  // Helper para obtener posición interna segura (ignorando transformaciones visuales)
+  const getInternalTop = (element, container) => {
+    let top = 0;
+    let el = element;
+    // Sumamos offsetTop hasta encontrar el contenedor o body
+    while (el && el !== container && el !== document.body) {
+      top += el.offsetTop;
+      el = el.offsetParent;
+    }
+    return top;
+  };
+
+  // Función de scroll mejorada: Usa scrollIntoView nativo + scrollMarginTop CSS
   const scrollToCategory = (id) => {
-    isManualScrolling.current = true; // Bloqueo temporal
+    isManualScrolling.current = true;
     setActiveCategory(id);
 
     const element = document.getElementById(`section-${id}`);
     if (element) {
-      const headerOffset = 160;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      // scrollMarginTop en el estilo del elemento maneja el offset del header
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-
-      // Liberar el detector después de que termine la animación de scroll
       setTimeout(() => {
         isManualScrolling.current = false;
       }, 850);
@@ -76,37 +95,66 @@ const Menu = () => {
     if (loading) return;
 
     const handleScroll = () => {
-      // Si el usuario hizo clic en la nav, ignoramos el detector automático
       if (isManualScrolling.current) return;
 
-      const scrollPosition = window.scrollY + 220;
-      const specialSection = document.getElementById('section-special');
+      const container = getScrollParent();
+      const currentScroll = container === window ? window.scrollY : container.scrollTop;
 
-      if (specialSection) {
-        const top = specialSection.offsetTop;
-        const height = specialSection.offsetHeight;
-        if (scrollPosition >= top && scrollPosition < top + height) {
-          setActiveCategory('special');
-          return;
+      const headerEl = document.querySelector('.navbar-sticky');
+      const headerHeight = headerEl ? headerEl.offsetHeight : 110;
+
+      // Lista de secciones a verificar
+      const sections = [];
+      if (document.getElementById('section-special')) sections.push({ id: 'special', elId: 'section-special' });
+      categories.forEach(c => {
+        if (document.getElementById(`section-${c.id}`)) {
+          sections.push({ id: c.id, elId: `section-${c.id}` });
+        }
+      });
+
+      if (sections.length === 0) return;
+
+      // SI ESTAMOS CERKA DEL TOP, SIEMPRE ES LA PRIMERA SECCIÓN
+      if (currentScroll < 100) {
+        if (activeCategory !== sections[0].id) setActiveCategory(sections[0].id);
+        return;
+      }
+
+      let currentId = null;
+      // Usamos una línea de disparo visual (un poco debajo del header)
+      const trigger = headerHeight + 60;
+
+      for (const section of sections) {
+        const el = document.getElementById(section.elId);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+
+        // Si el tope de la sección ya pasó la línea de disparo
+        // Y el fondo de la sección aun no ha pasado la línea de disparo
+        if (rect.top <= trigger && rect.bottom > trigger) {
+          currentId = section.id;
+          break;
         }
       }
 
-      for (const cat of categories) {
-        const element = document.getElementById(`section-${cat.id}`);
-        if (element) {
-          const top = element.offsetTop;
-          const height = element.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveCategory(cat.id);
-            break;
-          }
-        }
+      if (currentId && currentId !== activeCategory) {
+        setActiveCategory(currentId);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [categories, products, loading]);
+    // Listener dinámico
+    const scrollContainer = getScrollParent();
+    scrollContainer.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    // También escuchamos scroll en window por si acaso cambia el modo dinámicamente
+    if (scrollContainer !== window) window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      if (scrollContainer !== window) window.removeEventListener('scroll', handleScroll);
+    };
+  }, [categories, products, loading, activeCategory]);
 
   if (loading) {
     return (
@@ -120,45 +168,52 @@ const Menu = () => {
 
   return (
     <div className="page-wrapper">
-      <header className="navbar-sticky">
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '10px' }}>
-          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0 }}>
-            <ChevronLeft size={28} />
-          </button>
+      {/* Portal del Header Fijo (Lo enviamos a la capa de UI fuera del scroll) */}
+      {document.getElementById('navbar-portal-root') && createPortal(
+        <header className="navbar-sticky">
+          <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '10px' }}>
+            <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0 }}>
+              <ChevronLeft size={28} />
+            </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src={logo} alt="Oishi Logo" style={{ height: '38px', width: 'auto', borderRadius: '6px' }} />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1 }}>
-              <h2 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 700, color: 'white' }}>Oishi Sushi</h2>
-              <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', letterSpacing: '0.5px', textTransform: 'uppercase', fontWeight: 600 }}>Carta Digital</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <img src={logo} alt="Oishi Logo" style={{ height: '38px', width: 'auto', borderRadius: '6px' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1 }}>
+                <h2 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 700, color: 'white' }}>Oishi Sushi</h2>
+                <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', letterSpacing: '0.5px', textTransform: 'uppercase', fontWeight: 600 }}>Carta Digital</span>
+              </div>
             </div>
+            {/* Espaciador para mantener layout donde estaba el buscador */}
+            <div style={{ width: 24, height: 24 }}></div>
           </div>
-          {/* Espaciador para mantener layout donde estaba el buscador */}
-          <div style={{ width: 24, height: 24 }}></div>
-        </div>
 
-        <Navbar
-          categories={[
-            ...(specialProducts.length > 0 ? [{
-              id: 'special',
-              name: (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <img src={FIRE_ICON} style={{ width: '14px', height: '14px' }} alt="🔥" />
-                  Solo por hoy
-                </div>
-              )
-            }] : []),
-            ...categories
-          ]}
-          activeCategory={activeCategory}
-          onCategoryClick={scrollToCategory}
-        />
-      </header>
+          <Navbar
+            categories={[
+              ...(specialProducts.length > 0 ? [{
+                id: 'special',
+                name: (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <img src={FIRE_ICON} style={{ width: '14px', height: '14px' }} alt="🔥" />
+                    Solo por hoy
+                  </div>
+                )
+              }] : []),
+              ...categories
+            ]}
+            activeCategory={activeCategory}
+            onCategoryClick={scrollToCategory}
+          />
+        </header>,
+        document.getElementById('navbar-portal-root')
+      )}
+
+      {/* Espaciador (Spacer) para empujar el contenido debajo del header fijo */}
+      <div style={{ height: 'var(--menu-header-height)', width: '100%' }}></div>
 
       <main className="container">
         {/* SECCIÓN ESPECIAL (PREMIUM CON FUEGO) */}
         {specialProducts.length > 0 && (
-          <section id="section-special" className="category-section" style={{ scrollMarginTop: '160px' }}>
+          <section id="section-special" className="category-section">
             <h2 className="category-title">
               <img src={FIRE_ICON} className="category-icon" alt="🔥" />
               Solo por hoy
@@ -177,7 +232,7 @@ const Menu = () => {
           if (catProducts.length === 0) return null;
 
           return (
-            <section key={cat.id} id={`section-${cat.id}`} className="category-section" style={{ scrollMarginTop: '160px' }}>
+            <section key={cat.id} id={`section-${cat.id}`} className="category-section">
               <h2 className="category-title">
                 {cat.name}
               </h2>
@@ -190,9 +245,6 @@ const Menu = () => {
           );
         })}
       </main>
-
-      <CartModal />
-      <FloatingWhatsApp />
     </div>
   );
 };

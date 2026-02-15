@@ -9,7 +9,7 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 24px;
   margin-top: 20px;
-  align-items: start;
+  /* align-items: start; <-- REMOVED to allow stretch (equal height) */
 }
 
 /* --- TARJETA BASE (VERSIÓN PC - ALTA) --- */
@@ -83,13 +83,15 @@
   padding: 6px 12px;
   border-radius: 50px;
   font-size: 0.75rem;
+  /* Igualar al special */
   font-weight: 800;
-  z-index: 11; /* Un nivel más arriba que special por si coinciden */
+  z-index: 11;
+  /* Un nivel más arriba que special por si coinciden */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Si ambos están presentes, movemos el de descuento */
-.badge-special + .badge-discount {
+.badge-special+.badge-discount {
   top: 45px;
 }
 
@@ -119,6 +121,8 @@
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
+  position: relative;
+  /* Para posicionar el boton de ver detalles absolute */
   /* PC */
 }
 
@@ -161,7 +165,15 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: inherit;
+  background: rgba(20, 20, 20, 0.95);
+  /* Fondo oscuro solido para tapar el texto de abajo */
+  backdrop-filter: blur(4px);
+  z-index: 20;
+  /* Asegurar que este encima */
+  border-radius: 8px;
+  /* Opcional: para que se vea mas bonito dentro del contenedor */
+  padding: 4px;
+  /* Un poco de padding interno */
   animation: fadeInText 0.3s ease-out forwards;
 }
 
@@ -179,9 +191,18 @@
   flex-grow: 1;
   overflow-y: auto;
   padding-right: 8px;
-  font-size: 0.85rem;
-  color: #e0e0e0;
-  font-style: italic;
+  font-size: 0.9rem;
+  /* Un poco mas grande */
+  color: #fff;
+  /* Blanco puro para asegurar contraste */
+  font-style: normal;
+  /* Quitar italica por si acaso */
+}
+
+.scroll-area p {
+  margin: 0;
+  padding-bottom: 10px;
+  line-height: 1.4;
 }
 
 .scroll-area::-webkit-scrollbar {
@@ -196,7 +217,17 @@
 .info-hint {
   font-size: 0.65rem;
   color: var(--accent-secondary, #f4a261);
-  margin-bottom: 12px;
+  font-size: 0.65rem;
+  color: var(--accent-secondary, #f4a261);
+  /* margin-bottom: 8px; <-- Quitamos margin */
+  /* position: absolute; <-- Eliminamos absolute para evitar problemas con zoom */
+  /* bottom: 70px; */
+  /* left: 18px; */
+  /* z-index: 5; */
+  margin-top: auto;
+  /* Empujado hacia abajo por el wrapper */
+  margin-bottom: 4px;
+  /* Espacio con el footer */
   font-weight: 700;
   text-transform: uppercase;
   display: flex;
@@ -209,15 +240,27 @@
   margin-top: auto;
   display: flex;
   align-items: center;
+  /* Alineacion central otra vez */
   justify-content: space-between;
   padding-top: 12px;
+  padding-bottom: 4px;
+  /* Un poco de aire abajo para que los precios no se vean pegados */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+  height: 62px;
+  /* Altura fija para alinear el borde en todas las cards */
+  box-sizing: border-box;
 }
 
 .price-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  position: relative;
+  /* Para el absolute del precio tachado */
+}
+
+.price-container.has-discount {
+  margin-top: -8px;
+  /* Subimos más (-4 -> -8) */
 }
 
 .product-price {
@@ -225,6 +268,7 @@
   font-size: 1.25rem;
   color: white;
   text-shadow: 0 0 20px rgba(244, 162, 97, 0.2);
+  /* margin-top: -4px; <-- Quitamos para que se centre natural con flex */
 }
 
 .product-price.original {
@@ -233,7 +277,12 @@
   text-decoration: line-through;
   text-shadow: none;
   font-weight: 500;
-  margin-top: -2px;
+  position: absolute;
+  top: 24px;
+  /* Pegadito debajo del precio principal */
+  left: 0;
+  /* margin-top: -2px; <-- Quitamos */
+  /* Pequeño ajuste visual */
 }
 
 .product-price.discounted {
@@ -394,24 +443,25 @@
    MEDIA QUERIES - ADAPTACIÓN MÓVIL
    ========================================= */
 
-@media (max-width: 768px) {
+@container (max-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 }
 
-@media (max-width: 500px) {
+@container (max-width: 500px) {
 
   /* 1. Tarjeta Flexible */
   .product-card {
-    height: auto;
+    height: 100%;
     min-height: 280px;
     border-radius: 16px;
   }
 
   .product-image {
     aspect-ratio: 4/3;
+    /* Volver a 4/3 para que se vea bien la comida (menos chiquita) */
     flex-shrink: 0;
   }
 
@@ -419,12 +469,14 @@
     padding: 12px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    /* Quitamos space-between para subir el footer */
     flex-grow: 1;
   }
 
   .info-content-wrapper {
-    min-height: auto;
+    height: 115px;
+    /* Ajustamos altura para quitar espacio muerto */
     margin-bottom: 12px;
   }
 
@@ -434,13 +486,15 @@
     margin-bottom: 6px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
   .product-desc-clamped {
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
     font-size: 0.75rem;
@@ -450,9 +504,14 @@
 
   .product-footer {
     padding-top: 10px;
-    margin-top: auto;
+    margin-top: 0;
+    height: auto;
+    /* Resetear altura en movil */
+    /* Pegado al contenido de arriba */
     display: flex;
     align-items: center;
+    /* Volvemos a center para que los normales se vean bien */
+    /* Botones centrados respecto al precio */
     justify-content: space-between;
     gap: 5px;
   }
@@ -462,10 +521,19 @@
     font-weight: 800;
   }
 
+  .price-container.has-discount {
+    margin-top: -17px;
+    /* Subimos aun mas (-14 -> -17) para alinear top con boton */
+  }
+
   /* 2. Botón "Agregar" Base Móvil (38px) */
   .btn-add {
-    width: 38px;
-    height: 38px;
+    /* Fijar tamaño rigido */
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    flex-shrink: 0;
+    /* Prevenir que se apachurre */
     padding: 0;
     border-radius: 50%;
     background: white;
@@ -476,6 +544,22 @@
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     min-width: 38px;
+  }
+
+  /* Ajustes para ver mas texto en detalles (Mobile) */
+  .desc-header {
+    padding-bottom: 4px;
+    font-size: 0.65rem;
+  }
+
+  .scroll-area {
+    font-size: 0.75rem;
+    /* Texto mas pequeño para que quepa mas */
+    line-height: 1.3;
+  }
+
+  .scroll-area p {
+    padding-bottom: 4px;
   }
 
   .btn-add span {
@@ -550,6 +634,19 @@
     font-size: 0.6rem;
   }
 
+  .badge-discount {
+    top: 8px;
+    left: 8px;
+    padding: 3px 8px;
+    font-size: 0.6rem;
+  }
+
+  /* Si ambos estan, el segundo baja proporcionalmente en movil */
+  .badge-special+.badge-discount {
+    top: 32px;
+    /* 8px top + ~20px altura del primero + 4px gap */
+  }
+
   .qty-badge-overlay {
     top: 8px;
     right: 8px;
@@ -563,7 +660,7 @@
    REGLA ESPECIAL PARA CELULARES PEQUEÑOS (Menos de iPhone 12 Pro Max)
    El 12 Pro Max mide 428px. El corte lo hacemos en 425px.
    ========================================================================= */
-@media (max-width: 425px) {
+@container (max-width: 425px) {
 
   /* OCULTAR STEPPER, MOSTRAR SOLO BOTÓN ALUMBRANDO */
   /* Transformamos el .stepper-control para que parezca solo un botón */

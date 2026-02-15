@@ -97,14 +97,12 @@ const ProductCard = React.memo(({ product }) => {
           )}
         </div>
 
-        {isLongDesc && !isExpanded && (
-          <div className="info-hint">
-            <ChevronDown size={14} /> Ver detalles
-          </div>
-        )}
+        <div className="info-hint" style={{ visibility: (isLongDesc && !isExpanded) ? 'visible' : 'hidden' }}>
+          <ChevronDown size={14} /> Ver detalles
+        </div>
 
         <div className="product-footer">
-          <div className="price-container">
+          <div className={`price-container ${product.has_discount ? 'has-discount' : ''}`}>
             {product.has_discount && product.discount_price ? (
               <>
                 <span className="product-price discounted">${parseInt(product.discount_price).toLocaleString('es-CL')}</span>
