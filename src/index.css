@@ -69,6 +69,11 @@ body {
   min-height: 100vh;
 }
 
+.app-wrapper {
+  width: 100%;
+  position: relative;
+}
+
 .glass {
   background: var(--card-bg);
   backdrop-filter: blur(12px);

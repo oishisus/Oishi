@@ -216,7 +216,7 @@
 }
 
 /* Responsive Home (Móvil) */
-@media (max-width: 850px) {
+@media (max-width: 767px) {
     .ticket-wrapper {
         display: flex;
         flex-direction: column;
@@ -246,5 +246,21 @@
     .home-nav-grid> :first-child,
     .home-nav-grid> :last-child {
         grid-column: span 1;
+    }
+}
+
+/* Ajuste específico para iPads (Air/Pro) que ven el ticket */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .ticket-wrapper {
+        max-width: 95%;
+        transform: scale(0.95);
+    }
+
+    .brand-text-centered h1 {
+        font-size: 2.8rem;
+    }
+
+    .ticket-stub {
+        width: 200px;
     }
 }

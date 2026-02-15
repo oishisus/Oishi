@@ -129,9 +129,16 @@ const Menu = () => {
         if (!el) continue;
         const rect = el.getBoundingClientRect();
 
+        // NORMALIZACIÓN ANTI-ZOOM: Al usar zoom en el body, las coordenadas del rect se escalan.
+        // Las multiplicamos por DPR para volver a la escala real de la página.
+        const dpr = window.devicePixelRatio || 1;
+        const isZoomed = dpr > 1 && !('ontouchstart' in window); // Solo en PC
+        const normalizedTop = isZoomed ? rect.top * dpr : rect.top;
+        const normalizedBottom = isZoomed ? rect.bottom * dpr : rect.bottom;
+
         // Si el tope de la sección ya pasó la línea de disparo
         // Y el fondo de la sección aun no ha pasado la línea de disparo
-        if (rect.top <= trigger && rect.bottom > trigger) {
+        if (normalizedTop <= trigger && normalizedBottom > trigger) {
           currentId = section.id;
           break;
         }

@@ -18,7 +18,7 @@ function InnerApp() {
   const location = useLocation();
   const showCartUI = location.pathname === '/menu';
 
-  // Efecto "Anti-Zoom" Robusto
+  // Efecto "Anti-Zoom" Robusto (RESTAURADO)
   React.useEffect(() => {
     const handleVisualLock = () => {
       const contentLayer = document.getElementById('app-content-layer');
@@ -27,18 +27,19 @@ function InnerApp() {
       if (!contentLayer || !uiLayer) return;
 
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      // Detección específica para iPad que reporta ser Mac
+      const isIPad = /iPad|Macintosh/.test(navigator.userAgent) && isTouchDevice;
 
-      if (window.screen.width >= 1024 && !isTouchDevice) {
+      // Bajamos el umbral a 100px para que aguante cualquier nivel de zoom sin desactivarse explorando
+      if (window.screen.width >= 100 && !isIPad && !isTouchDevice) {
         const dpr = window.devicePixelRatio || 1;
         const inverseScale = 1 / dpr;
 
-        // ESTRATEGIA: ZOOM NATIVO (Chrome/Edge/Safari)
-        // Esto evita que la barra de scroll se escale monstruosamente con transform.
+        // ESTRATEGIA: ZOOM NATIVO (Chrome/Edge/Safari Desktop)
         document.body.style.zoom = inverseScale;
 
-        // Fallback para Firefox (No soporta zoom)
+        // Fallback para Firefox (Tu lógica original con transform)
         if (typeof document.body.style.zoom === 'undefined' || document.body.style.zoom === '') {
-          // Solo en Firefox usamos transform, aceptando que la scrollbar podría verse rara
           const transformProps = `scale(${inverseScale})`;
           const originProps = 'top left';
           const widthProps = `${dpr * 100}vw`;
@@ -54,33 +55,35 @@ function InnerApp() {
           uiLayer.style.width = widthProps;
           uiLayer.style.height = heightProps;
         } else {
-          // Limpieza si usamos zoom
+          // Limpieza y ajuste de dimensiones para Zoom Nativo
+          // A 500% zoom, 100% de ancho es insuficiente o errático. Ajustamos al ancho virtual.
+          const widthProps = `${dpr * 100}vw`;
+          const heightProps = `${dpr * 100}vh`;
+
           contentLayer.style.transform = '';
-          contentLayer.style.width = '';
+          contentLayer.style.width = widthProps;
           contentLayer.style.height = '';
           contentLayer.style.overflowY = '';
 
           uiLayer.style.transform = '';
-          uiLayer.style.width = '';
-          uiLayer.style.height = '';
+          uiLayer.style.width = widthProps;
+          uiLayer.style.height = heightProps;
         }
 
-        // Ajustes UI Layer fijos
+        // Ajustes de capa UI
         uiLayer.style.position = 'fixed';
         uiLayer.style.top = '0';
         uiLayer.style.left = '0';
-        uiLayer.style.width = '100%';
-        uiLayer.style.height = '100%';
+        // width/height ya definidos arriba para mayor precisión
         uiLayer.style.pointerEvents = 'none';
         uiLayer.style.zIndex = '9999';
 
         document.body.style.overflowX = 'hidden';
       } else {
-        // Reset Mobile (Pero manteniendo UI Layer fija para Navbar/Cart)
+        // Reset para Móviles e iPads
         document.body.style.zoom = '';
         document.body.style.overflowX = '';
 
-        // Reset Contenido (Flujo normal)
         if (contentLayer) {
           contentLayer.style.transform = '';
           contentLayer.style.transformOrigin = '';
@@ -90,11 +93,9 @@ function InnerApp() {
           contentLayer.style.overflowY = '';
         }
 
-        // Reset UI Layer (Sin transform, pero SIGUE SIENDO OVERLAY)
         if (uiLayer) {
           uiLayer.style.transform = '';
           uiLayer.style.transformOrigin = '';
-          // Aseguramos que siga cubriendo la pantalla para los portales
           uiLayer.style.position = 'fixed';
           uiLayer.style.top = '0';
           uiLayer.style.left = '0';

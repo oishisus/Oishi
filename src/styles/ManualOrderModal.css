@@ -573,11 +573,18 @@
 }
 
 /* Desktop: Sidebar fijo */
-@media (min-width: 768px) {
+@media (min-width: 1025px) {
     .manual-order-sidebar {
         width: 500px;
-        /* Increased to give more room */
         min-width: 500px;
+    }
+}
+
+/* Tablets / Desktop pequeño: Sidebar más estrecho */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .manual-order-sidebar {
+        width: 380px;
+        min-width: 380px;
     }
 }
 

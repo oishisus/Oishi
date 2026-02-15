@@ -14,8 +14,9 @@
 
 /* --- TARJETA BASE (VERSIÓN PC - ALTA) --- */
 .product-card {
-  height: 440px;
-  /* Altura fija GRANDE para PC */
+  min-height: 460px;
+  /* Cambio de height fijo a min-height para evitar cortes */
+  height: auto;
   display: flex;
   flex-direction: column;
   /* Fondo Glass oscuro */
@@ -131,8 +132,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 120px;
-  /* Altura mínima texto PC */
+  min-height: 100px;
+  /* Reducido para mayor flexibilidad */
   overflow: hidden;
   margin-bottom: 8px;
 }
@@ -440,17 +441,49 @@
 
 
 /* =========================================
-   MEDIA QUERIES - ADAPTACIÓN MÓVIL
+   MEDIA QUERIES - ADAPTACIÓN RESPONSIVA
    ========================================= */
 
-@container (max-width: 768px) {
+/* 1. DISEÑO POR DEFECTO / ESCRITORIO / ZOOM
+   Usamos auto-fill para que sea estable al hacer zoom */
+.product-grid {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+/* 2. TABLETAS (iPad Air, iPad Pro) - Solo cuando se detecta sistema TÁCTIL */
+/* Esto evita que el zoom de PC active este diseño */
+@media (min-width: 769px) and (max-width: 1024px) and (pointer: coarse) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px;
+  }
+
+  .product-card {
+    height: auto;
+    min-height: 420px;
   }
 }
 
-@container (max-width: 500px) {
+/* 3. TABLETAS PORTRAIT / IPAD MINI - Solo Táctil */
+@media (max-width: 768px) and (pointer: coarse) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .product-card {
+    height: auto;
+    min-height: 380px;
+  }
+
+  .product-name {
+    font-size: 1rem;
+  }
+}
+
+/* 3. MÓVILES - Solo Táctil */
+@media (max-width: 500px) and (pointer: coarse) {
 
   /* 1. Tarjeta Flexible */
   .product-card {
@@ -461,7 +494,6 @@
 
   .product-image {
     aspect-ratio: 4/3;
-    /* Volver a 4/3 para que se vea bien la comida (menos chiquita) */
     flex-shrink: 0;
   }
 
@@ -470,13 +502,11 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* Quitamos space-between para subir el footer */
     flex-grow: 1;
   }
 
   .info-content-wrapper {
     height: 115px;
-    /* Ajustamos altura para quitar espacio muerto */
     margin-bottom: 12px;
   }
 
@@ -506,12 +536,8 @@
     padding-top: 10px;
     margin-top: 0;
     height: auto;
-    /* Resetear altura en movil */
-    /* Pegado al contenido de arriba */
     display: flex;
     align-items: center;
-    /* Volvemos a center para que los normales se vean bien */
-    /* Botones centrados respecto al precio */
     justify-content: space-between;
     gap: 5px;
   }
@@ -523,17 +549,14 @@
 
   .price-container.has-discount {
     margin-top: -17px;
-    /* Subimos aun mas (-14 -> -17) para alinear top con boton */
   }
 
   /* 2. Botón "Agregar" Base Móvil (38px) */
   .btn-add {
-    /* Fijar tamaño rigido */
     width: 38px !important;
     height: 38px !important;
     min-width: 38px !important;
     flex-shrink: 0;
-    /* Prevenir que se apachurre */
     padding: 0;
     border-radius: 50%;
     background: white;
@@ -543,7 +566,6 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    min-width: 38px;
   }
 
   /* Ajustes para ver mas texto en detalles (Mobile) */
@@ -554,7 +576,6 @@
 
   .scroll-area {
     font-size: 0.75rem;
-    /* Texto mas pequeño para que quepa mas */
     line-height: 1.3;
   }
 
@@ -572,7 +593,7 @@
     margin: 0;
   }
 
-  /* 3. Stepper Base Móvil (Por defecto: visible en Pro Max y grandes) */
+  /* 3. Stepper Base Móvil */
   .stepper-control {
     height: 38px;
     background: white;
@@ -641,10 +662,8 @@
     font-size: 0.6rem;
   }
 
-  /* Si ambos estan, el segundo baja proporcionalmente en movil */
   .badge-special+.badge-discount {
     top: 32px;
-    /* 8px top + ~20px altura del primero + 4px gap */
   }
 
   .qty-badge-overlay {
@@ -656,44 +675,31 @@
   }
 }
 
-/* =========================================================================
-   REGLA ESPECIAL PARA CELULARES PEQUEÑOS (Menos de iPhone 12 Pro Max)
-   El 12 Pro Max mide 428px. El corte lo hacemos en 425px.
-   ========================================================================= */
-@container (max-width: 425px) {
-
-  /* OCULTAR STEPPER, MOSTRAR SOLO BOTÓN ALUMBRANDO */
-  /* Transformamos el .stepper-control para que parezca solo un botón */
-
+/* 4. CELULARES PEQUEÑOS */
+@media (max-width: 425px) {
   .stepper-control {
     background: transparent !important;
-    /* Fondo transparente */
     box-shadow: none !important;
     padding: 0 !important;
     width: 38px !important;
-    /* Solo espacio para 1 botón */
     justify-content: flex-end;
   }
 
-  /* Ocultamos el menos y el número */
   .step-btn.minus,
   .step-count {
     display: none !important;
   }
 
-  /* El botón "Más" se convierte en el indicador iluminado */
   .step-btn.plus {
     width: 38px !important;
     height: 38px !important;
     margin: 0 !important;
     border: none !important;
-    /* Efecto "Alumbrando" (Glow) */
     box-shadow: 0 0 10px rgba(255, 71, 87, 0.6), 0 0 20px rgba(255, 71, 87, 0.3) !important;
     animation: pulseGlow 2s infinite;
   }
 }
 
-/* Animación del brillo para móviles pequeños */
 @keyframes pulseGlow {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
