@@ -1,131 +1,251 @@
 /* =========================================
-   INVENTORY MANAGEMENT
+   INVENTORY MANAGEMENT (PREMIUM GLASS)
    ========================================= */
 
+/* --- GRID SYSTEM --- */
 .inventory-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    /* Min 240px evita que las tarjetas se vean muy estrechas */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+    padding-bottom: 40px;
+    animation: fadeIn 0.4s ease-out;
 }
 
+/* --- CARD CONTAINER --- */
 .inventory-card {
-    background: var(--bg-tertiary);
-    border-radius: 12px;
+    /* Glassmorphism Base */
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    
     overflow: hidden;
-    border: 1px solid var(--card-border);
-    transition: all 0.2s;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
-    position: relative;
+    
+    /* UX: Evitar selección de texto accidental al hacer click rápido */
+    user-select: none;
+    display: flex;
+    flex-direction: column;
 }
 
+/* Hover Effect: Levantar y brillar */
 .inventory-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent-primary);
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
+/* Focus para accesibilidad (Teclado) */
+.inventory-card:focus-visible {
+    outline: 2px solid var(--accent-primary, #e63946);
+    outline-offset: 4px;
+}
+
+/* Estado Inactivo (Pausado) */
 .inventory-card.inactive {
-    opacity: 0.7;
-    filter: grayscale(0.8);
+    opacity: 0.8;
+}
+.inventory-card.inactive .inv-img-wrapper img {
+    filter: grayscale(100%);
+    opacity: 0.6;
 }
 
+/* --- IMAGEN --- */
 .inv-img-wrapper {
-    height: 140px;
     width: 100%;
+    /* Mantiene proporción cinemática siempre */
+    aspect-ratio: 16 / 9; 
     position: relative;
+    overflow: hidden;
+    background: #000; /* Fondo negro mientras carga */
 }
 
 .inv-img-wrapper img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
 }
 
+/* Zoom suave en la imagen al hacer hover en la tarjeta */
+.inventory-card:hover .inv-img-wrapper img {
+    transform: scale(1.08);
+}
+
+/* --- BOTÓN FLOTANTE (OJO) --- */
 .inv-status-toggle {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    width: 30px;
-    height: 30px;
+    top: 10px;
+    right: 10px;
+    
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    
+    /* Glass Button */
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    backdrop-filter: blur(4px);
     transition: all 0.2s;
+    z-index: 2;
 }
 
 .inv-status-toggle:hover {
-    background: var(--accent-primary);
+    background: white;
+    color: black;
     transform: scale(1.1);
 }
 
-.inv-info {
-    padding: 12px;
+/* Estado activo vs inactivo del botón */
+.inv-status-toggle.off {
+    background: rgba(230, 57, 70, 0.8); /* Rojo si está apagado */
+    color: white;
 }
 
+/* --- CONTENIDO --- */
+.inv-info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Ocupa el resto de la altura */
+    gap: 12px;
+}
+
+/* Header: Título y Precio */
 .inv-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 4px;
+    gap: 10px;
+}
+
+.inv-title-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
 }
 
 .inv-header h4 {
-    font-size: 0.95rem;
+    font-size: 1rem;
+    font-weight: 700;
     margin: 0;
-    line-height: 1.2;
-    color: white;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.95);
+    
+    /* Truncar texto si es muy largo (2 líneas máx) */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.badge-special {
+    font-size: 0.75rem;
+    color: #ffd700; /* Dorado */
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* --- PRECIOS (Lógica de Descuentos) --- */
+.price-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
 }
 
 .inv-price {
     font-weight: 800;
-    color: var(--accent-secondary);
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    white-space: nowrap;
 }
 
-.inv-cat {
+/* Precio con descuento (Verde/Accent) */
+.inv-price.discount {
+    color: var(--accent-success, #25d366);
+    font-size: 1.1rem;
+}
+
+/* Precio original tachado */
+.inv-price-original {
     font-size: 0.75rem;
-    color: var(--text-secondary);
-    display: block;
-    margin-bottom: 10px;
+    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 2px;
 }
 
+/* --- ACCIONES (Footer de la tarjeta) --- */
 .inv-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
-}
-
-.btn-trash-sm {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 4px;
-}
-
-.btn-trash-sm:hover {
-    color: #ff4444;
+    margin-top: auto; /* Empuja al fondo */
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .status-badge {
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 4px;
+    font-size: 0.65rem;
+    padding: 4px 8px;
+    border-radius: 6px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .status-badge.active {
-    background: rgba(37, 211, 102, 0.15);
+    background: rgba(37, 211, 102, 0.1);
     color: #25d366;
+    border: 1px solid rgba(37, 211, 102, 0.2);
 }
 
 .status-badge.paused {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     color: #999;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botones de acción */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Botón Editar (Solo icono) */
+.btn-icon-sm,
+.btn-trash-sm {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon-sm:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.btn-trash-sm:hover {
+    background: rgba(230, 57, 70, 0.15);
+    color: #ff4444;
 }

@@ -1,37 +1,55 @@
 /* =========================================
-   ESTILOS COMPARTIDOS DE MODALES
+   SISTEMA DE MODALES GLOBAL (PREMIUM)
    ========================================= */
 
+/* --- 1. EL CONTENEDOR (OVERLAY) --- */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(1.5px);
-    -webkit-backdrop-filter: blur(1.5px);
+    /* Fondo más oscuro y con más blur para enfoque total */
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 11000;
-    padding: 20px;
-    animation: fadeInOverlay 0.3s forwards;
+    z-index: 2000; /* Capa segura superior */
+    padding: 20px; /* Margen de seguridad para móviles */
+    
+    animation: fadeInOverlay 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+/* --- 2. LA TARJETA DEL MODAL --- */
 .modal-content {
     width: 100%;
-    max-width: 500px;
-    background: var(--background-dark, #101828);
+    max-width: 550px; /* Ancho estándar cómodo */
+    
+    /* LÓGICA DE SCROLL ROBUSTA */
+    display: flex;
+    flex-direction: column;
+    max-height: 90dvh; /* 90% del viewport vertical real */
+    height: auto;
+    
+    /* Estilo Glass Dark */
+    background: #121212;
     color: #fff;
-    border: 1px solid #334155;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    animation: popInModal 0.3s forwards;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    
     position: relative;
+    overflow: hidden; /* Para recortar esquinas */
+    animation: popInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* --- 3. HEADER (FIJO) --- */
 .modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #22304a;
+    flex-shrink: 0; /* No encoger */
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -39,117 +57,180 @@
 
 .modal-header h3 {
     margin: 0;
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: -0.5px;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .btn-close {
-    background: none;
+    background: transparent;
     border: none;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px;
-    border-radius: 8px;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 }
 
 .btn-close:hover {
     background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: rotate(90deg);
 }
 
-.modal-form {
+/* --- 4. BODY SCROLLABLE (FORMULARIO) --- */
+/* Esta clase se usa para el cuerpo que debe hacer scroll */
+.modal-form, 
+.modal-body {
     padding: 24px;
-    max-height: 80vh;
-    overflow-y: auto;
+    
+    /* MAGIA DEL SCROLL */
+    flex: 1; /* Ocupa el espacio sobrante */
+    overflow-y: auto; /* Scroll aquí, no en la ventana */
+    min-height: 0;
+    overscroll-behavior: contain;
+    
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
 }
 
-/* Custom Scrollbar for Modal Form */
-.modal-form::-webkit-scrollbar {
+/* Custom Scrollbar */
+.modal-form::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
     width: 6px;
 }
-
-.modal-form::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+.modal-form::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 10px;
 }
+.modal-form::-webkit-scrollbar-thumb:hover,
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
 
+/* --- 5. FOOTER (FIJO) --- */
 .modal-footer {
-    padding: 20px;
-    border-top: 1px solid #22304a;
+    flex-shrink: 0; /* No encoger */
+    padding: 16px 24px;
+    background: rgba(20, 20, 20, 0.95); /* Casi opaco para tapar el scroll */
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    
     display: flex;
     justify-content: flex-end;
     gap: 12px;
 }
 
-/* Reusable Form Elements */
+/* --- 6. ELEMENTOS DE FORMULARIO REUTILIZABLES --- */
+
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 2px;
+}
+
+/* Grid Inteligente para Inputs */
 .form-row {
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
-.form-row>.form-group {
-    flex: 1;
-}
-
+/* Inputs Premium */
 .form-input {
     width: 100%;
-    padding: 12px;
-    background: #1e293b;
-    border: 1px solid #334155;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     color: white;
     font-family: inherit;
-    transition: all 0.2s;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.form-input:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .form-input:focus {
     outline: none;
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1);
+    border-color: var(--accent-primary, #38bdf8);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); /* Glow sutil */
 }
 
+/* Estado de Error */
 .form-input.error {
     border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
 }
 
 .error-text {
     color: #ef4444;
     font-size: 0.75rem;
-    margin-top: 4px;
+    font-weight: 500;
+    margin-left: 4px;
+    animation: fadeInError 0.2s ease-out;
 }
 
-/* Base Animations */
+/* --- ANIMACIONES --- */
 @keyframes fadeInOverlay {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes popInModal {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
+    from { 
+        opacity: 0; 
+        transform: scale(0.95) translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+    }
+}
+
+@keyframes fadeInError {
+    from { opacity: 0; transform: translateY(-3px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 600px) {
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end; /* Sheet Style (sale de abajo) */
     }
 
-    to {
-        transform: scale(1);
-        opacity: 1;
+    .modal-content {
+        max-height: 95dvh;
+        height: auto; /* O height: 95dvh si quieres panel completo */
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        animation: slideUpMobile 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .form-row {
+        grid-template-columns: 1fr; /* Stack inputs */
+        gap: 15px;
+    }
+
+    @keyframes slideUpMobile {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
     }
 }

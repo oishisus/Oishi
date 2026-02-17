@@ -1,0 +1,217 @@
+/* ADMIN INVENTORY STYLES - DARK GLASS THEME */
+
+.inventory-view {
+    padding: 20px;
+    color: white;
+    animation: fadeIn 0.4s ease;
+}
+
+/* HEADER */
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.inventory-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* SUMMARY BAR */
+.inventory-summary {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05); /* Glass */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.summary-item {
+    font-weight: 600;
+}
+
+.text-success { color: #4ade80; }
+.text-warning { color: #facc15; }
+.text-danger { color: #f87171; }
+
+.search-inventory {
+    margin-left: auto;
+    width: 300px;
+    background: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    height: 36px;
+}
+
+.search-inventory input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    margin-left: 8px;
+    outline: none;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* TABLE */
+.inventory-table-container {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.inventory-table th {
+    text-align: left;
+    padding: 12px 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.inventory-table td {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    color: #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.inventory-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.inventory-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* CONTROLS */
+.switch-control {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch-control input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #4b5563; /* Gray closed */
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2563eb; /* Blue primary */
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* DISPONIBILIDAD BADGE/SELECT */
+.stock-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.stock-badge.available {
+    background: rgba(37, 211, 102, 0.2);
+    color: #4ade80;
+}
+
+.stock-badge.low {
+    background: rgba(250, 204, 21, 0.2);
+    color: #facc15;
+}
+
+.stock-badge.out {
+    background: rgba(248, 113, 113, 0.2);
+    color: #f87171;
+}
+
+/* INPUTS DE STOCK */
+.stock-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 6px;
+    padding: 2px 5px;
+    width: 80px;
+    border: 1px solid transparent;
+}
+
+.stock-input-wrapper.alert {
+    border-color: #f87171;
+}
+
+.stock-input-wrapper input {
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.edit-icon {
+    color: #9ca3af;
+    margin-left: 2px;
+}
+
+@media (max-width: 768px) {
+    .inventory-table-container {
+        overflow-x: auto;
+    }
+    .inventory-header, .inventory-summary {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-inventory {
+        width: 100%;
+        margin-top: 10px;
+    }
+}

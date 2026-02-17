@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
+import { BusinessProvider } from "./context/BusinessContext";
 
 // Páginas
-import Home from "./pages/Home";
-import Menu from "./pages/Menu";
-import Admin from "./pages/Admin";
-import Login from "./pages/Login";
+import Home from "./shared/components/Home";
+import Menu from "./features/products/pages/Menu";
+import Admin from "./features/admin/pages/Admin";
+import Login from "./features/auth/pages/Login";
 
 // Assets
 import menuPattern from "./assets/menu-pattern.webp";
 
 // Componentes Globales
-import ProtectedRoute from "./components/ProtectedRoute";
-import CartFloat from "./components/CartFloat";
-import CartModal from "./components/CartModal";
+import ProtectedRoute from "./shared/components/ProtectedRoute";
+import CartFloat from "./features/cart/components/CartFloat";
+import CartModal from "./features/cart/components/CartModal";
 
 // Componente Interno que maneja la lógica Anti-Zoom y UI Global con contexto de Router
 function InnerApp() {
@@ -192,13 +193,16 @@ function InnerApp() {
   );
 }
 
+
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <InnerApp />
-      </Router>
-    </CartProvider>
+    <BusinessProvider>
+      <CartProvider>
+        <Router>
+          <InnerApp />
+        </Router>
+      </CartProvider>
+    </BusinessProvider>
   );
 }
 

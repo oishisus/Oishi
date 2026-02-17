@@ -1,57 +1,110 @@
 /* =========================================
-   11. ESTILOS DEL CARRITO Y FORMULARIOS DE PAGO (EXTRACTED)
+   CART & CHECKOUT STYLES (Z-INDEX FIXED)
    ========================================= */
-.cart-panel {
+
+/* --- 1. CAPAS Y POSICIONAMIENTO (LAYOUT) --- */
+
+/* El fondo oscuro detrás del carrito */
+.modal-overlay.cart-overlay {
     position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    height: 100%;
-    width: 100%;
-    max-width: 400px;
-    background: #121212;
-    border-left: 1px solid var(--card-border);
-    display: flex;
-    flex-direction: column;
-    z-index: 12000;
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    inset: 0; /* Top, Right, Bottom, Left: 0 */
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    /* [FIX] Z-Index extremo para ganar a cualquier navbar */
+    z-index: 999998; 
+    display: block;
 }
 
+/* El Panel Lateral del Carrito */
+.cart-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%; /* Fallback */
+    width: 100%;
+    max-width: 450px;
+    
+    background: #121212;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+    
+    display: flex;
+    flex-direction: column;
+    
+    /* [FIX] Z-Index superior al overlay y a todo el sitio */
+    z-index: 999999;
+    
+    transform: translateX(0);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* --- 2. ESTRUCTURA INTERNA (HEADER, BODY, FOOTER) --- */
+
 .cart-header {
+    flex-shrink: 0;
     padding: 20px;
-    border-bottom: 1px solid var(--card-border);
+    background: rgba(20, 20, 20, 0.98);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(20, 20, 20, 0.95);
+}
+
+.cart-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: white;
+    font-weight: 700;
 }
 
 .cart-body {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-}
-
-.cart-items-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+.cart-footer {
+    flex-shrink: 0;
+    padding: 20px;
+    background: #1a1a1a;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    /* Aseguramos que el footer esté encima del contenido al scrollear */
+    position: relative; 
+    z-index: 2;
+}
+
+/* --- 3. ITEMS DEL CARRITO --- */
+
+.cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 .cart-item {
     display: flex;
-    gap: 15px;
-    background: var(--bg-tertiary);
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
     padding: 10px;
     border-radius: 12px;
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .item-thumb {
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
     border-radius: 8px;
     object-fit: cover;
+    background: #000;
 }
 
 .item-details {
@@ -68,11 +121,11 @@
 }
 
 .item-top h4 {
-    font-size: 0.95rem;
     margin: 0;
+    font-size: 0.95rem;
+    color: white;
     font-weight: 600;
     line-height: 1.2;
-    color: white;
 }
 
 .item-bottom {
@@ -83,519 +136,341 @@
 }
 
 .item-price {
+    color: var(--accent-secondary, #ffd700);
     font-weight: 700;
-    color: var(--accent-secondary);
+    font-size: 0.9rem;
 }
 
-.qty-control,
+/* Control de Cantidad (+ -) */
 .qty-control-sm {
     display: flex;
     align-items: center;
-    background: #000;
-    border-radius: 8px;
-    padding: 2px;
-    border: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.qty-control button,
 .qty-control-sm button {
-    background: none;
+    background: transparent;
     border: none;
     color: white;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
 }
 
-.qty-control span,
 .qty-control-sm span {
+    font-size: 0.9rem;
     font-weight: 600;
     min-width: 20px;
     text-align: center;
-    font-size: 0.9rem;
+    color: white;
 }
 
 .btn-trash {
     background: none;
     border: none;
-    color: var(--text-muted);
+    color: #666;
     cursor: pointer;
-    padding: 2px;
+    padding: 4px;
 }
+.btn-trash:hover { color: #ff4444; }
 
-.btn-trash:hover {
-    color: #ff4444;
-}
+/* --- 4. FORMULARIOS E INPUTS --- */
 
-.cart-notes {
-    margin-top: 30px;
-}
-
-.cart-footer {
-    padding: 20px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--card-border);
-}
-
-.total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.total-price {
-    color: var(--accent-primary);
-    font-size: 1.4rem;
-    font-weight: 800;
-}
-
-.empty-state {
-    text-align: center;
-    padding-top: 50px;
-    opacity: 0.6;
-}
-
-.empty-icon {
-    font-size: 3rem;
-    margin-bottom: 10px;
-    display: block;
-}
-
-.mt-20 {
-    margin-top: 20px;
-}
-
-.text-accent {
-    color: var(--accent-primary);
-}
-
-.flex-center {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-    }
-
-    to {
-        transform: translateX(0);
-    }
-}
-
-.animate-slide-in {
-    animation: slideIn 0.3s ease-out;
-}
-
-/* Header del Carrito */
-.btn-close-cart {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.btn-close-cart:hover {
-    background: rgba(255, 68, 68, 0.2);
-    color: #ff4444;
-}
-
-.cart-count-badge {
-    background: var(--accent-primary);
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 10px;
-}
-
-/* Formularios en el Carrito (Dark Theme) */
 .checkout-form {
-    background: var(--bg-tertiary);
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    color: #bbb;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    background: #252525; /* Fondo sólido */
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--accent-primary, #e63946);
+    background: #2a2a2a;
+}
+
+/* Grid para RUT y Teléfono */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.input-error {
+    border-color: #ff4444;
 }
 
 .form-title {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 15px;
+    margin: 0 0 20px 0;
     color: var(--accent-secondary);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
+
+.cart-notes label {
+    margin-bottom: 8px;
+    display: block;
+    color: #aaa;
+}
+
+/* --- 5. BANCO Y PAGOS --- */
 
 .payment-options {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 10px 0;
+    gap: 10px;
 }
 
-.payment-options h4 {
-    text-align: center;
-    margin-bottom: 10px;
-    color: var(--text-primary);
+.bank-info {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
 }
 
-.payment-opt {
-    justify-content: flex-start;
-    padding: 16px;
-    font-size: 1rem;
-}
-
-.bank-info,
-.store-pay-info {
-    padding: 20px;
-    border-radius: 16px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--card-border);
-    margin-bottom: 15px;
-}
-
-.bank-info h4,
-.store-pay-info h4 {
+.bank-info h4 {
     color: var(--accent-secondary);
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--card-border);
-    padding-bottom: 8px;
+    margin: 0 0 15px 0;
+    text-align: center;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-.bank-info ul {
+.bank-details-list {
     list-style: none;
     padding: 0;
+    margin: 10px 0;
 }
 
-.bank-info li {
+.copy-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
+    align-items: center;
+    padding: 10px 0;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-    padding-bottom: 4px;
+    cursor: pointer;
 }
+.copy-row:last-child { border-bottom: none; }
+.copy-row:hover { background: rgba(255,255,255,0.05); }
 
-.bank-info li b {
-    color: white;
+.copy-row span { color: #aaa; font-size: 0.9rem; }
+.copy-row b { color: white; font-family: monospace; }
+
+.copy-badge {
+    font-size: 0.7rem;
+    color: #25d366;
+    background: rgba(37, 211, 102, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
+.copy-badge.show { opacity: 1; }
+
+.store-pay-info {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+.store-pay-info h4 { color: white; margin: 10px 0 5px; }
+.store-pay-info p { color: #aaa; font-size: 0.9rem; }
 
 .pay-total {
     margin-top: 15px;
     padding-top: 10px;
-    border-top: 1px dashed var(--card-border);
-    font-size: 1.2rem;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    font-size: 1.1rem;
     font-weight: 800;
     color: var(--accent-primary);
     text-align: right;
 }
 
-.store-pay-info {
+/* --- 6. SUBIDA DE ARCHIVO --- */
+
+.upload-box {
+    border: 2px dashed #444;
+    border-radius: 8px;
+    padding: 15px;
     text-align: center;
-}
-
-.store-pay-info p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-}
-
-.btn-block {
-    width: 100%;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
     display: flex;
+    align-items: center;
     justify-content: center;
+    min-height: 60px;
+}
+
+.upload-box:hover { border-color: white; }
+.upload-box.border-error { border-color: #ff4444; }
+
+.upload-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #aaa;
+}
+
+.file-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #25d366;
+    font-size: 0.9rem;
+}
+
+.file-preview-row img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* --- 7. BOTONES Y UTILIDADES --- */
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.total-price {
+    font-weight: 800;
+    color: var(--accent-primary, #e63946);
+}
+
+.btn {
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.btn-block { width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+
+.btn-primary {
+    background: var(--accent-primary, #e63946);
+    color: white;
+}
+.btn-primary:hover { opacity: 0.9; }
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+
+.payment-opt {
+    justify-content: flex-start;
+    padding: 16px;
+    text-align: left;
 }
 
 .btn-text {
     background: none;
-    border: none;
-    color: var(--text-secondary);
+    color: #aaa;
     text-decoration: underline;
-    cursor: pointer;
     font-size: 0.9rem;
 }
+.btn-text:hover { color: white; }
 
-.btn-text:hover {
+.btn-close-cart {
+    background: rgba(255,255,255,0.1);
+    border: none;
     color: white;
+    cursor: pointer;
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-close-cart:hover { background: rgba(255,68,68,0.2); color: #ff4444; }
+
+.text-accent { color: var(--accent-primary, #e63946); }
+.flex-center { display: flex; align-items: center; gap: 10px; }
+.cart-count-badge { background: var(--accent-primary, #e63946); color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.75rem; }
+
+/* ERROR BANNER */
+.cart-error-banner {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff6666;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 68, 68, 0.2);
 }
 
-.btn-lg {
-    font-size: 1.1rem;
-    padding: 16px;
-}
-
-.mt-4 {
-    margin-top: 16px;
-}
-
-.mt-2 {
-    margin-top: 8px;
-}
-
-/* Pantalla de Éxito */
+/* SUCCESS VIEW */
 .cart-success-view {
-    height: 100%;
+    text-align: center;
+    padding: 40px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: 20px;
+    height: 100%;
 }
-
 .success-icon-circle {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(37, 211, 102, 0.1);
-    color: #25d366;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
+    width: 70px; height: 70px;
     border: 2px solid #25d366;
+    border-radius: 50%;
+    color: #25d366;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
 }
-
 .order-summary-card {
-    background: var(--bg-tertiary);
+    background: rgba(255, 255, 255, 0.05);
     width: 100%;
     padding: 20px;
     border-radius: 16px;
-    border: 1px solid var(--card-border);
-    margin: 10px 0 25px 0;
-    /* Margen para separar del texto y los botones */
-    text-align: center;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+    margin: 20px 0 30px;
 }
-
 .summary-label {
-    font-size: 0.75rem;
-    color: var(--accent-secondary);
-    /* Color naranja para la etiqueta */
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 0.75rem; color: var(--accent-secondary);
+    text-transform: uppercase; letter-spacing: 1px;
+    font-weight: 700; margin-bottom: 5px;
 }
-
-.summary-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: white;
-}
-
-.success-actions {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* --- FORM INPUTS & TEXTAREA (MODULAR) --- */
-.form-input {
-    width: 100%;
-    padding: 12px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--card-border);
-    border-radius: 10px;
-    color: white !important;
-    font-family: inherit;
-    transition: all 0.3s ease;
-    color-scheme: dark;
-}
-
-.form-input:focus {
-    background: rgba(30, 41, 59, 1) !important;
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-    outline: none;
-    border-color: var(--accent-primary);
-}
-
-.cart-notes label,
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-/* Upload Box Premium Design */
-.upload-box {
-    border: 2px dashed var(--card-border);
-    border-radius: 12px;
-    padding: 12px; /* Reducido para ser más bajito */
-    display: flex; /* Flex para centrar contenido horizontalmente */
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.02);
-    margin-top: 5px;
-    position: relative;
-    overflow: hidden;
-    min-height: 50px; /* Altura mínima controlada */
-}
-
-.upload-box:hover {
-    border-color: var(--accent-primary);
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-2px);
-}
-
-.upload-placeholder {
-    display: flex;
-    flex-direction: row; /* Horizontal para ahorrar altura */
-    align-items: center;
-    gap: 15px;
-    color: var(--text-muted);
-}
-
-.upload-placeholder svg {
-    color: var(--accent-secondary);
-    margin-bottom: 0; /* Sin margen abajo */
-}
-
-.upload-placeholder span {
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-/* Fondo extra oscuro para el carrito */
-.modal-overlay.cart-overlay {
-    background: rgba(0, 0, 0, 0.9) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-}
-
-/* Utilidades Senior */
-.flex-between {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.mr-5 {
-    margin-right: 5px;
-}
-
-.mb-15 {
-    margin-bottom: 15px;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.text-left {
-    text-align: left;
-}
-
-.text-white {
-    color: white;
-}
-
-.gap-15 {
-    gap: 15px;
-}
-
-.receipt-thumb-mini {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.file-status-label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: white;
-}
-
-.file-status-sub {
-    font-size: 0.75rem;
-    color: var(--accent-secondary);
-}
-
-/* Estilos para la lista de datos bancarios con botón copiar */
-.bank-details-list {
-  padding: 0;
-  list-style: none;
-  margin: 15px 0;
-  font-size: 0.95rem;
-  background: rgba(0,0,0,0.2);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.bank-details-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 15px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.bank-details-list li:last-child {
-  border-bottom: none;
-}
-
-.copy-row b {
-  color: #fff;
-  font-family: monospace;
-  letter-spacing: 0.5px;
-  margin-right: 5px;
-}
-
-.btn-copy-icon {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--card-border);
-  color: var(--text-secondary);
-  border-radius: 6px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 10px;
-}
-
-.btn-copy-icon:hover {
-  background: var(--accent-primary);
-  color: white;
-  border-color: var(--accent-primary);
-  transform: translateY(-1px);
-}
-
-.btn-copy-icon:active {
-  transform: scale(0.95);
-}
-
-.bank-info h4 {
-  margin-bottom: 15px;
-  color: var(--accent-secondary);
-  text-align: center;
-}
+.summary-value { font-size: 1.1rem; font-weight: 700; color: white; }
+.success-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }

@@ -1,35 +1,47 @@
 /* =========================================
-   ADMIN SIDEBAR
+   ADMIN SIDEBAR (DESKTOP FIRST)
    ========================================= */
 
-.admin-sidebar {
+   .admin-sidebar {
+    /* Layout Base */
     width: 260px;
+    height: 100vh;
+    position: sticky; /* Se mantiene al hacer scroll */
+    top: 0;
+    z-index: 100; /* Z-index alto para estar sobre tablas */
+    
+    /* Estilo Visual */
     background: var(--bg-secondary);
     border-right: 1px solid var(--card-border);
+    
+    /* Flexbox Vertical */
     display: flex;
     flex-direction: column;
     padding: 20px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    z-index: 50;
+    transition: all 0.3s ease;
 }
 
+/* --- CABECERA SIDEBAR --- */
 .sidebar-top {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 40px;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--card-border); /* Separador sutil */
 }
 
 .logo-circle {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     background: white;
     border-radius: 50%;
-    padding: 5px;
-    box-shadow: 0 0 20px rgba(230, 57, 70, 0.3);
+    padding: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex; /* Centrar imagen */
+    align-items: center;
+    justify-content: center;
 }
 
 .logo-circle img {
@@ -39,15 +51,19 @@
 }
 
 .brand-title {
+    font-size: 1.1rem;
     font-weight: 800;
     letter-spacing: -0.5px;
+    color: var(--text-primary); /* Asegurar contraste */
 }
 
+/* --- MENÚ DE NAVEGACIÓN --- */
 .sidebar-menu {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    flex: 1;
+    flex: 1; /* Empuja el logout hacia abajo */
+    overflow-y: auto; /* Si hay muchos items, permite scroll interno */
 }
 
 .nav-item {
@@ -56,105 +72,255 @@
     gap: 12px;
     padding: 12px 16px;
     border-radius: 12px;
-    color: var(--text-secondary);
+    
+    /* Reset de botón */
     background: transparent;
     border: none;
+    color: var(--text-secondary);
+    
     font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: left;
     width: 100%;
+    position: relative;
 }
 
+/* Hover suave */
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.05);
     color: white;
+    transform: translateX(4px); /* Pequeño movimiento a la derecha */
 }
 
+/* Estado Activo */
 .nav-item.active {
-    background: rgba(230, 57, 70, 0.15);
-    color: var(--accent-primary);
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--accent-primary); /* Usar el rojo de tu marca */
 }
 
+/* Línea indicadora activa (Opcional, toque pro) */
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60%;
+    width: 4px;
+    background: var(--accent-primary);
+    border-radius: 0 4px 4px 0;
+}
+
+/* Badge (Notificaciones) */
 .badge-count {
     background: var(--accent-primary);
     color: white;
     font-size: 0.7rem;
+    font-weight: 700;
     padding: 2px 8px;
-    border-radius: 10px;
+    border-radius: 12px;
     margin-left: auto;
+    box-shadow: 0 2px 5px rgba(230, 57, 70, 0.4);
 }
 
+/* --- GRUPOS DESPLEGABLES --- */
+.nav-group-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-group-header {
+    justify-content: space-between;
+    padding-right: 12px;
+}
+
+.nav-chevron {
+    transition: transform 0.3s ease;
+    opacity: 0.6;
+}
+
+.nav-chevron.expanded {
+    transform: rotate(180deg);
+}
+
+.nav-sub-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 14px; /* Indentación */
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.nav-sub-menu.expanded {
+    max-height: 300px; /* Suficiente para los items */
+    opacity: 1;
+    margin-bottom: 8px;
+}
+
+/* Ajuste items dentro de submenú */
+.nav-sub-menu .nav-item {
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    border-left: 2px solid transparent; 
+    border-radius: 8px;
+}
+
+.nav-sub-menu .nav-item:hover {
+    background: rgba(255,255,255,0.03);
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+.nav-sub-menu .nav-item.active {
+    background: rgba(230, 57, 70, 0.08);
+    border-left-color: var(--accent-primary);
+}
+
+/* --- LOGOUT --- */
 .logout {
-    margin-top: auto;
+    margin-top: 20px;
     color: #ff4444;
 }
 
 .logout:hover {
     background: rgba(255, 68, 68, 0.1);
-    color: #ff4444;
+    color: #ff5555;
+    transform: none; /* No mover a la derecha */
 }
 
-/* RESPONSIVE MÓVIL OVERRIDES */
+/* =========================================
+   RESPONSIVE MÓVIL (BOTTOM NAVIGATION BAR)
+   ========================================= */
 @media (max-width: 1024px) {
+    
     .admin-sidebar {
+        /* Transformación a Barra Inferior */
         width: 100%;
-        height: auto;
-        position: relative;
-        /* Sticky to prevent scroll away on mobile if needed, but static is safer for simple layout */
-        position: static;
+        height: auto; /* Altura automática según contenido */
+        position: fixed; /* SIEMPRE visible abajo */
+        bottom: 0;
+        top: auto; /* Anular top desktop */
+        left: 0;
+        
+        /* Flexbox Horizontal */
         flex-direction: row;
-        padding: 8px 0;
-        /* Zero side padding to touch the edge */
         align-items: center;
-        justify-content: flex-start;
-        /* Align complete sidebar content to LEFT */
-        gap: 0;
-        /* Fail-safe scrolling removed as centering should work now */
-        overflow-x: visible;
-        /* Improved background removal */
-        background: transparent !important;
-        backdrop-filter: none !important;
-        border: none !important;
-        box-shadow: none !important;
+        justify-content: space-between; /* Espaciado uniforme */
+        
+        /* Estética "Glass" Móvil */
+        padding: 10px 20px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom)); /* Soporte iPhone X+ */
+        
+        background: rgba(20, 20, 20, 0.95) !important; /* Fondo casi sólido */
+        backdrop-filter: blur(15px) !important; /* Blur potente */
+        border-right: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.5); /* Sombra hacia arriba */
     }
 
-    .sidebar-top {
+    /* Ocultar elementos innecesarios en móvil */
+    .sidebar-top,
+    .logo-circle, 
+    .brand-title,
+    .nav-item span, /* Ocultar texto */
+    .nav-item.active::before { /* Ocultar línea lateral activa */
         display: none !important;
     }
 
-    .logo-circle {
-        display: none !important;
-    }
-
-    .brand-title {
-        display: none;
-    }
-
+    /* Ajuste del menú horizontal con scroll (Slider) */
     .sidebar-menu {
         flex-direction: row;
-        flex: 1;
-        /* Allow menu to take available width */
-        justify-content: flex-start;
-        /* Align items to the LEFT */
-        gap: 15px;
-        /* Consistent gap between items */
+        justify-content: flex-start; /* Inicio izquierda */
+        align-items: center;
+        gap: 12px; /* Espacio fijo entre items */
+        width: 100%;
+        overflow-x: auto; /* Scroll horizontal */
+        padding-right: 20px; /* Margen final para scroll */
+        -webkit-overflow-scrolling: touch; /* Suavidad iOS */
+        
+        /* Ocultar Scrollbar */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;  /* IE */
+    }
+    
+    .sidebar-menu::-webkit-scrollbar { 
+        display: none; /* Chrome/Safari */
     }
 
+    /* Iconos táctiles más grandes y sin colapsar */
     .nav-item {
         width: auto;
-        /* Prevent full width */
-        padding: 10px;
-        border-radius: 8px;
+        padding: 10px 14px;
+        border-radius: 12px;
         justify-content: center;
-        /* Center icon inside item */
+        flex-direction: column; /* Icono arriba, texto abajo si hubiese */
+        flex-shrink: 0; /* Evitar que se aplasten */
+        min-width: 50px; /* Ancho mínimo táctil */
     }
 
-    .nav-item span {
-        display: none;
+    /* Ajuste para grupos desplegables en móvil: Mostrarlos inline? 
+       Si son grupos, el botón header está aquí.
+       Al hacer click, debería abrir un menú... Flotante?
+       En la implementación actual, los hijos se renderizan debajo.
+       En flex-row, "debajo" rompe el layout o expande la barra hacia arriba.
+    */
+    
+    .nav-group-wrapper {
+        display: flex;
+        flex-direction: row; /* Inline para slider */
+        align-items: center;
+        gap: 8px;
+        position: static; /* Quitar relative */
+        flex-shrink: 0;
     }
 
+    /* Cabecera del grupo (Botón) */
+    .nav-group-header {
+        padding-right: 14px; /* Espacio para chevron */
+    }
+
+    .nav-sub-menu {
+        position: static; /* Flujo normal */
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        padding-left: 0;
+        margin-bottom: 0;
+        
+        background: transparent; /* Fondo transparente para alinear */
+        border-radius: 0;
+        padding: 0;
+        
+        /* Animación de apertura horizontal */
+        overflow: hidden;
+        max-width: 0; 
+        opacity: 0;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: none;
+        backdrop-filter: none;
+    }
+    
+    .nav-sub-menu.expanded {
+        max-width: 400px; /* Suficiente para mostrar items */
+        opacity: 1;
+        margin-right: 8px;
+        padding: 0 4px; /* Padding horizontal mínimo */
+    }
+    
+    /* Logout button alignment fix */
     .logout {
-        display: none;
+        display: flex;
+        align-items: center;
+        margin-left: auto; 
+        padding: 10px;
+        flex-shrink: 0;
     }
+
+    .logout span { display: none; } /* Ocultar texto "Salir" */
 }

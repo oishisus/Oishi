@@ -1,181 +1,496 @@
 /* =========================================
-   ESTILOS ESPECÍFICOS: PRODUCT MODAL
+   PRODUCT MODAL STYLES (PREMIUM GLASS)
    ========================================= */
 
-/* --- IMAGE UPLOAD AREA --- */
-.product-image-section {
+/* --- LAYOUT DEL MODAL --- */
+/* Crece con el contenido; al llegar a max-height el cuerpo hace scroll (flex: 0 1 auto) */
+.modal-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  padding: 0;
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.upload-dropzone {
-  width: 100px;
-  height: 100px;
-  border-radius: 16px;
-  background: #1e293b;
+/* Form puede crecer con contenido (0 1 auto) y encoger cuando el modal llega a 90vh */
+.modal-content form {
   display: flex;
   flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modal-content .modal-form-scroll {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.modal-header {
+  flex-shrink: 0;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Área scrollable (0 1 auto = altura por contenido; en móvil se sobreescribe a 1 1 0) */
+.modal-form-scroll {
+  padding: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 0 1 auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.modal-form-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-form-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.modal-footer {
+  flex-shrink: 0;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 20, 20, 0.95);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 10;
+}
+
+/* --- IMAGE UPLOAD SECTION (DRAG & DROP) --- */
+.product-image-section {
+  width: 100%;
+  height: 180px;
+  border-radius: 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.02);
+  
+  display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  border: 2px solid #334155;
-  transition: all 0.2s ease;
+  
   cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
   position: relative;
-  color: #64748b;
+  margin-bottom: 24px;
 }
 
-.upload-dropzone:hover {
-  border-color: #38bdf8;
-  color: #38bdf8;
+.product-image-section:hover {
+  border-color: var(--accent-primary);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.upload-dropzone.dragging {
+.product-image-section.dragging {
+  border-color: #38bdf8; /* Azul al arrastrar */
   background: rgba(56, 189, 248, 0.1);
-  border: 2px dashed #38bdf8;
-  color: #38bdf8;
+  transform: scale(1.02);
 }
 
-.upload-dropzone img {
+.product-image-section.error-border {
+  border-color: #ff4444;
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Placeholder State */
+.dropzone-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: var(--text-secondary);
+  pointer-events: none; /* Dejar pasar el click al padre */
+}
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.drop-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.drop-text span {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.drop-hint {
+  font-size: 0.75rem;
+  margin-top: 6px;
+  opacity: 0.6;
+}
+
+/* Preview State */
+.image-preview-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.image-preview {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.dropzone-hint {
-  text-align: center;
-}
-
-.dropzone-hint span {
-  font-size: 10px;
-  display: block;
-  margin-top: 4px;
-}
-
-.file-info {
-  font-size: 11px;
-  color: #cbd5e1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* --- CUSTOM SWITCHES GRID --- */
-.special-switches-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 5px;
-}
-
-.special-switch {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  background: rgba(30, 41, 59, 0.5);
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #334155;
-  transition: all 0.2s ease;
-}
-
-.special-switch:hover {
-  border-color: #475569;
-}
-
-.switch-toggle {
-  width: 36px;
-  height: 20px;
-  background: #334155;
-  border-radius: 12px;
-  position: relative;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-
-.switch-toggle::after {
-  content: "";
+/* Overlay de eliminar */
+.image-overlay {
   position: absolute;
-  left: 2px;
-  top: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  transition: left 0.2s;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
-input[type="checkbox"]:checked + .switch-toggle {
-  background: #38bdf8;
+.product-image-section:hover .image-overlay {
+  opacity: 1;
 }
 
-input[type="checkbox"]:checked + .switch-toggle.toggle-discount {
-  background: #25d366;
-}
-
-input[type="checkbox"]:checked + .switch-toggle::after {
-  left: 18px;
-}
-
-.switch-label {
-  color: #94a3b8;
-  font-weight: 500;
-  font-size: 0.85rem;
-  transition: color 0.2s;
-}
-
-input[type="checkbox"]:checked ~ .switch-label {
-  color: #fff;
-}
-
-/* --- ANIMATIONS --- */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* --- UTILITIES --- */
-.btn-xs {
-  padding: 4px 10px;
-  font-size: 0.75rem;
-}
-
-.btn-danger-xs {
-  padding: 2px 6px;
-  font-size: 10px;
-  background: #ef4444;
-  border: none;
-  border-radius: 4px;
+.btn-icon-overlay {
+  background: #ff4444;
   color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.btn-danger-xs:hover {
+.btn-icon-overlay:hover {
+  transform: scale(1.1);
   background: #dc2626;
 }
 
-.fw-700 {
-  font-weight: 700;
+.overlay-text {
+  font-size: 0.8rem;
+  color: white;
+  font-weight: 500;
 }
 
-.m-0 {
-  margin: 0;
+/* --- FORM GROUPS & INPUTS --- */
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.text-muted {
-  color: #94a3b8;
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-left: 2px;
+}
+
+.form-group label .req {
+  color: var(--accent-primary);
+}
+
+.form-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: white;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.form-input:focus {
+  border-color: var(--accent-primary);
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+}
+
+.form-input.error {
+  border-color: #ff4444;
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Grid de 2 columnas para Precio/Categoría */
+.form-row.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.error-text {
+  font-size: 0.75rem;
+  color: #ff4444;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+/* Input con Icono (Precio descuento) */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  color: #25d366; /* Verde dinero */
+  pointer-events: none;
+}
+
+.input-with-icon input {
+  padding-left: 36px;
+  border-color: rgba(37, 211, 102, 0.3);
+}
+
+.input-with-icon input:focus {
+  border-color: #25d366;
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+}
+
+.text-success {
+  color: #25d366 !important;
+}
+
+/* --- SWITCHES MODERNOS (Layout Grid) --- */
+.switches-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.custom-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.custom-switch:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Estilos del Slider (La bolita) */
+.custom-switch input {
+  display: none;
+}
+
+.slider {
+  width: 44px;
+  height: 24px;
+  background-color: #333;
+  border-radius: 20px;
+  position: relative;
+  transition: .3s;
+  flex-shrink: 0;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Switch Content (Texto) */
+.switch-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.switch-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.switch-desc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+/* ESTADOS ACTIVOS */
+
+/* 1. Especial (Naranja/Rojo marca) */
+.custom-switch.active {
+  background: rgba(230, 57, 70, 0.05);
+  border-color: rgba(230, 57, 70, 0.3);
+}
+
+.custom-switch.active input:checked + .slider {
+  background-color: var(--accent-primary);
+}
+
+/* 2. Descuento (Verde) */
+.custom-switch.active-green {
+  background: rgba(37, 211, 102, 0.05);
+  border-color: rgba(37, 211, 102, 0.3);
+}
+
+.custom-switch.active-green input:checked + .slider {
+  background-color: #25d366;
+}
+
+/* Movimiento de la bolita */
+.custom-switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* --- ANIMACIONES --- */
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+  transform-origin: top;
+}
+
+@keyframes slideDown {
+  from {
+      opacity: 0;
+      transform: translateY(-10px);
+      max-height: 0;
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 100px;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* --- RESPONSIVE MÓVIL --- */
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .modal-content {
+    max-height: 100vh;
+    height: 100vh;
+    min-height: 0;
+    border-radius: 0;
+    border: none;
+  }
+
+  /* En móvil: form y cuerpo ocupan todo el alto para que el scroll sea interno */
+  .modal-content form {
+    flex: 1 1 0;
+  }
+
+  .modal-content .modal-form-scroll {
+    flex: 1 1 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+  }
+
+  .modal-form-scroll {
+    padding: 16px 20px;
+  }
+
+  .modal-footer {
+    padding: 12px 20px;
+  }
+
+  .form-row.two-col {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .switches-container {
+    grid-template-columns: 1fr;
+  }
+
+  .product-image-section {
+    height: 140px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+}
+
+/* Pantallas muy pequeñas (p.ej. iPhone SE) */
+@media (max-width: 380px) {
+  .modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .modal-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .product-image-section {
+    height: 120px;
+  }
 }
