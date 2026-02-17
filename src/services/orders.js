@@ -53,75 +53,95 @@ export const ordersService = {
      * @private
      */
     async _ensureClient(orderData) {
+        const { client_rut, client_name, client_phone } = orderData;
+        const hasValidRut = client_rut && client_rut.length > 7;
+
+        if (hasValidRut) {
+            // Estrategia Robusta: Buscar primero por RUT exacto
+            const { data: byRut } = await supabase.from('clients').select('*').eq('rut', client_rut);
+            
+            if (byRut && byRut.length > 0) {
+                // Existe por RUT -> Actualizar
+                return await this._updateExistingClient(byRut[0], orderData);
+            }
+
+            // Si no hay RUT, buscar por teléfono
+            const { data: byPhone } = await supabase.from('clients').select('*').eq('phone', client_phone);
+             
+            if (byPhone && byPhone.length > 0) {
+                 // Existe por Teléfono -> Actualizar (y quizás asignarle el RUT nuevo)
+                 return await this._updateExistingClient(byPhone[0], orderData);
+            }
+
+            // Nuevo Cliente con RUT
+            return await this._createNewClient(orderData);
+
+        } else {
+            // Si no hay RUT en el pedido, solo buscar por teléfono
+            const { data: byPhone } = await supabase.from('clients').select('*').eq('phone', client_phone);
+            
+            if (byPhone && byPhone.length > 0) {
+                return await this._updateExistingClient(byPhone[0], orderData);
+            }
+            
+            // Nuevo Cliente sin RUT (temporal)
+            return await this._createNewClient(orderData);
+        }
+    },
+
+    /**
+     * Helper para actualizar cliente
+     */
+    async _updateExistingClient(existingClient, orderData) {
         const { client_rut, client_name, client_phone, total } = orderData;
         const hasValidRut = client_rut && client_rut.length > 7;
 
-        // 1. Intentar buscar cliente existente por Teléfono (Prioridad por ser único) o RUT
-        let query = supabase.from('clients').select('*');
+        const updateData = {
+            name: client_name, // Nombre más reciente
+            last_order_at: new Date().toISOString(),
+            total_spent: (parseFloat(existingClient.total_spent) || 0) + parseFloat(total),
+            total_orders: (existingClient.total_orders || 0) + 1,
+            phone: client_phone // Actualizamos teléfono siempre al último usado
+        };
 
-        if (hasValidRut) {
-            // Si tenemos RUT válido, buscamos coincidencia por RUT o por Teléfono
-            query = query.or(`rut.eq.${client_rut},phone.eq.${client_phone}`);
-        } else {
-            // Si no hay RUT, buscamos por Teléfono
-            query = query.eq('phone', client_phone);
+        // Solo actualizamos el RUT si el cliente no tenía uno válido
+        if (hasValidRut && (!existingClient.rut || existingClient.rut.startsWith('SIN-RUT'))) {
+            updateData.rut = client_rut;
         }
 
-        const { data: foundClients, error: searchError } = await query;
-        
-        if (searchError) {
-            console.error("Error buscando cliente:", searchError);
-            throw searchError;
-        }
+        const { error } = await supabase
+            .from('clients')
+            .update(updateData)
+            .eq('id', existingClient.id);
 
-        // Tomamos el primer match (dado que teléfono es único, debería ser uno solo)
-        const existingClient = foundClients?.[0];
+        if (error) throw error;
+        return existingClient.id;
+    },
 
-        if (existingClient) {
-            // 2. Actualizar cliente existente
-            const updateData = {
-                name: client_name, // Actualizamos nombre reciente
-                last_order_at: new Date().toISOString(),
-                total_spent: (existingClient.total_spent || 0) + total,
-                total_orders: (existingClient.total_orders || 0) + 1
-            };
+    /**
+     * Helper para crear cliente
+     */
+    async _createNewClient(orderData) {
+        const { client_rut, client_name, client_phone, total } = orderData;
+        const hasValidRut = client_rut && client_rut.length > 7;
 
-            // Si el cliente ya existe pero tenía un RUT temporal, y ahora traemos uno real, lo actualizamos
-            if (hasValidRut && (!existingClient.rut || existingClient.rut.startsWith('SIN-RUT'))) {
-                updateData.rut = client_rut;
-            }
-            // Si el cliente tiene un RUT real en BD, NO lo sobreescribimos con uno temporal,
-            // pero sí actualizamos el teléfono si por alguna razón coinciden por RUT y no por teléfono.
-            updateData.phone = client_phone;
+        const rutToSave = hasValidRut ? client_rut : `SIN-RUT-${Date.now().toString().slice(-6)}`;
 
-            const { error: updateError } = await supabase
-                .from('clients')
-                .update(updateData)
-                .eq('id', existingClient.id);
+        const { data: newClient, error } = await supabase
+            .from('clients')
+            .insert({
+                name: client_name,
+                phone: client_phone,
+                rut: rutToSave,
+                total_spent: total,
+                total_orders: 1,
+                last_order_at: new Date().toISOString()
+            })
+            .select('id')
+            .single();
 
-            if (updateError) throw updateError;
-            return existingClient.id;
-        } else {
-            // 3. Crear nuevo cliente
-            // Si no exite, usamos el RUT válido o generamos uno temporal
-            const rutToSave = hasValidRut ? client_rut : `SIN-RUT-${Date.now().toString().slice(-6)}`;
-
-            const { data: newClient, error: createError } = await supabase
-                .from('clients')
-                .insert({
-                    name: client_name,
-                    phone: client_phone,
-                    rut: rutToSave,
-                    total_spent: total,
-                    total_orders: 1,
-                    last_order_at: new Date().toISOString()
-                })
-                .select('id')
-                .maybeSingle();
-
-            if (createError) throw createError;
-            return newClient.id;
-        }
+        if (error) throw error;
+        return newClient.id;
     }
 };
 
