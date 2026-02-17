@@ -53,7 +53,7 @@ export const ordersService = {
      * @private
      */
     async _ensureClient(orderData) {
-        const { client_rut, client_name, client_phone } = orderData;
+        const { client_rut, client_phone } = orderData;
         const hasValidRut = client_rut && client_rut.length > 7;
 
         if (hasValidRut) {
