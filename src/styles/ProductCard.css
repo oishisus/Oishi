@@ -52,7 +52,7 @@
 }
 
 .product-card:hover .product-image img {
-  transform: scale(1.08); /* Zoom un poco más sutil y elegante */
+  transform: scale(1.08); /* Restaurado: Zoom elegante */
 }
 
 /* --- BADGES --- */
@@ -418,19 +418,50 @@
   .product-image { aspect-ratio: 4/3; }
 
   .product-info {
-    padding: 12px 8px 0px 8px; /* Reducción máxima lateral */
+    padding: 10px 8px 0px 8px; 
     justify-content: flex-start;
-    min-height: 140px;
+    min-height: 120px; /* Reducir aún más para quitar espacios vacíos */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* ... (código intermedio) ... */
+
+  .product-footer {
+    padding-top: 4px !important;    
+    padding-bottom: 4px !important; 
+    margin-bottom: -20px !important;
+    margin-top: -5px !important; /* [CRÍTICO] Ya no 'auto', sino fijo y pequeño */
+    height: auto;
+    gap: 0px; 
   }
   
   .is-viewing-info .product-info {
-    min-height: 160px;
-    padding-top: 4px;
+    height: 100%; /* Ocupar toda la altura de la tarjeta */
+    min-height: auto; 
+    padding: 8px; /* Menos padding para aprovechar espacio */
+    display: flex;
+    flex-direction: column;
   }
 
-  .info-content-wrapper { margin-bottom: 0px; }
-  
-  .is-viewing-info .info-content-wrapper { height: 100%; }
+  .is-viewing-info .info-content-wrapper { 
+    height: 100%; 
+    flex-grow: 1 !important; 
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Restaurar overlay absoluto para que funcione como antes */
+  .is-viewing-info .product-desc-scrollable {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    z-index: 20;
+    padding: 0;
+  }
 
   .product-name {
     font-size: 0.9rem; /* Un poco más compacto */
@@ -443,24 +474,20 @@
     overflow: hidden;
   }
 
-  .info-hint {
-    margin-top: 4px; /* Bajado para mayor separación */
-    margin-bottom: 12px;
-    font-size: 0.65rem;
-  }
-
   .product-desc-clamped {
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    -webkit-line-clamp: 3 !important; /* MÁXIMO 3 LÍNEAS */
+    line-clamp: 3 !important;
     font-size: 0.8rem;
     color: #b0b0b0;
+    margin-bottom: 0px !important; /* Sin margen inferior */
   }
 
-  .product-footer {
-    padding-top: 10px;
-    margin-top: auto;
-    height: auto;
-    gap: 0px; /* Eliminado gap para máximo aprovechamiento */
+  .info-hint {
+    margin-top: 0px !important; 
+    margin-bottom: 4px; /* Menos espacio antes de la línea */
+    font-size: 0.65rem;
+    display: flex; 
+    justify-content: flex-start;
   }
 
   .product-price {
@@ -475,21 +502,28 @@
 }
   /* Botón Agregar Móvil (ULTRA COMPACTO) */
   .btn-add {
-    width: 38px !important; 
-    height: 38px !important;
-    min-width: 38px !important;
-    padding: 0;
-    border-radius: 50%;
+    width: 35px !important; /* [CAMBIO] Reducido de 38px a 35px */
+    height: 35px !important;
+    min-width: 35px !important;
+    min-height: 35px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+    flex-shrink: 0 !important; 
+    aspect-ratio: 1 / 1;
+    gap: 0 !important;
   }
 
-  .btn-add span { display: none; } /* Ocultar texto "Agregar" */
+  .btn-add span { display: none !important; }
   
   .btn-add svg {
-    width: 18px;
-    height: 18px;
-    margin: 0;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    margin: 0 !important;
     fill: white;
   }
 
@@ -500,7 +534,7 @@
 
   /* Stepper Móvil (AJUSTADO PARA PRO MAX) */
   .stepper-control {
-    height: 38px;
+    height: 35px; /* [CAMBIO] Ajustado a 35px */
     width: auto;
     padding: 0;
     display: flex;
@@ -509,8 +543,8 @@
   
   .step-btn.minus { width: 28px; }
   .step-btn.plus {
-    width: 38px;
-    height: 38px;
+    width: 35px; /* [CAMBIO] Igual que el btn-add inicial */
+    height: 35px;
     margin: -1px;
     border: 2px solid white;
   }
@@ -534,50 +568,41 @@
     background: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
-    width: 44px !important;
+    width: 44px !important; /* Mantenemos ancho contenedor */
     justify-content: flex-end;
   }
 
   .step-btn.minus, .step-count { display: none !important; }
 
   .step-btn.plus {
-    width: 44px !important;
-    height: 44px !important;
+    width: 35px !important; /* [SOLUCIÓN] Reducido de 44px a 35px */
+    height: 35px !important;
+    min-width: 35px !important; /* Asegurar que no se aplaste */
+    min-height: 35px !important;
     margin: 0 !important;
-    border: none !important;
+    border: none !important; /* Quitar borde para igualar estilo base */
     box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4) !important;
-    animation: none; /* Sin animaciones molestas */
+    animation: none; 
   }
 }
 /* =========================================
-   PARCHE PARA PANTALLAS MUY PEQUEÑAS (< 370px)
+   PANTALLAS PEQUEÑAS (S8+, iPhone SE, etc - < 380px)
+   Aquí aplicamos los cambios AGRESIVOS de compactación
    ========================================= */
-@media (max-width: 370px) {
+@media (max-width: 380px) {
   
   .product-footer {
-    /* [CORRECCIÓN] Forzamos alineación superior también aquí */
-    align-items: flex-start !important; 
-    padding-top: 18px !important; /* Espacio para el precio tachado */
+    padding-top: 4px !important;    
+    padding-bottom: 2px !important; 
+    margin-bottom: -20px !important; /* [TUS AJUSTES MANUALES] */
+    margin-top: -6px !important;     /* [TUS AJUSTES MANUALES] */
     height: auto !important;
   }
 
-  .product-price {
-    font-size: 1.1rem !important;
-    margin-top: 2px !important; /* Ajustado para alineación óptica con el botón circular pequeño */
-    line-height: 1 !important;
+  .product-info {
+    min-height: auto !important; 
+    padding: 8px 4px 0px 4px !important; /* Mínimo padding lateral */
   }
 
-  /* Ajustar botón pequeño */
-  .btn-add {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    margin-top: 0 !important;
-  }
-
-  /* Precio tachado en móvil pequeño */
-  .product-price.original {
-    font-size: 0.75rem !important;
-    top: -14px !important;
-  }
+  /* Mantenemos SOLO los ajustes del contenedor (footer) para pegar al fondo */
 }

@@ -44,7 +44,8 @@ function InnerApp() {
 
       // RESTAURAMOS LA GUARDIA: No aplicar zoom forzado en Móviles ni iPads
       // Estos dispositivos ya manejan su propio escalado de forma óptima
-      if (window.screen.width >= 100 && !isIPad && !isTouchDevice) { 
+      // [FIX] Simplificado: Si NO es móvil (touch), aplicamos el bloqueo FUERTE
+      if (!isIPad && !isTouchDevice) { 
         const dpr = window.devicePixelRatio || 1;
         const inverseScale = 1 / dpr;
 
@@ -110,29 +111,44 @@ function InnerApp() {
 
     window.addEventListener('resize', handleVisualLock);
     handleVisualLock();
-
+    // Re-aplicar al cambiar de ruta para asegurar consistencia
     return () => window.removeEventListener('resize', handleVisualLock);
-  }, []);
+  }, [location.pathname]); // [FIX] Seguir cambios de ruta
 
   return (
-    <div style={{ position: 'relative', width: '100%', minHeight: '100vh', background: '#0a0a0a' }}>
-      {/* CAPA DE FONDO MAESTRA CON PARALLAX */}
+    <div style={{ position: 'relative', width: '100%', minHeight: '100%', background: '#0a0a0a' }}>
+      {/* CAPA DE FONDO MAESTRA (Dinámica según ruta) */}
       <div 
         className="app-bg-layer" 
-        style={{ 
-          position: 'fixed',
-          inset: '-50% -20%', 
-          zIndex: 0,
-          backgroundImage: `url(${menuPattern})`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '1200px', 
-          opacity: 0.5,
-          filter: 'brightness(0.18) blur(3px)',
-          transform: `translateY(${-scrollY * 0.1}px)`,
-          transition: 'transform 0.1s ease-out',
-          pointerEvents: 'none',
-          willChange: 'transform'
-        }}
+        style={
+          location.pathname === '/' 
+            ? {
+                position: 'fixed',
+                inset: 0,
+                zIndex: 0,
+                backgroundImage: 'url("https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=1000")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                opacity: 1,
+                filter: 'none', // Sin blur en Home para nitidez
+                transform: 'none', // Sin parallax en Home para estabilidad
+                pointerEvents: 'none'
+              }
+            : { 
+                position: 'fixed',
+                inset: '-50% -20%', 
+                zIndex: 0,
+                backgroundImage: `url(${menuPattern})`,
+                backgroundRepeat: 'repeat',
+                backgroundSize: '1200px', 
+                opacity: 0.5,
+                filter: 'brightness(0.18) blur(3px)',
+                transform: `translateY(${-scrollY * 0.1}px)`,
+                transition: 'transform 0.1s ease-out',
+                pointerEvents: 'none',
+                willChange: 'transform'
+              }
+        }
       ></div>
 
       {/* Capa de Contenido Principal (Scrollable) */}

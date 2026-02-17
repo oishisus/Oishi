@@ -77,28 +77,28 @@ const ProductCard = React.memo(({ product }) => {
 
       <div className="product-info">
         <div className="info-content-wrapper">
-          {!isExpanded ? (
             <>
               <h3 className="product-name">{product.name}</h3>
               <p className="product-desc-clamped">{product.description}</p>
-            </>
-          ) : (
-            <div className="product-desc-scrollable animate-in-fade">
-              <div className="desc-header">
-                <span>Detalles</span>
-                <button onClick={(e) => { e.stopPropagation(); setIsExpanded(false) }} className="btn-icon-sm">
-                  <X size={14} />
-                </button>
-              </div>
-              <div className="scroll-area">
-                <p>{product.description}</p>
-              </div>
-            </div>
-          )}
-        </div>
+              
+              {isExpanded && (
+                <div className="product-desc-scrollable animate-in-fade">
+                  <div className="desc-header">
+                    <span>Detalles</span>
+                    <button onClick={(e) => { e.stopPropagation(); setIsExpanded(false) }} className="btn-icon-sm">
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <div className="scroll-area">
+                    <p>{product.description}</p>
+                  </div>
+                </div>
+              )}
 
-        <div className="info-hint" style={{ display: (isLongDesc && !isExpanded) ? 'flex' : 'none' }}>
-          <ChevronDown size={14} /> Ver detalles
+              <div className="info-hint" style={{ display: (isLongDesc && !isExpanded) ? 'flex' : 'none' }}>
+                <ChevronDown size={14} /> Ver detalles
+              </div>
+            </>
         </div>
 
         <div className="product-footer">

@@ -2,10 +2,23 @@ import React, { useState } from 'react';
 import CartContext from './cart-context';
 
 export const CartProvider = ({ children }) => {
-  // 1. ESTADO INICIAL
-  const [cart, setCart] = useState([]);
+  // 1. ESTADO INICIAL (CON PERSISTENCIA)
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem('oishi_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [orderNote, setOrderNote] = useState('');
+
+  // 1.5. EFECTO: GUARDAR EN LOCALSTORAGE
+  React.useEffect(() => {
+    localStorage.setItem('oishi_cart', JSON.stringify(cart));
+  }, [cart]);
 
   // 2. PRECIOS
   const getPrice = (product) => {
@@ -31,6 +44,8 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
+    // Opcional: abrir carrito al agregar
+    // setIsCartOpen(true); 
   };
 
   const decreaseQuantity = (productId) => {

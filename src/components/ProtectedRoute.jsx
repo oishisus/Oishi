@@ -8,18 +8,35 @@ const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    let mounted = true;
 
-    // Escuchar cambios en la autenticación
+    // 1. Escuchar cambios PRIMERO (Fuente de verdad)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      if (mounted) {
+        setSession(session);
+        setLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    // 2. Verificar estado inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        if (session) {
+          setSession(session); // Solo actualizar si hay sesión para evitar flash
+          setLoading(false);
+        } else {
+          // Si no hay sesión inicial, dejamos que onAuthStateChange decida, 
+          // O si ya pasó un tiempo prudente, asumimos logout.
+          // Pero generalmente getSession es definitivo si no hay nada en storage.
+          setLoading(false);
+        }
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (loading) {
