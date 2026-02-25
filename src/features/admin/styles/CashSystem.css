@@ -1,0 +1,1225 @@
+/* ==========================================================================
+   CASH SYSTEM - PROFESSIONAL ARCHITECTURE
+   ========================================================================== */
+
+.admin-layout .cash-container {
+    --cash-bg: #0f0f0f;
+    --cash-surface: rgba(255, 255, 255, 0.03);
+    --cash-surface-hover: rgba(255, 255, 255, 0.06);
+    --cash-border: rgba(255, 255, 255, 0.08);
+    --c-balance: #38bdf8;
+    --c-income: #22c55e;
+    --c-expense: #ef4444;
+    --c-text-muted: #94a3b8;
+    --glass-blur: blur(16px) saturate(180%);
+    --shadow-heavy: 0 10px 40px -10px rgba(0, 0, 0, 0.8);
+    --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-layout .cash-container {
+    padding: clamp(1rem, 5vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    max-width: 1440px;
+    margin: 0 auto;
+    background-color: var(--cash-bg);
+    min-height: 100vh;
+    animation: cashEntrance 0.6s var(--expo-out);
+}
+
+/* ===========================================
+   1. BOTONES GLOBALES (Cash scope)
+   =========================================== */
+.admin-layout .cash-container .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.admin-layout .cash-container .btn-primary {
+    background: linear-gradient(135deg, #e63946 0%, #c62828 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+}
+
+.admin-layout .cash-container .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
+}
+
+.admin-layout .cash-container .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    border: 1px solid var(--cash-border);
+}
+
+.admin-layout .cash-container .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-layout .cash-container .btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.admin-layout .cash-container .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.admin-layout .cash-container .btn-block {
+    width: 100%;
+}
+
+.admin-layout .cash-container .btn-table-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #3b82f6;
+}
+
+.admin-layout .cash-container .btn-table-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.admin-layout .cash-container .btn-text {
+    background: transparent;
+    border: none;
+    color: var(--c-text-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.admin-layout .cash-container .btn-text:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-layout .cash-container .btn-close {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--cash-border);
+    color: var(--c-text-muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-layout .cash-container .btn-close:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ===========================================
+   2. MODALES (Cash scope)
+   =========================================== */
+.admin-layout .cash-container .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.2s ease;
+}
+
+.admin-layout .cash-container .modal-content {
+    background: linear-gradient(145deg, #151515 0%, #0d0d0d 100%);
+    border: 1px solid var(--cash-border);
+    border-radius: 20px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    animation: slideUp 0.3s var(--expo-out);
+    padding: 0 24px 24px;
+}
+
+.admin-layout .cash-container .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--cash-border);
+    margin-bottom: 8px;
+}
+
+.admin-layout .cash-container .modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.admin-layout .cash-container .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-layout .cash-container .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-layout .cash-container .form-group label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-layout .cash-container .form-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid var(--cash-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    color: #fff;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.admin-layout .cash-container .form-input:focus {
+    outline: none;
+    border-color: var(--c-balance);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.admin-layout .cash-container .form-input::placeholder {
+    color: #555;
+}
+
+.admin-layout .cash-container .modal-footer {
+    padding-top: 16px;
+    border-top: 1px solid var(--cash-border);
+}
+
+/* Mini KPI cards inside modals */
+.admin-layout .cash-container .mini-kpi {
+    background: var(--cash-surface);
+    border: 1px solid var(--cash-border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-layout .cash-container .mini-kpi label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-layout .cash-container .mini-kpi span {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Profit indicators */
+.admin-layout .cash-container .profit-plus { color: var(--c-income) !important; }
+.admin-layout .cash-container .profit-minus { color: var(--c-expense) !important; }
+
+/* Text helpers */
+.admin-layout .cash-container .text-accent { color: var(--c-balance); }
+.admin-layout .cash-container .text-danger { color: var(--c-expense); }
+.admin-layout .cash-container .text-secondary { color: var(--c-text-muted); }
+.admin-layout .cash-container .fw-700 { font-weight: 700; }
+.admin-layout .cash-container .flex-center { display: flex; align-items: center; justify-content: center; }
+
+/* ===========================================
+   3. HEADER & GLOBAL ACTIONS
+   =========================================== */
+.admin-layout .cash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    border-bottom: 1px solid var(--cash-border);
+    padding-bottom: 1.5rem;
+}
+
+.admin-layout .cash-header h1 {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: #fff;
+    margin: 0;
+}
+
+.admin-layout .cash-header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ===========================================
+   4. SECTIONS
+   =========================================== */
+.admin-layout .cash-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-layout .cash-section-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-layout .cash-section-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--c-balance);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* Info icon next to table headers */
+.admin-layout .cash-container .info-icon {
+    opacity: 0.4;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+/* ===========================================
+   5. BARRA DE FILTROS
+   =========================================== */
+.admin-layout .cash-filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid var(--cash-border);
+}
+
+.admin-layout .filter-input-group {
+    flex: 1;
+    min-width: 160px;
+    background: #1a1a1a;
+    border: 1px solid var(--cash-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.admin-layout .filter-input-group:focus-within {
+    border-color: var(--c-balance);
+    background: #222;
+}
+
+.admin-layout .filter-input-group select,
+.admin-layout .filter-input-group input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    outline: none;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.admin-layout .filter-input-group select option {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+/* ===========================================
+   6. DATA TABLE
+   =========================================== */
+.admin-layout .cash-table-container {
+    background: var(--cash-surface);
+    border-radius: 16px;
+    border: 1px solid var(--cash-border);
+    overflow: hidden;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.admin-layout .cash-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+.admin-layout .cash-table th {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--cash-border);
+    white-space: nowrap;
+}
+
+.admin-layout .cash-table td {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: #e2e8f0;
+}
+
+.admin-layout .cash-table tr:hover td {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+/* Table empty state */
+.admin-layout .cash-container .table-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px 20px;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+}
+
+/* Movements table inside detail modal */
+.admin-layout .cash-container .cash-movements-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-layout .cash-container .movement-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.15s ease;
+}
+
+.admin-layout .cash-container .movement-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* ===========================================
+   7. BADGES & STATUS
+   =========================================== */
+.admin-layout .cash-container .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.admin-layout .cash-container .status-badge.open {
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--c-income);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.admin-layout .cash-container .status-badge.closed {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--c-text-muted);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+/* Movement type badges */
+.admin-layout .movement-type {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: uppercase;
+}
+
+.admin-layout .type-sale { background: rgba(56, 189, 248, 0.1); color: var(--c-balance); border: 1px solid rgba(56, 189, 248, 0.2); }
+.admin-layout .type-income { background: rgba(34, 197, 94, 0.1); color: var(--c-income); border: 1px solid rgba(34, 197, 94, 0.2); }
+.admin-layout .type-expense { background: rgba(239, 68, 68, 0.1); color: var(--c-expense); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+/* Difference colors */
+.admin-layout .cash-container .diff-positive { color: var(--c-income); font-weight: 700; }
+.admin-layout .cash-container .diff-negative { color: var(--c-expense); font-weight: 700; }
+
+/* Movement amounts */
+.admin-layout .cash-container .amount-plus { color: var(--c-income); font-weight: 800; }
+.admin-layout .cash-container .amount-minus { color: var(--c-expense); font-weight: 800; }
+
+/* ===========================================
+   8. KPI DASHBOARD
+   =========================================== */
+.admin-layout .cash-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+.admin-layout .cash-kpi-card {
+    background: var(--cash-surface);
+    backdrop-filter: var(--glass-blur);
+    padding: 1.5rem;
+    border-radius: 18px;
+    border: 1px solid var(--cash-border);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all 0.3s var(--expo-out);
+    box-shadow: var(--shadow-heavy);
+}
+
+.admin-layout .cash-kpi-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+    background: var(--cash-surface-hover);
+}
+
+.admin-layout .cash-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.admin-layout .cash-kpi-icon.balance { background: rgba(56, 189, 248, 0.1); color: var(--c-balance); }
+.admin-layout .cash-kpi-icon.income { background: rgba(34, 197, 94, 0.1); color: var(--c-income); }
+.admin-layout .cash-kpi-icon.expense { background: rgba(239, 68, 68, 0.1); color: var(--c-expense); }
+
+.admin-layout .cash-kpi-info h4 {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--c-text-muted);
+}
+
+.admin-layout .cash-kpi-value {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 900;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===========================================
+   9. NEW COMPONENT STYLES
+   =========================================== */
+
+/* --- Header Left --- */
+.admin-layout .cash-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.admin-layout .cash-header-icon {
+    width: 32px;
+    height: 32px;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+}
+
+.admin-layout .cash-header-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--c-income);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.admin-layout .cash-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--c-income);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+}
+
+/* --- Income / Expense Buttons --- */
+.admin-layout .cash-container .btn-income {
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--c-income);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.admin-layout .cash-container .btn-income:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.4);
+    transform: translateY(-1px);
+}
+
+.admin-layout .cash-container .btn-expense {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--c-expense);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.admin-layout .cash-container .btn-expense:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+}
+
+.admin-layout .cash-container .btn-open-shift {
+    padding: 12px 28px;
+    font-size: 1rem;
+}
+
+/* --- Loading State --- */
+.admin-layout .cash-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    height: 50vh;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+}
+
+.admin-layout .cash-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    border-top-color: var(--c-balance);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- KPI Grid --- */
+.admin-layout .cash-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.admin-layout .cash-kpi {
+    background: var(--cash-surface);
+    border: 1px solid var(--cash-border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+.admin-layout .cash-kpi:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: var(--cash-surface-hover);
+    transform: translateY(-2px);
+}
+
+.admin-layout .cash-kpi-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--c-text-muted);
+}
+
+.admin-layout .cash-kpi.balance .cash-kpi-header { color: var(--c-balance); }
+.admin-layout .cash-kpi.income .cash-kpi-header { color: var(--c-income); }
+.admin-layout .cash-kpi.expense .cash-kpi-header { color: var(--c-expense); }
+
+.admin-layout .cash-kpi .cash-kpi-value {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.admin-layout .cash-kpi-sub {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    font-weight: 500;
+}
+
+/* --- Methods Grid inside KPI --- */
+.admin-layout .cash-methods-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.admin-layout .cash-method-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--c-text-muted);
+}
+
+.admin-layout .cash-method-row strong {
+    margin-left: auto;
+    color: #fff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Recent Movements Feed --- */
+.admin-layout .cash-recent {
+    background: var(--cash-surface);
+    border: 1px solid var(--cash-border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.admin-layout .cash-recent-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--cash-border);
+}
+
+.admin-layout .cash-recent-header h4 {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-layout .cash-recent-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-layout .cash-recent-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.15s ease;
+}
+
+.admin-layout .cash-recent-item:last-child {
+    border-bottom: none;
+}
+
+.admin-layout .cash-recent-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-layout .cash-recent-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-layout .cash-recent-icon.sale,
+.admin-layout .cash-recent-icon.income {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--c-income);
+}
+
+.admin-layout .cash-recent-icon.expense {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--c-expense);
+}
+
+.admin-layout .cash-recent-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-layout .cash-recent-desc {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-layout .cash-recent-time {
+    font-size: 0.72rem;
+    color: var(--c-text-muted);
+}
+
+.admin-layout .cash-recent-amount {
+    font-size: 0.9rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.admin-layout .cash-recent-amount.positive { color: var(--c-income); }
+.admin-layout .cash-recent-amount.negative { color: var(--c-expense); }
+
+/* --- Empty State --- */
+.admin-layout .cash-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    gap: 16px;
+    background: var(--cash-surface);
+    border: 1px dashed var(--cash-border);
+    border-radius: 20px;
+}
+
+.admin-layout .cash-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-text-muted);
+}
+
+.admin-layout .cash-empty-state h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.admin-layout .cash-empty-state p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--c-text-muted);
+    max-width: 300px;
+}
+
+/* --- Section Header with inline filter --- */
+.admin-layout .cash-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-layout .cash-filters-inline select {
+    background: #1a1a1a;
+    border: 1px solid var(--cash-border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.admin-layout .cash-filters-inline select:focus {
+    outline: none;
+    border-color: var(--c-balance);
+}
+
+.admin-layout .cash-filters-inline select option {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+/* --- History Card List --- */
+.admin-layout .cash-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-layout .cash-history-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--cash-surface);
+    border: 1px solid var(--cash-border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-layout .cash-history-card:hover {
+    background: var(--cash-surface-hover);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateX(4px);
+}
+
+.admin-layout .cash-history-date {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 100px;
+}
+
+.admin-layout .cash-history-day {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.admin-layout .cash-history-hours {
+    font-size: 0.72rem;
+    color: var(--c-text-muted);
+}
+
+.admin-layout .cash-history-duration {
+    font-size: 0.7rem;
+    color: var(--c-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.admin-layout .cash-history-amounts {
+    flex: 1;
+    display: flex;
+    gap: 24px;
+}
+
+.admin-layout .cash-history-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-layout .cash-history-col label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-layout .cash-history-col span {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-layout .cash-history-arrow {
+    color: var(--c-text-muted);
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.admin-layout .cash-history-card:hover .cash-history-arrow {
+    opacity: 1;
+    color: var(--c-balance);
+}
+
+/* --- History Loading & Empty --- */
+.admin-layout .cash-history-loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+}
+
+.admin-layout .cash-history-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px 20px;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    background: var(--cash-surface);
+    border: 1px dashed var(--cash-border);
+    border-radius: 14px;
+}
+
+/* ===========================================
+   10. RESPONSIVE MOBILE
+   =========================================== */
+@media (max-width: 768px) {
+    .admin-layout .cash-container {
+        padding: 16px;
+        gap: 20px;
+    }
+
+    .admin-layout .cash-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 16px;
+    }
+
+    .admin-layout .cash-header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .admin-layout .cash-header-actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 12px;
+        font-size: 0.82rem;
+    }
+
+    .admin-layout .cash-header-actions .btn-danger {
+        grid-column: 1 / -1;
+    }
+
+    .admin-layout .cash-header-actions .btn-open-shift {
+        grid-column: 1 / -1;
+    }
+
+    /* KPI Grid */
+    .admin-layout .cash-kpi-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .admin-layout .cash-kpi {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .admin-layout .cash-kpi .cash-kpi-value {
+        font-size: 1.2rem;
+    }
+
+    .admin-layout .cash-kpi-header {
+        font-size: 0.68rem;
+    }
+
+    .admin-layout .cash-kpi-sub {
+        font-size: 0.68rem;
+    }
+
+    .admin-layout .cash-kpi.methods {
+        grid-column: 1 / -1;
+    }
+
+    /* Recent movements */
+    .admin-layout .cash-recent-item {
+        padding: 10px 14px;
+        gap: 10px;
+    }
+
+    .admin-layout .cash-recent-desc {
+        font-size: 0.8rem;
+    }
+
+    .admin-layout .cash-recent-amount {
+        font-size: 0.82rem;
+    }
+
+    .admin-layout .cash-recent-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    /* History cards */
+    .admin-layout .cash-history-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px;
+    }
+
+    .admin-layout .cash-history-date {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-width: unset;
+        width: 100%;
+    }
+
+    .admin-layout .cash-history-amounts {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .admin-layout .cash-history-arrow {
+        display: none;
+    }
+
+    /* Empty state */
+    .admin-layout .cash-empty-state {
+        padding: 40px 16px;
+    }
+
+    .admin-layout .cash-empty-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+    }
+
+    /* Section header */
+    .admin-layout .cash-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .admin-layout .cash-filters-inline select {
+        width: 100%;
+    }
+
+    /* Modal responsive */
+    .admin-layout .cash-container .modal-overlay {
+        padding: 10px;
+        align-items: flex-end;
+    }
+
+    .admin-layout .cash-container .modal-content {
+        border-radius: 20px 20px 0 0;
+        max-height: 85vh;
+        padding: 0 16px 16px;
+    }
+
+    .admin-layout .cash-container .modal-header {
+        padding: 16px 0;
+    }
+
+    .admin-layout .cash-container .modal-header h3 {
+        font-size: 1rem;
+    }
+
+    .admin-layout .cash-container .form-input {
+        padding: 12px 14px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-layout .cash-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .admin-layout .cash-section-title {
+        font-size: 0.9rem;
+    }
+
+    .admin-layout .cash-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-layout .cash-history-amounts {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .admin-layout .cash-history-col {
+        min-width: 70px;
+    }
+}
+
+/* ===========================================
+   10. ANIMATIONS
+   =========================================== */
+@keyframes cashEntrance {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Scrollbar */
+.admin-layout .cash-table-container::-webkit-scrollbar { height: 6px; }
+.admin-layout .cash-table-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+
+.admin-layout .cash-container .modal-content::-webkit-scrollbar { width: 6px; }
+.admin-layout .cash-container .modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+}

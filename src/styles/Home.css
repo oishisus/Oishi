@@ -1,0 +1,482 @@
+/* ==========================================================================
+   CONFIGURACIÓN & VARIABLES (TEMA OISHI PREMIUM V2)
+   ========================================================================== */
+:root {
+  /* --- Dimensiones --- */
+  --ticket-radius: 24px;
+  --stub-width: 320px; /* Un poco más ancho para presencia */
+  --cutout-size: 40px; /* Agujeros más definidos */
+  
+  /* --- Colores & Fondos --- */
+  --bg-dark: #050505; /* Debe coincidir con el fondo detrás del ticket si es sólido */
+  
+  /* Gradiente Rojo Profundo (Más elegante, menos chillón) */
+  --primary-red-gradient: linear-gradient(135deg, #c62828 0%, #8e0000 100%);
+  
+  /* Gradiente Dorado de Lujo */
+  --gold-gradient: linear-gradient(180deg, #fff 10%, #f8e7b9 40%, #d4af37 100%);
+  
+  /* --- Glassmorphism Avanzado --- */
+  --glass-surface: rgba(20, 20, 20, 0.75); /* Más oscuro para contraste */
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+  --blur-val: blur(24px);
+
+  /* --- Sombras --- */
+  --shadow-float: 0 20px 50px -10px rgba(0, 0, 0, 0.8);
+  --shadow-inset: inset 0 0 40px rgba(0,0,0,0.5); /* Profundidad interna */
+}
+
+/* Reset */
+* { box-sizing: border-box; }
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL
+   ========================================================================== */
+
+.home-container {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 5vw, 2rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* El fondo transparente permite ver la imagen que pongas en App.js */
+  background: transparent; 
+  color: white;
+}
+
+/* Overlay Cinematográfico */
+.home-overlay {
+  position: absolute;
+  inset: 0;
+  /* Viñeta oscura para centrar la atención en el ticket */
+  background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, #000 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.home-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   BOTÓN DE AJUSTES (Settings) - ESTILO CRISTAL FLOTANTE
+   ========================================================================== */
+
+.settings-btn {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  z-index: 50;
+  
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Cristal Frosted */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%; /* Redondo es más moderno para settings */
+  
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto rebote */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transform: scale(1.15) rotate(90deg); /* Rota al hacer hover */
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   TICKET WRAPPER (LA TARJETA PREMIUM)
+   ========================================================================== */
+
+.ticket-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 950px; /* Más ancho para elegancia */
+  
+  /* Fondo Base + Textura de Ruido (Noise) */
+  background-color: #121212; 
+  background-image: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"),
+    linear-gradient(to bottom right, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
+    
+  backdrop-filter: var(--blur-val);
+  border: 1px solid var(--glass-border);
+  border-top: 1px solid rgba(255,255,255,0.15); /* Borde superior más brillante (luz cenital) */
+  
+  border-radius: var(--ticket-radius);
+  box-shadow: var(--shadow-float);
+  
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden; /* Mantiene la textura dentro */
+}
+
+/* Brillo sutil en el borde al hacer hover */
+@media (min-width: 850px) {
+  .ticket-wrapper:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 
+      0 40px 80px -20px rgba(0,0,0,0.9),
+      0 0 0 1px rgba(255, 255, 255, 0.2); /* Resplandor de borde */
+  }
+}
+
+/* ==========================================================================
+   SECCIÓN IZQUIERDA (CONTENIDO)
+   ========================================================================== */
+
+.ticket-main {
+  flex: 1;
+  padding: clamp(2rem, 5vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  /* Sombra interna para profundidad */
+  box-shadow: inset -20px 0 30px -20px rgba(0,0,0,0.5);
+}
+
+/* --- Branding --- */
+.home-header-centered {
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.brand-container-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.home-logo-centered {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.home-logo-centered:hover {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+.brand-text-centered h1 {
+  font-size: clamp(2.8rem, 9vw, 4.2rem);
+  font-weight: 900;
+  line-height: 0.9;
+  margin: 0;
+  letter-spacing: -2px;
+  
+  /* Gradiente Dorado Metálico */
+  background: var(--gold-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));
+}
+
+.brand-subtitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Líneas decorativas elegantes */
+.brand-subtitle::before, .brand-subtitle::after {
+  content: "";
+  height: 1px;
+  width: 30px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+.home-tagline {
+  margin-top: 1rem;
+  font-family: serif; /* Toque de elegancia */
+  font-style: italic;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- Botones --- */
+.home-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  width: 100%;
+  max-width: 460px;
+}
+
+.home-container .btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 24px;
+  height: 60px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  overflow: hidden;
+}
+
+/* Efecto Brillo (Shine) al pasar el mouse */
+.home-container .btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+.home-container .btn:hover::after {
+  left: 100%;
+}
+
+/* Primario */
+.home-container .btn-primary {
+  grid-column: 1 / -1;
+  height: 70px;
+  font-size: 1.1rem;
+  background: var(--primary-red-gradient);
+  color: white;
+  box-shadow: 0 10px 25px rgba(183, 28, 28, 0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.home-container .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(183, 28, 28, 0.6);
+}
+
+/* Secundarios */
+.home-container .btn-secondary {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255,255,255,0.9);
+  font-size: 14px;
+}
+
+.home-container .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+}
+
+
+/* ==========================================================================
+   SECCIÓN DERECHA (TICKET STUB - EL TALÓN)
+   ========================================================================== */
+
+.ticket-stub {
+  width: 100%;
+  background: var(--primary-red-gradient);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 2.5rem;
+  overflow: hidden;
+  color: white;
+}
+
+/* PATRÓN DE FONDO JAPONÉS (Olas sutiles) */
+.ticket-stub::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 100% 100%, rgba(0,0,0,0.2) 10%, transparent 11%),
+    radial-gradient(circle at 0% 0%, rgba(0,0,0,0.2) 10%, transparent 11%);
+  background-size: 40px 40px;
+  opacity: 0.4;
+}
+
+.stub-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.stub-badge {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 5px 15px;
+  border-radius: 50px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.qr-box {
+  background: white;
+  padding: 10px; /* Borde blanco estilo Polaroid */
+  border-radius: 12px;
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,0.5), /* Sombra larga */
+    0 0 0 1px rgba(0,0,0,0.1);    /* Borde fino */
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  margin-bottom: 1.5rem;
+  width: clamp(120px, 40vw, 150px);
+  height: clamp(120px, 40vw, 150px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-box svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.qr-box:hover {
+  transform: scale(1.1) rotate(3deg);
+}
+
+.stub-scan-text {
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+
+/* Falso Código de Barras Decorativo */
+.stub-footer {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stub-footer::after {
+  content: "|| ||| | ||| || ||";
+  font-family: monospace;
+  font-size: 1.5rem;
+  letter-spacing: -2px;
+  opacity: 0.5;
+  margin-top: 5px;
+  transform: scaleY(0.6);
+}
+
+/* Línea divisoria en Móvil */
+.ticket-stub-line {
+  width: 90%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 10px, transparent 10px, transparent 20px);
+  margin: 10px auto;
+}
+
+/* ==========================================================================
+   ESCRITORIO (850px+) - MONTAJE DEL TICKET
+   ========================================================================== */
+
+@media (min-width: 850px) {
+  .ticket-wrapper {
+    flex-direction: row;
+    overflow: visible; /* IMPORTANTE: Para que salgan los recortes */
+  }
+  
+  .ticket-stub-line { display: none; }
+
+  /* Stub Derecho */
+  .ticket-stub {
+    width: var(--stub-width);
+    flex-shrink: 0;
+    border-radius: 0 var(--ticket-radius) var(--ticket-radius) 0;
+    
+    /* LÍNEA DE TROQUELADO REALISTA (Shadow + Dashed) */
+    border-left: 3px dashed rgba(0, 0, 0, 0.3);
+    box-shadow: inset 2px 0 0 rgba(255, 255, 255, 0.1); /* Brillo en el corte */
+  }
+
+  .ticket-main {
+    border-radius: var(--ticket-radius) 0 0 var(--ticket-radius);
+    padding-right: 4rem; /* Espacio antes del corte */
+  }
+
+  /* --- LOS RECORTES (MUESCAS) --- */
+  /* [TRUCO] Los círculos deben ser del mismo color que el fondo de la página */
+  .ticket-wrapper::before,
+  .ticket-wrapper::after {
+    content: '';
+    position: absolute;
+    width: var(--cutout-size);
+    height: var(--cutout-size);
+    
+    /* !!! IMPORTANTE !!! 
+       Si usas una foto de fondo, estos círculos se verán negros planos.
+       Si quieres que sea perfecto sobre fotos, avísame (requiere mask-image).
+       Por ahora usamos el color oscuro base.
+    */
+    background-color: #000; /* Color negro puro para simular oscuridad de fondo */
+    
+    border-radius: 50%;
+    z-index: 20;
+    right: calc(var(--stub-width) - (var(--cutout-size) / 2));
+    
+    /* Sombra interna para que el agujero tenga profundidad 3D */
+    box-shadow: 
+      inset 2px 2px 6px rgba(0,0,0,0.9), /* Sombra profunda dentro del hueco */
+      0 0 0 1px rgba(255,255,255,0.05);  /* Borde sutil */
+  }
+
+  .ticket-wrapper::before { top: calc((var(--cutout-size) / 2) * -1); }
+  .ticket-wrapper::after { bottom: calc((var(--cutout-size) / 2) * -1); }
+}
+
+/* ==========================================================================
+   MÓVIL
+   ========================================================================== */
+@media (max-width: 849px) {
+  .home-nav-grid { grid-template-columns: 1fr; }
+  .settings-btn { width: 42px; height: 42px; top: 15px; right: 15px; }
+  
+  /* En móvil el troquelado es horizontal */
+  .ticket-stub { 
+    border-top: 3px dashed rgba(0,0,0,0.3); 
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.1);
+  }
+}

@@ -1,0 +1,56 @@
+/* =========================================
+   ESTILOS ESPECÍFICOS: CATEGORY MODAL
+   ========================================= */
+
+.category-active-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* --- REUSING / REDEFINING SLIDER FOR CATEGORY --- */
+.switch-slider-container {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.switch-slider {
+    position: absolute;
+    inset: 0;
+    background-color: #1e293b;
+    transition: .4s;
+    border-radius: 24px;
+    border: 1px solid #334155;
+}
+
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input[type="checkbox"]:checked+.switch-slider {
+    background-color: #38bdf8;
+    border-color: #38bdf8;
+}
+
+input[type="checkbox"]:checked+.switch-slider:before {
+    transform: translateX(22px);
+}
+
+.category-hint {
+    color: #94a3b8;
+    margin-top: 5px;
+    display: block;
+    font-size: 0.75rem;
+}

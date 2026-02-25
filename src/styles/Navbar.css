@@ -1,0 +1,205 @@
+/* =========================================
+   NAVBAR STYLES (CORREGIDO + BUSCADOR)
+   ========================================= */
+
+.navbar-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    background: transparent;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: -webkit-sticky;
+}
+
+/* Fila: tabs a la izquierda, buscador a la derecha */
+.navbar-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.navbar-tabs-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 10px;
+    background: transparent !important;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    white-space: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* Ocultar barra en Chrome/Safari */
+.navbar-container::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-item {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.030);
+    color: var(--text-secondary, #ccc);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    user-select: none;
+}
+
+/* Hover */
+.tab-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Estado Activo */
+.tab-item.active {
+    background: var(--accent-primary, #ff4e50);
+    /* Fallback a rojo si no hay variable */
+    color: white;
+    border-color: var(--accent-primary, #ff4e50);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 78, 80, 0.3);
+}
+
+/* Iconos dentro de los tabs */
+.tab-item img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Buscador (pastilla a la derecha) */
+.nav-search-section {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.search-pill-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-pill-wrapper.expanded {
+    width: 180px;
+    background: rgba(20, 20, 20, 0.95);
+    border-color: var(--accent-primary, #ff4e50);
+    justify-content: flex-start;
+    padding-left: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.search-icon-pill {
+    color: white;
+    flex-shrink: 0;
+    transition: color 0.3s;
+}
+
+.search-pill-wrapper.expanded .search-icon-pill {
+    color: var(--accent-primary, #ff4e50);
+}
+
+.search-input-pill {
+    width: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    opacity: 0;
+    transition: opacity 0.2s ease 0.1s;
+    pointer-events: none;
+}
+
+.search-pill-wrapper.expanded .search-input-pill {
+    width: 100%;
+    min-width: 60px;
+    margin-left: 10px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.search-input-pill::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-close-pill {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.btn-close-pill:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Máscaras de desvanecimiento (dentro de navbar-tabs-area) */
+.nav-fade-left,
+.nav-fade-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.nav-fade-left {
+    left: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
+}
+
+.nav-fade-right {
+    right: 0;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.3), transparent);
+}
+
+@media (max-width: 380px) {
+    .search-pill-wrapper.expanded {
+        width: 140px;
+    }
+}
