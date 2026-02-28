@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { TABLES } from '../lib/supabaseTables';
 
 export const LocationContext = createContext();
 
@@ -23,15 +22,20 @@ export const LocationProvider = ({ children }) => {
   const [allBranches, setAllBranches] = useState([]);
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(!initial.hasValidBranch);
+  const publicCompanySlug = (import.meta.env.VITE_PUBLIC_COMPANY_SLUG || import.meta.env.VITE_COMPANY_SLUG || '').trim();
 
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const { data, error } = await supabase
-          .from(TABLES.branches)
-          .select('*')
-          .eq('is_active', true)
-          .order('name');
+        if (!publicCompanySlug) {
+          setAllBranches([]);
+          setLoadingBranches(false);
+          return;
+        }
+
+        const { data, error } = await supabase.rpc('get_public_branches', {
+          p_company_slug: publicCompanySlug
+        });
 
         if (error) throw error;
 
@@ -61,7 +65,7 @@ export const LocationProvider = ({ children }) => {
     };
 
     fetchBranches();
-  }, []);
+  }, [publicCompanySlug]);
 
   // Efecto de seguridad: Si no hay branch, ABRIR SIEMPRE el modal
   React.useEffect(() => {

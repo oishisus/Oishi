@@ -138,34 +138,38 @@ export const AdminProvider = ({ children }) => {
 				isAllBranches
 					? supabase.from(TABLES.orders).select('*').order('created_at', { ascending: false }).limit(100)
 					: supabase.from(TABLES.orders).select('*').eq('branch_id', selectedBranch.id).order('created_at', { ascending: false }).limit(100),
-				supabase.from(TABLES.clients).select('*').order('last_order_at', { ascending: false }).limit(200),
-				isAllBranches ? supabase.from(TABLES.product_prices).select('*') : supabase.from(TABLES.product_prices).select('*').eq('branch_id', selectedBranch.id),
-				isAllBranches ? supabase.from(TABLES.product_branch).select('*') : supabase.from(TABLES.product_branch).select('*').eq('branch_id', selectedBranch.id)
+				supabase.from(TABLES.clients).select('*').order('last_order_at', { ascending: false }).limit(200)
 			];
+			if (!isAllBranches) {
+				promises.push(supabase.from(TABLES.product_prices).select('*').eq('branch_id', selectedBranch.id));
+				promises.push(supabase.from(TABLES.product_branch).select('*').eq('branch_id', selectedBranch.id));
+			}
 			const results = await Promise.all(promises);
-			const [catsRes, globalProductsRes, ordsRes, cltsRes, pricesRes, branchStatusRes] = results;
+			const [catsRes, globalProductsRes, ordsRes, cltsRes] = results;
+			const pricesRes = !isAllBranches ? results[4] : { data: [] };
+			const branchStatusRes = !isAllBranches ? results[5] : { data: [] };
 			if (catsRes.error) throw catsRes.error;
 			if (globalProductsRes.error) throw globalProductsRes.error;
 			if (ordsRes.error) throw ordsRes.error;
 			if (cltsRes.error) throw cltsRes.error;
-			if (pricesRes.error) throw pricesRes.error;
-			if (branchStatusRes.error) throw branchStatusRes.error;
+			if (!isAllBranches) {
+				if (pricesRes.error) throw pricesRes.error;
+				if (branchStatusRes.error) throw branchStatusRes.error;
+			}
 			const branchPrices = pricesRes.data || [];
 			const branchStatuses = branchStatusRes.data || [];
-			const sameId = (a, b) => String(a ?? '') === String(b ?? '');
 			const mergedProducts = (globalProductsRes.data || []).map(prod => {
-				const priceData = branchPrices.find(p => sameId(p.product_id, prod.id));
-				const statusData = branchStatuses.find(s => sameId(s.product_id, prod.id));
-				const price = priceData != null ? Number(priceData.price) || 0 : 0;
-				const discountPrice = priceData?.discount_price != null ? Number(priceData.discount_price) || 0 : 0;
+				if (isAllBranches) return prod;
+				const priceData = branchPrices.find(p => p.product_id === prod.id);
+				const statusData = branchStatuses.find(s => s.product_id === prod.id);
 				return {
 					...prod,
-					price,
-					has_discount: priceData ? Boolean(priceData.has_discount) : false,
-					discount_price: discountPrice,
-					is_active: statusData ? Boolean(statusData.is_active) : false,
-					is_special: statusData ? Boolean(statusData.is_special) : false,
-					category_id: statusData?.category_id ?? prod.category_id,
+					price: priceData ? priceData.price : 0,
+					has_discount: priceData ? priceData.has_discount : false,
+					discount_price: priceData ? priceData.discount_price : 0,
+					is_active: statusData ? statusData.is_active : false,
+					is_special: statusData ? statusData.is_special : false,
+					category_id: statusData?.category_id || prod.category_id,
 					price_id: priceData?.id,
 					branch_relation_id: statusData?.id
 				};
@@ -401,7 +405,8 @@ export const AdminProvider = ({ children }) => {
 				await supabase.from(TABLES.product_branch).upsert({
 					product_id: item.id,
 					branch_id: selectedBranch.id,
-					is_active: newActive
+					is_active: newActive,
+					company_id: selectedBranch.company_id || null
 				}, { onConflict: 'product_id, branch_id' });
 				showNotify(newActive ? 'Activado en este local' : 'Desactivado en este local');
 			}
@@ -431,7 +436,8 @@ export const AdminProvider = ({ children }) => {
 					.upsert({
 						category_id: editingCategory.id,
 						branch_id: selectedBranch.id,
-						is_active: formData.is_active
+						is_active: formData.is_active,
+						company_id: selectedBranch.company_id || null
 					}, { onConflict: 'category_id, branch_id' });
 				if (statusError) throw statusError;
 
@@ -485,7 +491,8 @@ export const AdminProvider = ({ children }) => {
 			.upsert({
 				category_id: categoryId,
 				branch_id: selectedBranch.id,
-				is_active: nextValue
+				is_active: nextValue,
+				company_id: selectedBranch.company_id || null
 			}, { onConflict: 'category_id, branch_id' });
 		if (error) {
 			showNotify('No se pudo actualizar la categoría', 'error');

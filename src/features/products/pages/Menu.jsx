@@ -8,7 +8,6 @@ import '../../../styles/Navbar.css';
 import '../../../styles/BranchSelectorModal.css';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
-import { TABLES } from '../../../lib/supabaseTables';
 import logo from '../../../assets/logo.png';
 import BranchSelectorModal from '../../../shared/components/BranchSelectorModal';
 import { useLocation } from '../../../context/useLocation';
@@ -20,6 +19,7 @@ const Menu = () => {
   const { selectedBranch, selectBranch, isLocationModalOpen, setIsLocationModalOpen, allBranches } = useLocation();
   const { branchesWithOpenCaja, isShiftLoading } = useCash();
   const { businessInfo } = useBusiness();
+  const publicCompanySlug = (import.meta.env.VITE_PUBLIC_COMPANY_SLUG || import.meta.env.VITE_COMPANY_SLUG || '').trim();
 
   // Si la sucursal guardada ya no tiene caja abierta, abrir modal para elegir una que sí acepte pedidos
   useEffect(() => {
@@ -47,6 +47,13 @@ const Menu = () => {
       try {
         const branchesData = Array.isArray(allBranches) ? allBranches : [];
 
+        if (!publicCompanySlug) {
+          setData({ categories: [], products: [], branches: branchesData });
+          setLoading(false);
+          setIsLocationModalOpen(true);
+          return;
+        }
+
         if (!selectedBranch) {
           setData({ categories: [], products: [], branches: branchesData });
           setLoading(false);
@@ -54,27 +61,20 @@ const Menu = () => {
           return;
         }
 
-        const [catsRes, prodsRes, pricesRes, statusRes] = await Promise.all([
-          supabase
-            .from(TABLES.categories)
-            .select('id, name, category_branch!inner(order, is_active, branch_id)')
-            .eq('category_branch.branch_id', selectedBranch.id)
-            .eq('category_branch.is_active', true),
-          supabase.from(TABLES.products).select('*').order('name', { ascending: true }),
-          supabase.from(TABLES.product_prices).select('*').eq('branch_id', selectedBranch.id),
-          supabase.from(TABLES.product_branch).select('*').eq('branch_id', selectedBranch.id)
-        ]);
+        const { data: menuData, error } = await supabase.rpc('get_public_menu', {
+          p_company_slug: publicCompanySlug,
+          p_branch_id: selectedBranch.id
+        });
 
-        if (catsRes.error) throw catsRes.error;
-        if (prodsRes.error) throw prodsRes.error;
-        if (pricesRes.error) throw pricesRes.error;
-        if (statusRes.error) throw statusRes.error;
+        if (error) throw error;
 
-        const branchPrices = pricesRes.data || [];
-        const branchStatuses = statusRes.data || [];
+        const branchPrices = menuData?.product_prices || [];
+        const branchStatuses = menuData?.product_branch || [];
+        const productsData = menuData?.products || [];
+        const categoriesRaw = menuData?.categories || [];
 
         // --- FUSIÓN DE DATOS ESTRICTA ---
-        const processedProducts = prodsRes.data.map(prod => {
+        const processedProducts = productsData.map(prod => {
           const priceData = branchPrices.find(p => p.product_id === prod.id);
           const statusData = branchStatuses.find(s => s.product_id === prod.id);
 
@@ -96,9 +96,9 @@ const Menu = () => {
           };
         }).filter(p => p !== null);
 
-        const categoriesData = (catsRes.data || [])
+        const categoriesData = (categoriesRaw || [])
           .map(cat => {
-            const branchInfo = Array.isArray(cat.category_branch) ? cat.category_branch[0] : null;
+            const branchInfo = cat;
             return {
               id: cat.id,
               name: cat.name,
@@ -119,7 +119,7 @@ const Menu = () => {
       }
     };
     loadData();
-  }, [selectedBranch, setIsLocationModalOpen, allBranches]);
+  }, [selectedBranch, setIsLocationModalOpen, allBranches, publicCompanySlug]);
 
   // 2. Filtrado memoizado para rendimiento
   const { specialProducts, filteredBySearch, query } = useMemo(() => {

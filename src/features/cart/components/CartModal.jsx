@@ -19,7 +19,7 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1553621042-f6e14724575
 const WHATSAPP_NUMBER = "56976645547";
 
 const generateWSMessage = (formData, cart, total, paymentType, note, businessName) => {
-  let msg = `*NUEVO PEDIDO WEB - ${businessName || 'OISHI'}*\n`;
+  let msg = `*NUEVO PEDIDO WEB - ${businessName || 'RESTAURANTE'}*\n`;
   msg += '================================\n\n';
   msg += `Cliente: ${formData.name}\n`;
   msg += `RUT: ${formData.rut}\n`;
@@ -223,7 +223,8 @@ const CartModal = React.memo(() => {
         status: 'pending',
         receiptFile: formData.receiptFile,
         branch_id: currentBranch.id,
-        branch_name: currentBranch?.name || 'Desconocido'
+        branch_name: currentBranch?.name || 'Desconocido',
+        company_id: currentBranch?.company_id || null
       };
 
       const { receiptUploadFailed } = await ordersService.createOrder(orderPayload, formData.receiptFile);

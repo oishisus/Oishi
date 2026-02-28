@@ -102,6 +102,14 @@ const AdminPage = () => {
     [...categories].sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
   ), [categories]);
 
+  const companyIdForClients = React.useMemo(() => {
+    if (selectedBranch && selectedBranch.id !== 'all' && selectedBranch.company_id) {
+      return selectedBranch.company_id;
+    }
+    const fallback = (branches || []).find(b => b.id !== 'all' && b.company_id);
+    return fallback?.company_id || null;
+  }, [selectedBranch, branches]);
+
   const [dragCategoryId, setDragCategoryId] = React.useState(null);
   const [dragOverCategoryId, setDragOverCategoryId] = React.useState(null);
   const dragEnabled = !isMobile;
@@ -408,6 +416,7 @@ const AdminPage = () => {
             onSelectClient={handleSelectClient}
             onClientCreated={() => loadData(true)}
             showNotify={showNotify}
+            companyId={companyIdForClients}
           />
         )}
 

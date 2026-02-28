@@ -53,6 +53,11 @@ export const BusinessProvider = ({ children }) => {
             return;
         }
         try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session?.user) {
+                setCompanyName('');
+                return;
+            }
             const { data } = await supabase
                 .from(TABLES.companies)
                 .select('name')

@@ -4,7 +4,7 @@ import ClientFormModal from './ClientFormModal';
 import '../styles/AdminClients.css';
 import { downloadExcel } from '../../../shared/utils/exportUtils';
 
-const AdminClients = ({ clients, orders, onSelectClient, onClientCreated, showNotify }) => {
+const AdminClients = ({ clients, orders, onSelectClient, onClientCreated, showNotify, companyId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all'); // all, elite, top, frequent
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -364,6 +364,7 @@ const AdminClients = ({ clients, orders, onSelectClient, onClientCreated, showNo
                 onClose={() => setIsFormOpen(false)}
                 onClientCreated={onClientCreated}
                 showNotify={showNotify}
+                companyId={companyId}
             />
 
         </div>

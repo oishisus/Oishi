@@ -13,7 +13,7 @@ const sanitizeText = (value) => {
     return raw.slice(0, MAX_NAME_LENGTH);
 };
 
-const ClientFormModal = ({ isOpen, onClose, onClientCreated, showNotify }) => {
+const ClientFormModal = ({ isOpen, onClose, onClientCreated, showNotify, companyId }) => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -58,6 +58,11 @@ const ClientFormModal = ({ isOpen, onClose, onClientCreated, showNotify }) => {
         }
 
         try {
+            if (!companyId) {
+                showNotify('No hay empresa asociada para crear el cliente', 'error');
+                setLoading(false);
+                return;
+            }
             // Validar teléfono duplicado
             const { data: existing } = await supabase
                 .from(TABLES.clients)
@@ -77,6 +82,7 @@ const ClientFormModal = ({ isOpen, onClose, onClientCreated, showNotify }) => {
                     name,
                     phone,
                     rut: rut || null,
+                    company_id: companyId,
                     total_spent: 0,
                     created_at: new Date().toISOString()
                 }])
