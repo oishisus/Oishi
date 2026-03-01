@@ -1,0 +1,252 @@
+/* =========================================
+   ADMIN KANBAN BOARD (PREMIUM)
+   ========================================= */
+
+/* Contenedor Principal */
+.admin-layout .kanban-board {
+    display: grid;
+    /* Grid flexible que se adapta al ancho disponible */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    
+    /* Lógica de altura robusta: Llenar el contenedor padre */
+    height: 100%;
+    min-height: 0;
+    
+    /* Prevenir overflow horizontal */
+    width: 100%;
+    overflow-x: auto;
+    
+    /* Animación de entrada */
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Columnas (Glass Effect) */
+.admin-layout .kanban-column {
+    background: rgba(20, 20, 20, 0.6); /* Un poco más oscuro para contraste con las tarjetas */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Para que el header respete el borde */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover sutil en la columna para foco */
+.admin-layout .kanban-column:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* Cabecera de Columna */
+.admin-layout .column-header {
+    padding: 18px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--glass-border);
+    
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-size: 0.95rem;
+    color: var(--text-primary, #fff);
+    text-transform: uppercase;
+}
+
+/* Puntos de Estado (Glowing Dots) */
+.admin-layout .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: relative;
+}
+
+/* Efecto de "respiración" para indicar actividad */
+.admin-layout .dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    opacity: 0.4;
+    filter: blur(4px);
+}
+
+.admin-layout .dot-orange { background: #f4a261; box-shadow: 0 0 8px rgba(244, 162, 97, 0.6); }
+.admin-layout .dot-orange::after { background: #f4a261; }
+
+.admin-layout .dot-red { background: #e63946; box-shadow: 0 0 8px rgba(230, 57, 70, 0.6); }
+.admin-layout .dot-red::after { background: #e63946; }
+
+.admin-layout .dot-green { background: #25d366; box-shadow: 0 0 8px rgba(37, 211, 102, 0.6); }
+.admin-layout .dot-green::after { background: #25d366; }
+
+/* Contador (Badge) */
+.admin-layout .count {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Cuerpo de la Columna (Zona de Scroll) */
+.admin-layout .column-body {
+    padding: 15px;
+    flex: 1; /* Ocupa todo el espacio restante */
+    overflow-y: auto; /* Scroll vertical */
+    overflow-x: hidden;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    
+    /* Scrollbar Estilizado (Firefox) */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Scrollbar Estilizado (Chrome/Safari) */
+.admin-layout .column-body::-webkit-scrollbar {
+    width: 6px;
+}
+.admin-layout .column-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.admin-layout .column-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+.admin-layout .column-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Estado Vacío */
+.admin-layout .empty-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    font-style: italic;
+    font-size: 0.9rem;
+    gap: 10px;
+    padding: 40px 0;
+}
+
+/* Icono fantasma opcional si quieres agregar uno en el HTML */
+.admin-layout .empty-zone svg {
+    opacity: 0.3;
+}
+
+/* Tabs Móviles (Ocultos en Desktop) */
+.admin-layout .mobile-tabs {
+    display: none;
+}
+
+/* =========================================
+   RESPONSIVE TABLET
+   ========================================= */
+@media (max-width: 1200px) {
+    .admin-layout .kanban-board {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE MÓVIL (SEGMENTED CONTROL)
+   ========================================= */
+@media (max-width: 768px) {
+    .admin-layout .kanban-board {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        /* En móvil dejamos que la página crezca */
+        min-height: calc(100vh - 140px); 
+        gap: 0;
+        overflow-x: visible;
+    }
+
+    /* Pestañas estilo iOS / Segmented Control */
+    .admin-layout .mobile-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* 3 columnas iguales */
+        background: rgba(0, 0, 0, 0.3);
+        padding: 4px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid var(--glass-border);
+    }
+
+    .admin-layout .mobile-tabs button {
+        padding: 10px 5px;
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+    }
+
+    /* Estado Activo: Efecto "Elevado" */
+    .admin-layout .mobile-tabs button.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Indicador de color debajo del texto activo */
+    .admin-layout .mobile-tabs button.active::after {
+        content: '';
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+    }
+    /* Colores por pestaña (Asumiendo orden: Pendiente, Proceso, Listo) */
+    .admin-layout .mobile-tabs button:nth-child(1).active::after { background: #f4a261; } /* Naranja */
+    .admin-layout .mobile-tabs button:nth-child(2).active::after { background: #e63946; } /* Rojo */
+    .admin-layout .mobile-tabs button:nth-child(3).active::after { background: #25d366; } /* Verde */
+
+    .admin-layout .kanban-column {
+        height: auto;
+        min-height: 60vh; /* Altura mínima digna en móvil */
+        border: none;
+        background: transparent; /* Quitar fondo pesado en móvil para limpieza */
+        box-shadow: none;
+        overflow: visible; /* Permitir scroll nativo */
+    }
+    
+    .admin-layout .column-header {
+        background: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 0;
+        margin-bottom: 10px;
+    }
+
+    .admin-layout .column-body {
+        padding: 0;
+        overflow: visible; /* Usar scroll de la ventana principal */
+    }
+
+    /* Clase utilitaria para ocultar columnas no activas */
+    .admin-layout .hidden {
+        display: none !important;
+    }
+}
