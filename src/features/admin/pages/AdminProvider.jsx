@@ -268,6 +268,8 @@ export const AdminProvider = ({ children }) => {
 		try {
 			const { error } = await supabase.from(TABLES.orders).update({ status: nextStatus }).eq('id', orderId);
 			if (error) throw error;
+			// Registrar venta en caja cuando el pedido pasa a cocina (active).
+			// También en completed/picked_up por si aceptaron muy rápido y no dio tiempo en active.
 			if (nextStatus === 'active' || nextStatus === 'completed' || nextStatus === 'picked_up') {
 				const targetOrder = previousOrders.find(o => o.id === orderId);
 				if (targetOrder) {
@@ -279,10 +281,11 @@ export const AdminProvider = ({ children }) => {
 			}
 			if (nextStatus === 'cancelled') {
 				const targetOrder = previousOrders.find(o => o.id === orderId);
-				if (targetOrder) {
+				// Solo registrar devolución en caja si ya se había registrado la venta (pasó a cocina).
+				if (targetOrder && (targetOrder.status === 'active' || targetOrder.status === 'completed' || targetOrder.status === 'picked_up')) {
 					const ok = await cashSystem.registerRefund(targetOrder);
 					if (!ok) {
-						showNotify('No se pudo registrar la devolucion en caja', 'error');
+						showNotify('No se pudo registrar la devolución en caja', 'error');
 					}
 				}
 			}
@@ -519,13 +522,33 @@ export const AdminProvider = ({ children }) => {
 		}
 	}, [categoryToDelete, showNotify, loadData]);
 
-	const kanbanColumns = useMemo(() => ({
-		pending: orders.filter(o => o.status === 'pending'),
-		active: orders.filter(o => o.status === 'active'),
-		completed: orders.filter(o => o.status === 'completed'),
-		cancelled: orders.filter(o => o.status === 'cancelled'),
-		history: orders.filter(o => o.status === 'picked_up' || o.status === 'cancelled')
-	}), [orders]);
+	const kanbanColumns = useMemo(() => {
+		const isHistoryOrder = (o) => o.status === 'picked_up' || o.status === 'cancelled';
+		// Solo historial de la caja abierta: si hay turno abierto para esta sucursal, filtrar por opened_at
+		const shiftOpenedAt = cashSystem.activeShift?.opened_at;
+		const branchId = selectedBranch?.id;
+		const hasOpenShiftForBranch = branchId && branchId !== 'all' && cashSystem.activeShift?.branch_id === branchId && shiftOpenedAt;
+		const historyOrders = hasOpenShiftForBranch
+			? orders.filter(o => isHistoryOrder(o) && o.branch_id === branchId && new Date(o.created_at) >= new Date(shiftOpenedAt))
+			: orders.filter(o => isHistoryOrder(o));
+		return {
+			pending: orders.filter(o => o.status === 'pending'),
+			active: orders.filter(o => o.status === 'active'),
+			completed: orders.filter(o => o.status === 'completed'),
+			cancelled: orders.filter(o => o.status === 'cancelled'),
+			history: historyOrders
+		};
+	}, [orders, selectedBranch?.id, cashSystem.activeShift]);
+
+	const cancelledOrdersInShift = useMemo(() => {
+		const shift = cashSystem.activeShift;
+		const branchId = selectedBranch?.id;
+		if (!shift?.opened_at || !branchId || branchId === 'all') return [];
+		const openedAt = new Date(shift.opened_at);
+		return orders.filter(o =>
+			o.status === 'cancelled' && o.branch_id === branchId && new Date(o.created_at) >= openedAt
+		).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+	}, [orders, selectedBranch?.id, cashSystem.activeShift]);
 
 	const processedProducts = useMemo(() => {
 		let result = products.filter(p =>
@@ -602,6 +625,7 @@ export const AdminProvider = ({ children }) => {
 		toggleCategoryActive,
 		reorderCategories,
 		kanbanColumns,
+		cancelledOrdersInShift,
 		processedProducts,
 		productStats,
 		userEmail,
@@ -617,7 +641,7 @@ export const AdminProvider = ({ children }) => {
 		loadData, refreshBranches, handleSelectClient, moveOrder, uploadReceiptToOrder, handleReceiptFileChange,
 		handleSaveProduct, deleteProduct, toggleProductActive, scopeModal, handleScopeConfirm, handleSaveCategory,
 		deleteCategory, categoryToDelete, confirmDeleteCategory, toggleCategoryActive, reorderCategories,
-		kanbanColumns, processedProducts, productStats, userEmail, productToDelete, confirmDeleteProduct,
+		kanbanColumns, cancelledOrdersInShift, processedProducts, productStats, userEmail, productToDelete, confirmDeleteProduct,
 	]);
 
 	return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

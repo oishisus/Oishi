@@ -159,7 +159,7 @@ const AdminCompanyData = ({ showNotify, isMobile, branches, onBranchUpdate }) =>
                                         className="form-input with-icon"
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="Ej. Nombre del local SpA"
+                                        placeholder="Ej. Oishi Sushi SpA"
                                     />
                                 </div>
                             </div>

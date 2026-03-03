@@ -1,6 +1,6 @@
 /* ==========================================================================
-  BRANCH SELECTOR MODAL - Tema neutro para plantilla
-  ========================================================================= */
+   BRANCH SELECTOR MODAL - Oishi Premium Theme (Edición Bosque de Bambú)
+   ========================================================================== */
 
 /* 1. OVERLAY Y CONTENEDOR PRINCIPAL */
 .branch-modal-overlay {
@@ -36,9 +36,9 @@
   position: relative;
 }
 
-/* Marca de agua neutra */
+/* Marca de agua GIGANTE de Ramen (Se mantiene sutil sobre el bambú) */
 .branch-modal-wrapper::before {
-  content: '🍽️'; 
+  content: '🍜'; 
   position: absolute;
   top: -40px;
   right: -30px;
@@ -143,9 +143,9 @@
   -webkit-backdrop-filter: blur(5px);
 }
 
-/* Marca de agua neutra para cada tarjeta */
+/* Marca de agua de Sushi para cada tarjeta */
 .branch-button::after {
-  content: '🍽️'; 
+  content: '🍣'; 
   position: absolute;
   right: 15px;
   bottom: -15px;

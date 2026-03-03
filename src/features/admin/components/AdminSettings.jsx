@@ -171,7 +171,7 @@ const AdminSettings = ({ showNotify, isMobile, selectedBranch, onBranchUpdate })
                                     className="form-input with-icon"
                                     value={formData.name}
                                     onChange={e => setFormData({...formData, name: e.target.value})}
-                                    placeholder="Ej. Local - Centro"
+                                    placeholder="Ej. Oishi Sushi - Centro"
                                 />
                             </div>
                             <p className="form-hint">Nombre de este local. El nombre de la empresa (portada Home) se edita en <strong>Datos de la empresa</strong>.</p>

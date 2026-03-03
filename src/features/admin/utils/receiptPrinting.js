@@ -1,6 +1,6 @@
 import { formatCurrency } from '../../../shared/utils/formatters';
 
-export const printOrderTicket = (order, branchName = 'NOMBRE DEL LOCAL', logoUrl = null) => {
+export const printOrderTicket = (order, branchName = 'OISHI SUSHI', logoUrl = null) => {
 	const escapeHtml = (value) =>
 		String(value)
 			.replace(/&/g, '&amp;')
@@ -49,7 +49,7 @@ export const printOrderTicket = (order, branchName = 'NOMBRE DEL LOCAL', logoUrl
 	`;
 	}).join('');
 
-	const safeBranchName = escapeHtml(branchName || 'NOMBRE DEL LOCAL');
+	const safeBranchName = escapeHtml(branchName || 'OISHI SUSHI');
 	const safeOrderId = escapeHtml(String(order.id || 'PRE').slice(-4));
 	const safeClientName = escapeHtml(order.client_name || 'Mostrador');
 	const safeOrderNote = order.note ? escapeHtml(order.note) : '';

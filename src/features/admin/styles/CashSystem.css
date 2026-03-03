@@ -489,6 +489,7 @@
 .admin-layout .type-sale { background: rgba(56, 189, 248, 0.1); color: var(--c-balance); border: 1px solid rgba(56, 189, 248, 0.2); }
 .admin-layout .type-income { background: rgba(34, 197, 94, 0.1); color: var(--c-income); border: 1px solid rgba(34, 197, 94, 0.2); }
 .admin-layout .type-expense { background: rgba(239, 68, 68, 0.1); color: var(--c-expense); border: 1px solid rgba(239, 68, 68, 0.2); }
+.admin-layout .type-cancel { background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.25); }
 
 /* Difference colors */
 .admin-layout .cash-container .diff-positive { color: var(--c-income); font-weight: 700; }
@@ -795,6 +796,19 @@
 .admin-layout .cash-recent-icon.expense {
     background: rgba(239, 68, 68, 0.1);
     color: var(--c-expense);
+}
+
+.admin-layout .cash-recent-icon.cancel {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+}
+
+.admin-layout .cash-recent-item-clickable {
+    cursor: pointer;
+}
+
+.admin-layout .cash-recent-item-clickable:hover {
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .admin-layout .cash-recent-info {

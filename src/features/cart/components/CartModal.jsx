@@ -593,7 +593,7 @@ const SuccessView = ({ onNewOrder, onGoHome, receiptUploadFailed, activeInfo }) 
     <div className="order-summary-card">
       <div className="summary-label">Retiro en</div>
       <div className="summary-value">{activeInfo?.address || "Dirección no disponible"}</div>
-      <div className="text-xs text-muted">{activeInfo?.name || "Nombre del local"}</div>
+      <div className="text-xs text-muted">{activeInfo?.name || "Oishi Sushi"}</div>
     </div>
     <div className="success-actions">
       <button className="btn btn-primary btn-block" onClick={onNewOrder}>Nuevo Pedido</button>
@@ -604,7 +604,7 @@ const SuccessView = ({ onNewOrder, onGoHome, receiptUploadFailed, activeInfo }) 
 
 const EmptyState = ({ onMenu }) => (
   <div className="empty-state">
-    <span className="empty-emoji">🍽️</span>
+    <span className="empty-emoji">🍣</span>
     <h3>Bandeja Vacía</h3>
     <button onClick={onMenu} className="btn btn-secondary mt-20">Ir al Menú</button>
   </div>

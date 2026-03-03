@@ -103,7 +103,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, isMobile, kanbanColumns, userRo
                 {!isMobile && <div className="logo-circle"><img src={logo} alt="Logo" /></div>}
                 {!isMobile && (
                     <div className="brand-info">
-                        <h3 className="brand-title">Admin del local</h3>
+                        <h3 className="brand-title">Oishi Admin</h3>
                         {userEmail && <span className="user-email">{userEmail}</span>}
                         {branchName && <span className="branch-name-badge">{branchName}</span>}
                     </div>

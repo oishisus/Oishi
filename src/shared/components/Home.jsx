@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Utensils, MessageCircle, Instagram, MapPin, Settings } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import '../../styles/Home.css';
-import logoPlaceholder from '../../assets/logo-placeholder.svg';
+import logo from '../../assets/logo.png';
 import { useLocation } from '../../context/useLocation';
 import { useBusiness } from '../../context/useBusiness';
 
@@ -81,13 +81,13 @@ const Home = () => {
           <div className="ticket-main">
             <header className="home-header-centered">
               <div className="brand-container-centered">
-                <img src={logoPlaceholder} alt="Logo del local" className="home-logo-centered" />
+                <img src={logo} alt="Logo" className="home-logo-centered" />
                 <div className="brand-text-centered">
-                  <h1 className="text-gradient">{businessInfo?.name || 'Nombre del local'}</h1>
+                  <h1 className="text-gradient">Oishi Sushi</h1>
                 </div>
               </div>
               <p className="home-tagline">
-                  {businessInfo.schedule ? businessInfo.schedule.split('\n')[0] : 'Experiencia digital para tu local'}
+                  {businessInfo.schedule ? businessInfo.schedule.split('\n')[0] : 'Sabor auténtico en cada pieza'}
               </p>
             </header>
 
@@ -122,7 +122,7 @@ const Home = () => {
 
               <div className="stub-footer">
                 <p className="stub-scan-text">ESCANEAME</p>
-                <span className="stub-info">ACCESO AL MENU</span>
+                <span className="stub-info">PASAPORTE AL SABOR</span>
               </div>
             </div>
           </div>

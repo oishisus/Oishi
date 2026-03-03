@@ -14,7 +14,7 @@ export const CartProvider = ({ children }) => {
   // 1. ESTADO INICIAL (CON PERSISTENCIA) — siempre array
   const [cart, setCart] = useState(() => {
     try {
-      const saved = localStorage.getItem('tenant_cart');
+      const saved = localStorage.getItem('oishi_cart');
       const parsed = saved ? JSON.parse(saved) : [];
       return ensureCartArray(parsed);
     } catch {
@@ -98,7 +98,7 @@ export const CartProvider = ({ children }) => {
 
   // 1.6 EFECTO: GUARDAR EN LOCALSTORAGE
   React.useEffect(() => {
-    localStorage.setItem('tenant_cart', JSON.stringify(cart));
+    localStorage.setItem('oishi_cart', JSON.stringify(cart));
   }, [cart]);
 
   // 2. PRECIOS (Number para soportar decimales)
@@ -156,7 +156,7 @@ export const CartProvider = ({ children }) => {
 
     let message = '';
     // Usamos asteriscos y guiones simples que nunca fallan
-    message += '*NUEVO PEDIDO WEB - CLIENTE*\n'; 
+    message += '*NUEVO PEDIDO WEB - OISHI*\n'; 
     message += '================================\n\n';
 
     cart.forEach(item => {

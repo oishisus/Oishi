@@ -23,17 +23,16 @@ const ManualOrderModal = ({ isOpen, onClose, products, categories = [], onOrderS
 
     const getQty = (id) => manualOrder.items.find(i => i.id === id)?.quantity || 0;
 
-	// [MEJORA SEGURIDAD] Función de sanitización
-	const sanitizeInput = (text) => {
-		if (!text) return '';
-		return text.replace(/[<>]/g, '').trim(); // Elimina < y > para evitar inyección básica
-	};
-
-	// [MEJORA] Sanitización de nota sin trim para permitir espacios entre palabras.
-	const sanitizeNote = (text) => {
-		if (text == null || text === '') return '';
-		return text.replace(/[<>]/g, '');
-	};
+    // [MEJORA SEGURIDAD] Función de sanitización (trim para nombres)
+    const sanitizeInput = (text) => {
+        if (!text) return '';
+        return text.replace(/[<>]/g, '').trim();
+    };
+    // Para notas: no hacer trim, permitir espacios entre palabras
+    const sanitizeNote = (text) => {
+        if (text == null || text === '') return '';
+        return text.replace(/[<>]/g, '');
+    };
 
     // [NUEVO] Función para imprimir ticket térmico
     const handlePrintPreCheck = () => {

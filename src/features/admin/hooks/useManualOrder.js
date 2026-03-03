@@ -220,11 +220,9 @@ export const useManualOrder = (showNotify, onOrderSaved, onClose, registerSale, 
             sanitizedOrder.items = itemsForOrder;
             sanitizedOrder.total = totalForOrder;
 
-            // Aquí llamamos a tu servicio existente
+            // Aquí llamamos a tu servicio existente. El pedido queda en pending.
+            // La venta en caja se registra solo cuando se acepte y pase a cocina (moveOrder → active).
             const { order } = await createManualOrder(sanitizedOrder, receiptFile);
-
-			// Comentario: la venta en caja se registra al pasar el pedido a cocina
-			// (moveOrder -> active), no al crear el pedido manual.
 
             showNotify('Pedido creado con éxito', 'success');
             resetOrder();

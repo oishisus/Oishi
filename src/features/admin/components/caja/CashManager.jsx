@@ -4,8 +4,9 @@ import {
     Clock, Calendar, TrendingUp, TrendingDown,
     ArrowUpCircle, ArrowDownCircle, Eye,
     DollarSign, CreditCard, Smartphone, ChevronRight,
-    MapPin
+    MapPin, XCircle, Package, Receipt, X
 } from 'lucide-react';
+import { useAdmin } from '../../pages/AdminProvider';
 import { useCashSystem } from '../../hooks/useCashSystem';
 import { isValidBranchId } from '../../../../shared/utils/safeIds';
 import CashShiftModal from './CashShiftModal';
@@ -36,6 +37,7 @@ const ElapsedTime = ({ since }) => {
 };
 
 const CashManager = ({ showNotify, selectedBranchId }) => {
+    const { cancelledOrdersInShift = [], orders = [] } = useAdmin();
     const { 
         activeShift, loading: loadingSystem, movements,
         openShift, closeShift, addManualMovement, 
@@ -49,6 +51,7 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
     const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
     const [movementType, setMovementType] = useState('income');
     const [filterPeriod, setFilterPeriod] = useState('30');
+    const [detailOrder, setDetailOrder] = useState(null);
 
     const loadHistory = useCallback(async () => {
         setLoadingHistory(true);
@@ -76,7 +79,25 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
         return pastShifts.filter(s => new Date(s.closed_at) >= cutoff);
     }, [pastShifts, filterPeriod]);
 
-    const recentMovements = useMemo(() => movements.slice(0, 5), [movements]);
+    const recentMovements = useMemo(() => {
+        const cancelItems = cancelledOrdersInShift.map(o => ({
+            id: `cancel-${o.id}`,
+            type: 'cancel',
+            orderId: o.id,
+            description: `Pedido #${String(o.id).slice(-4)} cancelado`,
+            created_at: o.created_at,
+            amount: 0
+        }));
+        const combined = [...movements.map(m => ({ ...m, _sort: new Date(m.created_at).getTime() })), ...cancelItems.map(c => ({ ...c, _sort: new Date(c.created_at).getTime() }))];
+        combined.sort((a, b) => (b._sort || 0) - (a._sort || 0));
+        return combined.slice(0, 8);
+    }, [movements, cancelledOrdersInShift]);
+
+    const getOrderForMovement = (m) => {
+        const orderId = m.order_id ?? m.orderId;
+        if (orderId == null) return null;
+        return orders.find(o => o.id === orderId || String(o.id) === String(orderId));
+    };
 
     if (loadingSystem) return (
         <div className="cash-loading">
@@ -198,24 +219,40 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
                                 </button>
                             </div>
                             <div className="cash-recent-list">
-                                {recentMovements.map(m => (
-                                    <div key={m.id} className="cash-recent-item">
-                                        <div className={`cash-recent-icon ${m.type}`}>
-                                            {m.type === 'expense' ? <ArrowDownCircle size={16} /> : <ArrowUpCircle size={16} />}
+                                {recentMovements.map(m => {
+                                    const orderForDetail = getOrderForMovement(m);
+                                    const canShowDetail = orderForDetail != null;
+                                    return (
+                                        <div
+                                            key={m.id}
+                                            className={`cash-recent-item ${canShowDetail ? 'cash-recent-item-clickable' : ''}`}
+                                            onClick={() => canShowDetail && setDetailOrder(orderForDetail)}
+                                            role={canShowDetail ? 'button' : undefined}
+                                            tabIndex={canShowDetail ? 0 : undefined}
+                                            onKeyDown={(e) => canShowDetail && (e.key === 'Enter' || e.key === ' ') && setDetailOrder(orderForDetail)}
+                                        >
+                                            <div className={`cash-recent-icon ${m.type === 'cancel' ? 'cancel' : m.type}`}>
+                                                {m.type === 'cancel' ? <XCircle size={16} /> : m.type === 'expense' ? <ArrowDownCircle size={16} /> : <ArrowUpCircle size={16} />}
+                                            </div>
+                                            <div className="cash-recent-info">
+                                                <span className="cash-recent-desc">{m.description || (m.type === 'sale' ? 'Venta' : m.type === 'income' ? 'Ingreso' : 'Egreso')}</span>
+                                                <span className="cash-recent-time">
+                                                    {new Date(m.created_at).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+                                                    {m.type !== 'cancel' && (
+                                                        <> · {m.payment_method === 'cash' ? 'Efectivo' : m.payment_method === 'card' ? 'Tarjeta' : 'Transf.'}</>
+                                                    )}
+                                                </span>
+                                            </div>
+                                            {m.type === 'cancel' ? (
+                                                <span className="cash-recent-amount" style={{ color: '#9ca3af', fontSize: '0.75rem' }}>Cancelado</span>
+                                            ) : (
+                                                <span className={`cash-recent-amount ${m.type === 'expense' ? 'negative' : 'positive'}`}>
+                                                    {m.type === 'expense' ? '-' : '+'}{fmt(m.amount)}
+                                                </span>
+                                            )}
                                         </div>
-                                        <div className="cash-recent-info">
-                                            <span className="cash-recent-desc">{m.description || (m.type === 'sale' ? 'Venta' : m.type === 'income' ? 'Ingreso' : 'Egreso')}</span>
-                                            <span className="cash-recent-time">
-                                                {new Date(m.created_at).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
-                                                {' · '}
-                                                {m.payment_method === 'cash' ? 'Efectivo' : m.payment_method === 'card' ? 'Tarjeta' : 'Transf.'}
-                                            </span>
-                                        </div>
-                                        <span className={`cash-recent-amount ${m.type === 'expense' ? 'negative' : 'positive'}`}>
-                                            {m.type === 'expense' ? '-' : '+'}{fmt(m.amount)}
-                                        </span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -322,12 +359,64 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
                 onConfirm={addManualMovement}
             />
 
-            <CashShiftDetailModal 
+            <CashShiftDetailModal
                 isOpen={!!viewingShift}
                 onClose={() => setViewingShift(null)}
                 shift={viewingShift}
                 getTotals={getTotals}
+                cancelledOrdersInShift={viewingShift ? orders.filter(o =>
+                    o.status === 'cancelled' && o.branch_id === viewingShift.branch_id &&
+                    new Date(o.created_at) >= new Date(viewingShift.opened_at) &&
+                    (viewingShift.closed_at ? new Date(o.created_at) <= new Date(viewingShift.closed_at) : true)
+                ) : []}
             />
+
+            {/* Modal detalle del pedido (desde Últimos movimientos) */}
+            {detailOrder && (
+                <div className="admin-panel-overlay" onClick={() => setDetailOrder(null)}>
+                    <div className="admin-side-panel glass animate-slide-in" style={{ maxWidth: 420 }} onClick={e => e.stopPropagation()}>
+                        <div className="admin-side-header">
+                            <h3>Pedido #{String(detailOrder.id).slice(-4)}</h3>
+                            <button onClick={() => setDetailOrder(null)} className="btn-close-sidepanel" aria-label="Cerrar"><X size={24} /></button>
+                        </div>
+                        <div className="admin-side-body" style={{ padding: '16px' }}>
+                            <div style={{ marginBottom: 16 }}>
+                                <div style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: 4 }}>Cliente</div>
+                                <div style={{ fontWeight: 600 }}>{detailOrder.client_name}</div>
+                                {detailOrder.client_phone && <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>{detailOrder.client_phone}</div>}
+                            </div>
+                            <div style={{ marginBottom: 16 }}>
+                                <h4 style={{ fontSize: '0.8rem', color: '#9ca3af', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <Package size={14} /> Artículos
+                                </h4>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {(Array.isArray(detailOrder.items) ? detailOrder.items : (typeof detailOrder.items === 'string' ? (() => { try { const p = JSON.parse(detailOrder.items); return Array.isArray(p) ? p : []; } catch { return []; } })() : [])).map((item, idx) => (
+                                        <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 8 }}>
+                                            <span><b>{item.quantity}x</b> {item.name}</span>
+                                            <span style={{ color: '#9ca3af' }}>{fmt((Number(item.price) || 0) * (Number(item.quantity) || 1))}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            {detailOrder.note && (
+                                <div style={{ marginBottom: 16, padding: 12, backgroundColor: 'rgba(234, 179, 8, 0.1)', borderRadius: 8, borderLeft: '3px solid #eab308' }}>
+                                    <span style={{ fontSize: '0.75rem', color: '#eab308', display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Nota</span>
+                                    <span style={{ fontSize: '0.85rem' }}>{detailOrder.note}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Total</span>
+                                <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#25d366' }}>{fmt(detailOrder.total)}</span>
+                            </div>
+                            <div style={{ marginTop: 8, fontSize: '0.8rem', color: '#9ca3af' }}>
+                                {new Date(detailOrder.created_at).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' })}
+                                {' · '}
+                                {detailOrder.payment_type === 'online' ? 'Transf.' : detailOrder.payment_type === 'tarjeta' ? 'Tarjeta' : 'Efectivo'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

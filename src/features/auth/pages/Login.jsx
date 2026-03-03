@@ -77,7 +77,7 @@ const Login = () => {
             <Lock size={32} />
           </div>
           <h2 className="section-title" style={{ marginBottom: '5px', fontSize: '1.8rem' }}>Acceso Admin</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Panel del local</p>
+          <p style={{ color: 'var(--text-secondary)' }}>Oishi Sushi & Cocktail</p>
         </header>
 
         <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
@@ -107,7 +107,7 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@tuempresa.com"
+                placeholder="admin@oishi.cl"
                 required
                 style={{ paddingLeft: '44px' }}
               />

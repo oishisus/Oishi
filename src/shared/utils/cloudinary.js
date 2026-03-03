@@ -36,7 +36,7 @@ export const validateImageFile = (file) => {
  * @param {string} folder - Optional folder name in Cloudinary (requires preset configuration often).
  * @returns {Promise<string>} - The public URL of the uploaded image.
  */
-export const uploadImage = async (file, folder = "tenant") => {
+export const uploadImage = async (file, folder = "oishi") => {
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
     throw new Error("Cloudinary configuration is missing in .env");
   }

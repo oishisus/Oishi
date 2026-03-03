@@ -8,7 +8,7 @@ import '../../../styles/Navbar.css';
 import '../../../styles/BranchSelectorModal.css';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
-import logoPlaceholder from '../../../assets/logo-placeholder.svg';
+import logo from '../../../assets/logo.png';
 import BranchSelectorModal from '../../../shared/components/BranchSelectorModal';
 import { useLocation } from '../../../context/useLocation';
 import { useCash } from '../../../context/useCash';
@@ -19,7 +19,6 @@ const Menu = () => {
   const { selectedBranch, selectBranch, isLocationModalOpen, setIsLocationModalOpen, allBranches } = useLocation();
   const { branchesWithOpenCaja, isShiftLoading } = useCash();
   const { businessInfo } = useBusiness();
-  const brandName = businessInfo?.name || 'Nombre del local';
   const publicCompanySlug = (import.meta.env.VITE_PUBLIC_COMPANY_SLUG || import.meta.env.VITE_COMPANY_SLUG || '').trim();
 
   // Si la sucursal guardada ya no tiene caja abierta, abrir modal para elegir una que sí acepte pedidos
@@ -200,9 +199,9 @@ const Menu = () => {
               <ChevronLeft size={28} />
             </button>
             <div className={`nav-brand-wrapper ${searchExpanded ? 'mobile-search-active' : ''}`}>
-              <img src={logoPlaceholder} alt="Logo del local" style={{ height: '38px', width: 'auto', borderRadius: '6px' }} />
+              <img src={logo} alt="Oishi Logo" style={{ height: '38px', width: 'auto', borderRadius: '6px' }} />
               <div className="nav-brand-info">
-                <h2 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 700, color: 'white', lineHeight: '1.2' }}>{brandName}</h2>
+                <h2 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 700, color: 'white', lineHeight: '1.2' }}>Oishi Sushi</h2>
                 <button 
                   onClick={() => setIsLocationModalOpen(true)}
                   style={{

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { X, History, TrendingUp, TrendingDown, DollarSign, Clock, User } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { X, History, Clock, User } from 'lucide-react';
 import { cashService } from '../../services/cashService';
 
-const CashShiftDetailModal = ({ isOpen, onClose, shift, getTotals }) => {
+const CashShiftDetailModal = ({ isOpen, onClose, shift, getTotals, cancelledOrdersInShift = [] }) => {
     const [movements, setMovements] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -24,6 +24,19 @@ const CashShiftDetailModal = ({ isOpen, onClose, shift, getTotals }) => {
             loadMovements();
         }
     }, [isOpen, shift, loadMovements]);
+
+    const movementsWithCancelled = useMemo(() => {
+        const cancelRows = (cancelledOrdersInShift || []).map(o => ({
+            id: `cancel-${o.id}`,
+            type: 'cancel',
+            created_at: o.created_at,
+            description: `Pedido #${String(o.id).slice(-4)} cancelado`,
+            orderId: o.id
+        }));
+        const combined = [...movements, ...cancelRows];
+        combined.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        return combined;
+    }, [movements, cancelledOrdersInShift]);
 
     if (!isOpen || !shift) return null;
 
@@ -127,22 +140,33 @@ const CashShiftDetailModal = ({ isOpen, onClose, shift, getTotals }) => {
                     {loading ? (
                         <div style={{ padding: 40, textAlign: 'center' }}>Cargando transacciones...</div>
                     ) : (
-                        <div style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.01)', borderRadius: 12 }}>
+                        <div
+                            className="cash-detail-movements-wrap"
+                            style={{
+                                maxHeight: '50vh',
+                                minHeight: 220,
+                                overflowY: 'auto',
+                                overflowX: 'auto',
+                                background: 'rgba(255,255,255,0.01)',
+                                borderRadius: 12,
+                                border: '1px solid rgba(255,255,255,0.06)'
+                            }}
+                        >
                             <table className="cash-movements-table" style={{ borderSpacing: 0 }}>
                                 <tbody>
-                                    {movements.map(m => (
+                                    {movementsWithCancelled.map(m => (
                                         <tr key={m.id} className="movement-row">
                                             <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', width: 80, padding: '12px 15px' }}>
                                                 {new Date(m.created_at).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
                                             </td>
                                             <td style={{ width: 110, padding: '12px 0' }}>
                                                 <span className={`movement-type type-${m.type}`} style={{ fontSize: '0.65rem' }}>
-                                                    {m.type === 'sale' ? 'Venta' : (m.type === 'income' ? 'Ingreso' : 'Egreso')}
+                                                    {m.type === 'cancel' ? 'Cancelado' : m.type === 'sale' ? 'Venta' : (m.type === 'income' ? 'Ingreso' : 'Egreso')}
                                                 </span>
                                             </td>
                                             <td style={{ fontSize: '0.85rem', padding: '12px 10px' }}>
                                                 <div style={{ fontWeight: 500 }}>{m.description}</div>
-                                                {m.orders && (
+                                                {m.type !== 'cancel' && m.orders && (
                                                     <div style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', marginTop: 2, marginBottom: 2 }}>
                                                         <div style={{ fontWeight: 600 }}>{m.orders.client_name || 'Cliente Casual'}</div>
                                                         {m.orders.items && (
@@ -154,14 +178,20 @@ const CashShiftDetailModal = ({ isOpen, onClose, shift, getTotals }) => {
                                                         )}
                                                     </div>
                                                 )}
-                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: 2 }}>
-                                                    {m.payment_method === 'cash' ? '💵 Efectivo' : (m.payment_method === 'card' ? '💳 Tarjeta' : '📲 Transf.')}
-                                                </div>
+                                                {m.type !== 'cancel' && (
+                                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: 2 }}>
+                                                        {m.payment_method === 'cash' ? '💵 Efectivo' : (m.payment_method === 'card' ? '💳 Tarjeta' : '📲 Transf.')}
+                                                    </div>
+                                                )}
                                             </td>
                                             <td style={{ textAlign: 'right', padding: '12px 15px' }}>
-                                                <span className={`movement-amount ${m.type === 'expense' ? 'amount-minus' : 'amount-plus'}`} style={{ fontSize: '0.9rem' }}>
-                                                    {m.type === 'expense' ? '-' : '+'}${Number(m.amount).toLocaleString('es-CL')}
-                                                </span>
+                                                {m.type === 'cancel' ? (
+                                                    <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>—</span>
+                                                ) : (
+                                                    <span className={`movement-amount ${m.type === 'expense' ? 'amount-minus' : 'amount-plus'}`} style={{ fontSize: '0.9rem' }}>
+                                                        {m.type === 'expense' ? '-' : '+'}${Number(m.amount).toLocaleString('es-CL')}
+                                                    </span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
