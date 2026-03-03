@@ -9,7 +9,7 @@ const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 /** Tipos MIME permitidos (excluye SVG por riesgo XSS). */
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 /**
  * Comprueba si el archivo es una imagen permitida y no excede el tamaño.
@@ -21,7 +21,7 @@ export const validateImageFile = (file) => {
     return { valid: false, error: 'Archivo no válido.' };
   }
   if (file.size > MAX_FILE_SIZE_BYTES) {
-    return { valid: false, error: 'La imagen es muy pesada (máx. 5 MB).' };
+    return { valid: false, error: 'La imagen es muy pesada (máx. 10 MB).' };
   }
   const type = (file.type || '').toLowerCase();
   if (!ALLOWED_IMAGE_TYPES.includes(type)) {
