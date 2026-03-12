@@ -94,9 +94,15 @@
     transition: all 0.2s;
 }
 
-.btn-icon-refresh:hover {
+.btn-icon-refresh:hover:not(:disabled) {
     background: var(--bg-secondary);
-    transform: rotate(180deg);
+}
+.btn-icon-refresh:disabled .animate-spin {
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* Base Responsive */

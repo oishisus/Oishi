@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Utensils, MessageCircle, Instagram, MapPin, Settings } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
 import '../../styles/Home.css';
 import logo from '../../assets/logo.png';
 import { useLocation } from '../../context/useLocation';
@@ -16,9 +15,6 @@ const Home = () => {
   const { allBranches, loadingBranches } = useLocation();
   const [showModal, setShowModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // 'menu', 'whatsapp', 'instagram', 'location'
-
-  // Genera automáticamente la URL del menú basada en donde estés alojado
-  const menuUrl = `${window.location.origin}/menu`;
 
   const handleActionClick = (action) => {
     // Fallback: Si no hay info global configurada, usar el selector de sucursales
@@ -104,27 +100,6 @@ const Home = () => {
               ))}
             </nav>
 
-            <div className="ticket-stub-line"></div>
-          </div>
-
-          {/* LADO DERECHO: QR Stub (Boleto) */}
-          <div className="ticket-stub">
-            <div className="stub-content">
-              <div className="stub-badge">ACCESO DIGITAL</div>
-
-              <div className="qr-box">
-                <QRCodeSVG
-                  value={menuUrl}
-                  level={"H"}
-                  includeMargin={false}
-                />
-              </div>
-
-              <div className="stub-footer">
-                <p className="stub-scan-text">ESCANEAME</p>
-                <span className="stub-info">PASAPORTE AL SABOR</span>
-              </div>
-            </div>
           </div>
         </div>
       </main>
