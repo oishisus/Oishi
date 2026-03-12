@@ -39,7 +39,8 @@ export const AdminProvider = ({ children }) => {
 	const [sortOrder, setSortOrder] = useState('name-asc');
 	const [loading, setLoading] = useState(true);
 	const [refreshing, setRefreshing] = useState(false);
-	const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+	// Evitar hydration mismatch (#418): no usar window en estado inicial
+	const [isMobile, setIsMobile] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingProduct, setEditingProduct] = useState(null);
 	const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -59,9 +60,10 @@ export const AdminProvider = ({ children }) => {
 	const [clientHistoryLoading, setClientHistoryLoading] = useState(false);
 
 	useEffect(() => {
-		const handleResize = () => setIsMobile(window.innerWidth <= 1024);
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
+		const setMobile = () => setIsMobile(window.innerWidth <= 1024);
+		setMobile(); // valor real tras montar (evita #418)
+		window.addEventListener('resize', setMobile);
+		return () => window.removeEventListener('resize', setMobile);
 	}, []);
 
 	const showNotify = useCallback((msg, type = 'success') => {

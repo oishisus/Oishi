@@ -27,14 +27,9 @@ export const LocationProvider = ({ children }) => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        if (!publicCompanySlug) {
-          setAllBranches([]);
-          setLoadingBranches(false);
-          return;
-        }
-
+        // Sin slug (single-tenant / supabase-Nueva): el RPC devuelve todas las sucursales activas
         const { data, error } = await supabase.rpc('get_public_branches', {
-          p_company_slug: publicCompanySlug
+          p_company_slug: publicCompanySlug || ''
         });
 
         if (error) throw error;

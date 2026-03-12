@@ -47,13 +47,7 @@ const Menu = () => {
       try {
         const branchesData = Array.isArray(allBranches) ? allBranches : [];
 
-        if (!publicCompanySlug) {
-          setData({ categories: [], products: [], branches: branchesData });
-          setLoading(false);
-          setIsLocationModalOpen(true);
-          return;
-        }
-
+        // Sin slug (single-tenant / supabase-Nueva): get_public_menu resuelve empresa por branch_id
         if (!selectedBranch) {
           setData({ categories: [], products: [], branches: branchesData });
           setLoading(false);
@@ -62,7 +56,7 @@ const Menu = () => {
         }
 
         const { data: menuData, error } = await supabase.rpc('get_public_menu', {
-          p_company_slug: publicCompanySlug,
+          p_company_slug: publicCompanySlug || '',
           p_branch_id: selectedBranch.id
         });
 

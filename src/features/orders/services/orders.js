@@ -86,7 +86,14 @@ export const ordersService = {
                 p_status: orderData.status || 'pending'
             });
 
-            if (orderError) throw orderError;
+            if (orderError) {
+                const msg = (orderError.message || '').trim();
+                const friendly =
+                    msg === 'no_items_available' || (msg && msg.includes('no_items_available'))
+                        ? 'No hay ítems válidos en el pedido. Revisa el carrito e intenta de nuevo.'
+                        : msg || orderError.details || 'Error al crear el pedido.';
+                throw new Error(friendly);
+            }
 
             return { order: newOrder, receiptUploadFailed };
         } catch (error) {
