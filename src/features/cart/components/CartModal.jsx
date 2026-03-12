@@ -32,7 +32,8 @@ const generateWSMessage = (formData, cart, total, paymentType, note, businessNam
     }
   });
   msg += `\n*TOTAL: $${total.toLocaleString('es-CL')}*\n`;
-  msg += `Pago: ${paymentType === 'online' ? 'Transferencia (Comprobante Adjunto)' : 'En Local'}\n`;
+  const paymentLabel = paymentType === 'online' ? 'Transferencia (Comprobante Adjunto)' : paymentType === 'tarjeta' ? 'Tarjeta (en local)' : 'Efectivo (en local)';
+  msg += `Pago: ${paymentLabel}\n`;
   if (note && note.trim()) msg += `\nNota: ${note}\n`;
   return msg;
 };
@@ -110,7 +111,7 @@ const CartModal = React.memo(() => {
     const namePattern = /^[\p{L} .'-]+$/u;
     const isNameValid = nameValue.length > 2 && namePattern.test(nameValue);
     // Comprobante requerido solo si es online
-    const isReceiptValid = paymentType === 'online' ? !!formData.receiptFile : true;
+    const isReceiptValid = paymentType === 'online' ? !!formData.receiptFile : true; // tarjeta y tienda no requieren comprobante
 
     return {
       rut: isRutValid,
@@ -476,18 +477,28 @@ const PaymentFlow = ({
     );
   }
 
-  // 2. VISTA DETALLES DE PAGO (BANCO / LOCAL)
+  // 2. VISTA DETALLES DE PAGO (BANCO / LOCAL / TARJETA)
   if (paymentType) {
+    const isCardAtStore = paymentType === 'tarjeta';
     return (
       <div className="payment-details animate-fade">
         {paymentType === 'online' ? (
           <BankInfo cartTotal={cartTotal} activeInfo={activeInfo} />
+        ) : isCardAtStore ? (
+          <div className="store-pay-info glass mb-20">
+            <CreditCard size={32} className="text-accent" />
+            <div>
+              <h4>Pagar con tarjeta en local</h4>
+              <p className="text-muted">Pagas con tarjeta (débito o crédito) al retirar en el local.</p>
+            </div>
+            <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
+          </div>
         ) : (
           <div className="store-pay-info glass mb-20">
             <Store size={32} className="text-accent" />
             <div>
-              <h4>Pagar en Local</h4>
-              <p className="text-muted">Pagas en efectivo o tarjeta al retirar.</p>
+              <h4>Pagar en efectivo en local</h4>
+              <p className="text-muted">Pagas en efectivo al retirar.</p>
             </div>
             <div className="pay-total">Total: ${cartTotal.toLocaleString('es-CL')}</div>
           </div>
@@ -511,8 +522,11 @@ const PaymentFlow = ({
       <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('online')}>
         <CreditCard size={20} className="mr-5" /> Transferencia
       </button>
+      <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('tarjeta')}>
+        <CreditCard size={20} className="mr-5" /> Tarjeta (en local)
+      </button>
       <button className="btn btn-secondary btn-block payment-opt" onClick={() => setPaymentType('tienda')}>
-        <Store size={20} className="mr-5" /> Pagar en Local
+        <Store size={20} className="mr-5" /> Efectivo (en local)
       </button>
       <button onClick={onBack} className="btn btn-text btn-block mt-2">Cancelar</button>
     </div>

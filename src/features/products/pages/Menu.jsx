@@ -31,6 +31,7 @@ const Menu = () => {
   // Agrupamos estados relacionados para evitar renders innecesarios
   const [data, setData] = useState({ categories: [], products: [], branches: [] });
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -44,6 +45,7 @@ const Menu = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setErrorMessage(null);
       try {
         const branchesData = Array.isArray(allBranches) ? allBranches : [];
 
@@ -55,20 +57,22 @@ const Menu = () => {
           return;
         }
 
-        const { data: menuData, error } = await supabase.rpc('get_public_menu', {
+        const { data: rawMenuData, error } = await supabase.rpc('get_public_menu', {
           p_company_slug: publicCompanySlug || '',
           p_branch_id: selectedBranch.id
         });
 
         if (error) throw error;
 
+        // Supabase puede devolver un objeto o un array de un elemento según la función
+        const menuData = Array.isArray(rawMenuData) && rawMenuData.length > 0 ? rawMenuData[0] : rawMenuData;
         const branchPrices = menuData?.product_prices || [];
         const branchStatuses = menuData?.product_branch || [];
         const productsData = menuData?.products || [];
         const categoriesRaw = menuData?.categories || [];
 
         // --- FUSIÓN DE DATOS ESTRICTA ---
-        const processedProducts = productsData.map(prod => {
+        const processedProducts = (Array.isArray(productsData) ? productsData : []).map(prod => {
           const priceData = branchPrices.find(p => p.product_id === prod.id);
           const statusData = branchStatuses.find(s => s.product_id === prod.id);
 
@@ -90,7 +94,7 @@ const Menu = () => {
           };
         }).filter(p => p !== null);
 
-        const categoriesData = (categoriesRaw || [])
+        const categoriesData = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
           .map(cat => {
             const branchInfo = cat;
             return {
@@ -108,6 +112,9 @@ const Menu = () => {
         setActiveCategory(hasSpecial ? 'special' : categoriesData[0]?.id || null);
 
       } catch (error) {
+        console.error('[Menu] Error al cargar menú:', error);
+        setErrorMessage(error?.message || 'No se pudo cargar el menú.');
+        setData(prev => ({ ...prev, categories: [], products: [] }));
       } finally {
         setLoading(false);
       }
@@ -175,6 +182,8 @@ const Menu = () => {
     }
     return () => { document.body.style.overflow = originalStyle; };
   }, [isLocationModalOpen]);
+
+  const isEmpty = !loading && !errorMessage && data.categories.length === 0 && data.products.length === 0 && !searchQuery.trim();
 
   if (loading) {
     return (
@@ -279,7 +288,51 @@ const Menu = () => {
       <div style={{ height: 'var(--menu-header-height)', width: '100%' }}></div>
 
       <main className="container">
-        {query && (
+        {errorMessage && (
+          <section className="category-section" style={{ padding: '2rem 0', textAlign: 'center' }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>{errorMessage}</p>
+            <button
+              type="button"
+              onClick={() => setIsLocationModalOpen(true)}
+              style={{
+                background: 'var(--accent-primary)',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              Cambiar sucursal
+            </button>
+          </section>
+        )}
+
+        {isEmpty && !errorMessage && (
+          <section className="category-section" style={{ padding: '2rem 0', textAlign: 'center' }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>
+              No hay productos en esta sucursal por el momento.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsLocationModalOpen(true)}
+              style={{
+                background: 'var(--accent-primary)',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              Elegir otra sucursal
+            </button>
+          </section>
+        )}
+
+        {!errorMessage && !isEmpty && query && (
           <section id="section-search" className="category-section">
             <h2 className="category-title">Resultados para &quot;{searchQuery.trim()}&quot;</h2>
             {filteredBySearch.length > 0 ? (
@@ -294,7 +347,7 @@ const Menu = () => {
           </section>
         )}
 
-        {!query && specialProducts.length > 0 && (
+        {!errorMessage && !isEmpty && !query && specialProducts.length > 0 && (
           <section id="section-special" className="category-section">
             <h2 className="category-title">
               <img src={FIRE_ICON} className="category-icon" alt="🔥" />
@@ -308,7 +361,7 @@ const Menu = () => {
           </section>
         )}
 
-        {!query && data.categories.map((cat) => {
+        {!errorMessage && !isEmpty && !query && data.categories.map((cat) => {
           const catProducts = data.products.filter(p => p.category_id === cat.id);
           if (catProducts.length === 0) return null;
 

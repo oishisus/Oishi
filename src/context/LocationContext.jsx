@@ -54,6 +54,7 @@ export const LocationProvider = ({ children }) => {
           return prev;
         });
       } catch (err) {
+        console.error('[LocationContext] Error al cargar sucursales:', err);
       } finally {
         setLoadingBranches(false);
       }
