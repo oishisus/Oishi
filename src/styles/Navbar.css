@@ -5,7 +5,7 @@
 .navbar-wrapper {
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 100;
     width: 100%;
     background: transparent;
     backdrop-filter: blur(20px);
@@ -26,6 +26,7 @@
 
 .navbar-tabs-area {
     flex: 1;
+    min-width: 0; /* Permite que flex encoja y el scroll quede dentro */
     position: relative;
     overflow: hidden;
 }
@@ -37,10 +38,12 @@
     padding: 12px 10px;
     background: transparent !important;
     overflow-x: auto;
+    overflow-y: hidden;
     scroll-behavior: smooth;
     white-space: nowrap;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Ocultar barra en Chrome/Safari */
@@ -50,10 +53,10 @@
 
 .tab-item {
     flex-shrink: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
+    gap: 6px;
+    padding: 8px 14px;
     border-radius: 50px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.030);
@@ -198,8 +201,20 @@
     background: linear-gradient(to left, rgba(0, 0, 0, 0.3), transparent);
 }
 
+@media (max-width: 430px) {
+    .tab-item {
+        padding: 6px 12px;
+        font-size: 0.82rem;
+    }
+}
+
 @media (max-width: 380px) {
     .search-pill-wrapper.expanded {
         width: 140px;
+    }
+
+    .tab-item {
+        padding: 6px 10px;
+        font-size: 0.78rem;
     }
 }

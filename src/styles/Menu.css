@@ -1,13 +1,19 @@
 /* =========================================
    MENU PAGE STYLES
    ========================================= */
+.menu-page {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
 :root {
     --menu-header-height: 130px;
 }
 
+/* El header real (logo + barra categorías) puede ser ~169px en móvil */
 @media (max-width: 1024px) {
     :root {
-        --menu-header-height: 110px;
+        --menu-header-height: 175px;
     }
 }
 
@@ -24,21 +30,16 @@
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 10000;
+    max-width: 100vw;
+    z-index: 100;
     padding: 12px 0;
     pointer-events: auto;
-    /* IMPORTANTE: Permitir clicks en una capa pointer-events: none */
     border-bottom: none;
-
-    /* Sin background, solo blur transparente */
     background: transparent;
-
-    /* El desenfoque hace el resto del trabajo */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-
-    /* Sombra oscura debajo en lugar de background */
     box-shadow: 0 8px 20px rgba(15, 15, 15, 0.50);
+    overflow-x: hidden;
 }
 
 .category-section {
@@ -136,6 +137,9 @@ section {
     align-items: center;
     gap: 12px;
     transition: gap 0.3s ease;
+    min-width: 0;
+    flex: 1;
+    justify-content: center;
 }
 
 .nav-brand-info {
@@ -143,12 +147,31 @@ section {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* Transición suave para ocultar/mostrar */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 1;
-    max-width: 200px; /* Ancho suficiente para el contenido */
+    max-width: 180px;
+    min-width: 0;
     overflow: hidden;
     white-space: nowrap;
+}
+
+.nav-brand-info .nav-location-btn {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.nav-brand-info .nav-location-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 120px;
+}
+
+@media (max-width: 430px) {
+    .nav-brand-info .nav-location-name {
+        max-width: 90px;
+    }
 }
 
 /* Lógica exclusiva para móviles */

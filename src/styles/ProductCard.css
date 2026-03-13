@@ -375,6 +375,366 @@
   font-size: 1rem;
 }
 
+/* --- BOTÓN VER DETALLES --- */
+.btn-ver-detalles {
+  font-size: 0.65rem;
+  color: var(--accent-secondary, #f4a261);
+  margin-top: auto;
+  margin-bottom: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: inherit;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.btn-ver-detalles:hover {
+  color: #ffb366;
+  transform: translateY(-1px);
+}
+
+/* --- MODAL DETALLES: debajo de la navbar, full responsivo --- */
+/* Selector doble para ganar a .modal-overlay de Modals.css (padding: 20px pisaba nuestro padding-top) */
+.modal-overlay.product-details-modal-overlay {
+  /* Por encima de app-ui-layer (9999) y del header */
+  z-index: 99999;
+  padding-top: 0 !important;
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.product-details-modal-content {
+  max-width: 420px;
+  width: 100%;
+  max-height: calc(100dvh - var(--menu-header-height, 130px) - 40px);
+  box-sizing: border-box;
+}
+
+.product-details-modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.product-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.product-details-image-wrap {
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.product-details-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-details-badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.product-details-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.product-details-desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.product-details-price {
+  margin-top: 4px;
+}
+
+.product-details-modal-footer {
+  justify-content: flex-start;
+}
+
+.product-details-modal-content .modal-header {
+  padding: 12px 16px;
+}
+
+.product-details-modal-content .modal-header h3 {
+  font-size: 1rem;
+}
+
+.product-details-modal-footer .btn-add-modal {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+/* --- Tablet: 1 columna, imagen proporcionada --- */
+@media (max-width: 768px) {
+  .product-details-modal-content {
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 640px) {
+  .product-details-modal-overlay {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .product-details-modal-content {
+    max-width: 100%;
+    max-height: calc(100dvh - var(--menu-header-height, 175px) - 32px);
+  }
+
+  .product-details-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .product-details-image-wrap {
+    max-height: 200px;
+    aspect-ratio: 16/10;
+    border-radius: 10px;
+  }
+
+  .product-details-name {
+    font-size: 1.2rem;
+  }
+
+  .product-details-desc {
+    font-size: 0.875rem;
+  }
+}
+
+/* --- Móvil estándar --- */
+@media (max-width: 600px) {
+  .product-details-modal-overlay {
+    padding-top: 0 !important;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .product-details-modal-content {
+    max-height: calc(100dvh - var(--menu-header-height, 175px) - 28px);
+    border-radius: 14px;
+  }
+}
+
+/* --- Móvil pequeño --- */
+@media (max-width: 500px) {
+  .product-details-modal-overlay {
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .product-details-modal-content {
+    max-height: calc(100dvh - var(--menu-header-height, 175px) - 24px);
+    border-radius: 12px;
+  }
+
+  .product-details-modal-content .modal-header {
+    padding: 10px 12px;
+  }
+
+  .product-details-modal-content .modal-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .product-details-modal-body {
+    padding: 10px 12px;
+    max-height: none;
+  }
+
+  .product-details-grid {
+    gap: 8px;
+  }
+
+  .product-details-image-wrap {
+    max-height: 110px;
+    min-height: 72px;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+  }
+
+  .product-details-badges {
+    top: 4px;
+    left: 4px;
+    gap: 2px;
+  }
+
+  .product-details-badges .badge-special,
+  .product-details-badges .badge-discount {
+    padding: 2px 6px;
+    font-size: 0.6rem;
+  }
+
+  .product-details-info {
+    gap: 4px;
+    padding: 0;
+  }
+
+  .product-details-name {
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+
+  .product-details-desc {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-details-price .product-price {
+    font-size: 1rem;
+  }
+
+  .product-details-price .product-price.original {
+    font-size: 0.75rem;
+  }
+
+  .product-details-modal-footer {
+    padding: 8px 12px;
+  }
+
+  .product-details-modal-footer .btn-add-modal {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .product-details-modal-footer .stepper-control {
+    height: 32px;
+  }
+
+  .product-details-modal-footer .step-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .product-details-modal-footer .step-count {
+    font-size: 0.9rem;
+  }
+}
+
+/* --- Móvil muy pequeño (iPhone SE, Galaxy Fold) --- */
+@media (max-width: 380px) {
+  .product-details-modal-overlay {
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .product-details-modal-content .modal-header {
+    padding: 8px 10px;
+  }
+
+  .product-details-modal-content .modal-header h3 {
+    font-size: 0.85rem;
+  }
+
+  .product-details-modal-body {
+    padding: 8px 10px;
+  }
+
+  .product-details-image-wrap {
+    max-height: 90px;
+    min-height: 60px;
+  }
+
+  .product-details-name {
+    font-size: 0.9rem;
+  }
+
+  .product-details-desc {
+    font-size: 0.7rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .product-details-modal-footer .btn-add-modal,
+  .product-details-modal-footer .stepper-control {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .product-details-modal-footer .step-btn {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* --- Landscape / pantalla baja: priorizar scroll del contenido --- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .product-details-modal-overlay {
+    padding-top: 0 !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .product-details-modal-content {
+    max-height: calc(100dvh - var(--menu-header-height, 90px) - 28px);
+  }
+
+  .product-details-modal-body {
+    max-height: 40dvh;
+  }
+
+  .product-details-image-wrap {
+    max-height: 80px;
+    min-height: 60px;
+    aspect-ratio: 2/1;
+  }
+
+  .product-details-grid {
+    gap: 10px;
+  }
+
+  .product-details-name {
+    font-size: 0.95rem;
+  }
+
+  .product-details-desc {
+    font-size: 0.75rem;
+    -webkit-line-clamp: 2;
+  }
+}
 
 /* =========================================
    MEDIA QUERIES - ADAPTACIÓN RESPONSIVA

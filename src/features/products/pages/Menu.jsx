@@ -194,7 +194,7 @@ const Menu = () => {
   }
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper menu-page">
       {document.getElementById('navbar-portal-root') && createPortal(
         <header className="navbar-sticky" style={{ zIndex: isLocationModalOpen ? 0 : 100 }}>
           <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '10px' }}>
@@ -206,6 +206,7 @@ const Menu = () => {
               <div className="nav-brand-info">
                 <h2 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 700, color: 'white', lineHeight: '1.2' }}>Oishi Sushi</h2>
                 <button 
+                  className="nav-location-btn"
                   onClick={() => setIsLocationModalOpen(true)}
                   style={{
                     background: 'rgba(255, 255, 255, 0.1)',
@@ -223,7 +224,7 @@ const Menu = () => {
                   }}
                 >
                   <MapPin size={12} color="var(--accent-primary)" style={{ filter: 'drop-shadow(0 0 2px rgba(255, 71, 87, 0.5))' }} />
-                  <span style={{ fontSize: '0.75rem', color: 'white', fontWeight: 600, letterSpacing: '0.3px' }}>
+                  <span className="nav-location-name" style={{ fontSize: '0.75rem', color: 'white', fontWeight: 600, letterSpacing: '0.3px' }}>
                     {selectedBranch ? selectedBranch.name : 'Seleccionar Local'}
                   </span>
                   <ChevronDown size={12} color="rgba(255,255,255,0.6)" />
