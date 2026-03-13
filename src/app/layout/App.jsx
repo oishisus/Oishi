@@ -6,6 +6,7 @@ import { BusinessProvider } from "../../context/BusinessContext";
 import { LocationProvider } from "../../context/LocationContext";
 import { CashProvider } from "../../context/CashContext";
 import { CartProvider } from '../providers/CartProvider';
+import { useCart } from '../../features/cart/hooks/useCart';
 
 // Assets
 import menuPattern from "../../assets/menu-pattern.webp";
@@ -17,6 +18,7 @@ import CartModal from "../../features/cart/components/CartModal";
 // Componente Interno que maneja la lógica Anti-Zoom y UI Global con contexto de Router
 function InnerApp() {
   const location = useLocation();
+  const { isCartOpen } = useCart();
   const showCartUI = location.pathname === '/menu';
   const [scrollY, setScrollY] = useState(0);
 
@@ -80,7 +82,7 @@ function InnerApp() {
         uiLayer.style.top = '0';
         uiLayer.style.left = '0';
         uiLayer.style.pointerEvents = 'none';
-        uiLayer.style.zIndex = '9999';
+        uiLayer.style.zIndex = isCartOpen ? '10001' : '9999';
 
         document.body.style.overflowX = 'hidden';
       } else {
@@ -103,7 +105,7 @@ function InnerApp() {
           uiLayer.style.width = '100%';
           uiLayer.style.height = '100%';
           uiLayer.style.pointerEvents = 'none';
-          uiLayer.style.zIndex = '9999';
+          uiLayer.style.zIndex = isCartOpen ? '10001' : '9999';
         }
       }
     };
@@ -115,7 +117,14 @@ function InnerApp() {
       window.removeEventListener('resize', handleVisualLock);
       clearTimeout(timerId);
     };
-  }, [location.pathname]);
+  }, [location.pathname, isCartOpen]);
+
+  // Cuando el carrito se abre, subir app-ui-layer por encima del navbar (#navbar-portal-root tiene z-index 10000)
+  useEffect(() => {
+    const uiLayer = document.getElementById('app-ui-layer');
+    if (!uiLayer) return;
+    uiLayer.style.zIndex = isCartOpen ? '10001' : '9999';
+  }, [isCartOpen]);
 
   return (
     <div style={{ position: 'relative', width: '100%', minHeight: '100dvh', background: '#0a0a0a', touchAction: 'pan-x pan-y' }}>
@@ -151,9 +160,19 @@ function InnerApp() {
         <Routes>{routes}</Routes>
       </div>
 
-      {/* Capa de UI Flotante */}
+      {/* Portal del navbar: hermano de app-ui-layer (no dentro) para que React no desincronice el DOM */}
+      <div
+        id="navbar-portal-root"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10000,
+          pointerEvents: 'none',
+        }}
+      />
       <div id="app-ui-layer" style={{ position: 'fixed', inset: 0, zIndex: 100, pointerEvents: 'none' }}>
-        <div id="navbar-portal-root" style={{ pointerEvents: 'auto', width: '100%' }}></div>
         {showCartUI && (
           <div style={{ pointerEvents: 'auto' }}>
             <CartFloat />

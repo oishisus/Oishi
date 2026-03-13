@@ -83,23 +83,40 @@
   align-items: center;
   justify-content: center;
   
+  /* Oculto hasta que el mouse pase por encima del home-container */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
   /* Cristal Frosted */
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%; /* Redondo es más moderno para settings */
+  border-radius: 50%;
   
   color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto rebote */
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.home-container:hover .settings-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* En pantallas táctiles (sin hover) el botón sigue visible para poder entrar a Admin */
+@media (hover: none) {
+  .settings-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .settings-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
-  transform: scale(1.15) rotate(90deg); /* Rota al hacer hover */
+  transform: scale(1.15) rotate(90deg);
   border-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }

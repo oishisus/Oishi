@@ -1,6 +1,11 @@
 /* =========================================
    MENU PAGE STYLES
    ========================================= */
+/* El header portaleado debe recibir clics (el contenedor tiene pointer-events: none) */
+#navbar-portal-root > * {
+    pointer-events: auto;
+}
+
 .menu-page {
     overflow-x: hidden;
     max-width: 100vw;
