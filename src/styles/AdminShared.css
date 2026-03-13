@@ -32,6 +32,7 @@
     color: white;
     font-size: 0.9rem;
     width: 100%;
+    min-width: 0;
     outline: none;
 }
 
@@ -45,6 +46,52 @@
 
 .admin-layout .filter-box select option {
     background: #111;
+}
+
+/* Toolbar en móvil: que no se salga del cuadro */
+@media (max-width: 768px) {
+    .admin-layout .admin-toolbar {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    .admin-layout .admin-toolbar.glass {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-layout .admin-toolbar.glass > div:first-of-type {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .admin-layout .admin-toolbar.glass > div:last-of-type {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-left: 0;
+        padding-top: 10px;
+        margin-top: 4px;
+    }
+    .admin-layout .search-box,
+    .admin-layout .filter-box {
+        min-width: 0;
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+    .admin-layout .admin-toolbar .search-box {
+        flex: 1 1 100%;
+    }
+    .admin-layout .admin-toolbar .filter-box {
+        flex: 1 1 calc(50% - 5px);
+        max-width: calc(50% - 5px);
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-layout .admin-toolbar .filter-box {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
 }
 
 /* Tooltips or Mini Stats in Toolbars */
