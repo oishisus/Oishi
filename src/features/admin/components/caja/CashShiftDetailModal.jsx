@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { X, History, Clock, User } from 'lucide-react';
 import { cashService } from '../../services/cashService';
 
@@ -42,7 +43,7 @@ const CashShiftDetailModal = ({ isOpen, onClose, shift, getTotals, cancelledOrde
 
     const totals = getTotals ? getTotals(movements) : { income: 0, expense: 0, cash: 0, card: 0, online: 0 };
 
-    return (
+    const modalContent = (
         <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
             <div className="modal-content glass" style={{ maxWidth: 650, maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
                 <header className="modal-header">
@@ -207,6 +208,9 @@ const CashShiftDetailModal = ({ isOpen, onClose, shift, getTotals, cancelledOrde
             </div>
         </div>
     );
+
+    const portalRoot = document.getElementById('modal-root') || document.body;
+    return createPortal(modalContent, portalRoot);
 };
 
 export default CashShiftDetailModal;

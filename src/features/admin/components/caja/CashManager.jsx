@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
     Unlock, Lock, Plus, Minus, History, 
     Clock, Calendar, TrendingUp, TrendingDown,
@@ -153,9 +154,9 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
                 </div>
             </header>
 
-            {/* TURNO ACTIVO: KPI DASHBOARD */}
+            {/* TURNO ACTIVO: KPI DASHBOARD - key evita que React reconcilie árboles incompatibles (insertBefore) */}
             {activeShift ? (
-                <section className="cash-section">
+                <section key="shift-active" className="cash-section">
                     <div className="cash-kpi-grid">
                         <div className="cash-kpi balance">
                             <div className="cash-kpi-header">
@@ -258,7 +259,7 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
                     )}
                 </section>
             ) : (
-                <section className="cash-empty-state">
+                <section key="shift-empty" className="cash-empty-state">
                     <div className="cash-empty-icon">
                         <Lock size={48} />
                     </div>
@@ -371,8 +372,8 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
                 ) : []}
             />
 
-            {/* Modal detalle del pedido (desde Últimos movimientos) */}
-            {detailOrder && (
+            {/* Modal detalle del pedido (desde Últimos movimientos) - portal evita insertBefore */}
+            {detailOrder && typeof document !== 'undefined' && createPortal(
                 <div className="admin-panel-overlay" onClick={() => setDetailOrder(null)}>
                     <div className="admin-side-panel glass animate-slide-in" style={{ maxWidth: 420 }} onClick={e => e.stopPropagation()}>
                         <div className="admin-side-header">
@@ -415,7 +416,8 @@ const CashManager = ({ showNotify, selectedBranchId }) => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.getElementById('modal-root') || document.body
             )}
         </div>
     );

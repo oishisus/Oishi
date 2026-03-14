@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ArrowDownCircle, ArrowUpCircle, FileText, CreditCard, DollarSign } from 'lucide-react';
 
 const CashMovementModal = ({ isOpen, onClose, type, onConfirm }) => {
@@ -38,12 +39,12 @@ const CashMovementModal = ({ isOpen, onClose, type, onConfirm }) => {
         }
 
         onConfirm(type, numAmount, formData.description, formData.paymentMethod);
-        onClose();
+        setTimeout(onClose, 0);
     };
 
     const isIncome = type === 'income';
 
-    return (
+    const modalContent = (
         <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
             <div className="modal-content" style={{ maxWidth: 450 }} onClick={e => e.stopPropagation()}>
                 <header className="modal-header">
@@ -129,6 +130,9 @@ const CashMovementModal = ({ isOpen, onClose, type, onConfirm }) => {
             </div>
         </div>
     );
+
+    const portalRoot = document.getElementById('modal-root') || document.body;
+    return createPortal(modalContent, portalRoot);
 };
 
 export default CashMovementModal;

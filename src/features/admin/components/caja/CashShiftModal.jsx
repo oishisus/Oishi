@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Lock, Unlock, Calculator, AlertTriangle } from 'lucide-react';
 
 const CashShiftModal = ({ isOpen, onClose, type, onConfirm, activeShift }) => {
@@ -25,12 +26,13 @@ const CashShiftModal = ({ isOpen, onClose, type, onConfirm, activeShift }) => {
         }
 
         onConfirm(numAmount);
-        onClose();
+        /* Cerrar en siguiente tick para que el portal se desmonte sin conflicto con insertBefore */
+        setTimeout(onClose, 0);
     };
 
     const isOpening = type === 'open';
 
-    return (
+    const modalContent = (
         <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
             <div className="modal-content" style={{ maxWidth: 400 }} onClick={e => e.stopPropagation()}>
                 <header className="modal-header">
@@ -114,6 +116,9 @@ const CashShiftModal = ({ isOpen, onClose, type, onConfirm, activeShift }) => {
             </div>
         </div>
     );
+
+    const portalRoot = document.getElementById('modal-root') || document.body;
+    return createPortal(modalContent, portalRoot);
 };
 
 export default CashShiftModal;

@@ -130,9 +130,14 @@ export const useCashSystem = (showNotify, branchId) => {
 
             if (error) throw error;
 
-            setActiveShift(newShift);
-            setMovements([]);
             if (showNotify) showNotify('Caja abierta con éxito');
+            /* Deferir al siguiente frame de pintura para que el modal se desmonte primero y evitar insertBefore */
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    setActiveShift(newShift);
+                    setMovements([]);
+                });
+            });
             return true;
         } catch (error) {
             if (showNotify) {
@@ -166,9 +171,14 @@ export const useCashSystem = (showNotify, branchId) => {
 
             if (error) throw error;
 
-            setActiveShift(null);
-            setMovements([]);
             if (showNotify) showNotify('Caja cerrada correctamente');
+            /* Deferir al siguiente frame de pintura para que el modal se desmonte primero y evitar insertBefore */
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    setActiveShift(null);
+                    setMovements([]);
+                });
+            });
             return true;
         } catch (error) {
             if (showNotify) showNotify('Error al cerrar caja', 'error');
