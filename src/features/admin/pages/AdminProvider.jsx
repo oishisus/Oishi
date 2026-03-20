@@ -55,6 +55,7 @@ export const AdminProvider = ({ children }) => {
 	const [categoryToDelete, setCategoryToDelete] = useState(null);
 	const [userRole, setUserRole] = useState(null);
 	const [userEmail, setUserEmail] = useState(null);
+	const [assignedBranchId, setAssignedBranchId] = useState(null);
 	const [selectedClient, setSelectedClient] = useState(null);
 	const [selectedClientOrders, setSelectedClientOrders] = useState([]);
 	const [clientHistoryLoading, setClientHistoryLoading] = useState(false);
@@ -84,18 +85,26 @@ export const AdminProvider = ({ children }) => {
 				navigate('/login');
 				return;
 			}
-			setUserEmail(user.email);
-				const [{ data: isAdmin, error: adminError }, { data: role, error: roleError }] = await Promise.all([
+			const normalizedEmail = user.email.toLowerCase();
+			setUserEmail(normalizedEmail);
+				const [{ data: isAdmin, error: adminError }, { data: role, error: roleError }, { data: adminUserData }] = await Promise.all([
 					supabase.rpc('is_admin'),
-					supabase.rpc('get_user_role')
+					supabase.rpc('get_user_role'),
+					supabase
+						.from(TABLES.admin_users)
+						.select('branch_id')
+						.eq('email', normalizedEmail)
+						.maybeSingle()
 				]);
 				if (adminError || !isAdmin) {
 				setUserRole(null);
+				setAssignedBranchId(null);
 				await supabase.auth.signOut();
 				navigate('/login');
 				showNotify('No tienes permisos de administrador', 'error');
 			} else {
 					setUserRole(role || null);
+					setAssignedBranchId(adminUserData?.branch_id || null);
 			}
 		};
 		verifyAdminAccess();
@@ -104,14 +113,17 @@ export const AdminProvider = ({ children }) => {
 	const refreshBranches = useCallback(async () => {
 		const { data, error } = await supabase.from(TABLES.branches).select('*').order('name');
 		if (!error && data?.length > 0) {
-			setBranches(data);
+			const scopedBranches = assignedBranchId
+				? data.filter((branch) => branch.id === assignedBranchId)
+				: data;
+			setBranches(scopedBranches);
 			setSelectedBranch(prev => {
-				if (!prev || prev.id === 'all') return prev || data[0];
-				const updated = data.find(b => b.id === prev.id);
-				return updated || data[0];
+				if (!prev || prev.id === 'all') return scopedBranches[0] || null;
+				const updated = scopedBranches.find(b => b.id === prev.id);
+				return updated || scopedBranches[0] || null;
 			});
 		}
-	}, []);
+	}, [assignedBranchId]);
 
 	useEffect(() => { refreshBranches(); }, [refreshBranches]);
 

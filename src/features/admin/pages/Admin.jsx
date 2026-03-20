@@ -113,6 +113,7 @@ const AdminPage = () => {
   const [dragCategoryId, setDragCategoryId] = React.useState(null);
   const [dragOverCategoryId, setDragOverCategoryId] = React.useState(null);
   const dragEnabled = !isMobile;
+  const isSingleBranchContext = (branches || []).length <= 1;
 
   const handleDragStart = (categoryId) => {
     setDragCategoryId(categoryId);
@@ -234,6 +235,7 @@ const AdminPage = () => {
                 <MapPin size={16} className="text-accent" />
                 <select 
                   value={selectedBranch?.id || ''} 
+                  disabled={isSingleBranchContext}
                   onChange={(e) => {
                     if (e.target.value === 'all') {
                       setSelectedBranch({ id: 'all', name: 'Todas las sucursales' });
@@ -245,7 +247,7 @@ const AdminPage = () => {
                   style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', cursor: 'pointer', fontWeight: 600 }}
                 >
                   {branches.map(b => <option key={b.id} value={b.id} style={{color: 'black'}}>{b.name}</option>)}
-                  {activeTab === 'analytics' && (
+                  {activeTab === 'analytics' && !isSingleBranchContext && (
                     <option value="all" style={{color: 'black', fontWeight: 'bold'}}>Todas las sucursales</option>
                   )}
                 </select>
