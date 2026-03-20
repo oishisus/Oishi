@@ -18,33 +18,34 @@
 .branch-modal-wrapper {
   width: 100%;
   max-width: 480px;
-  background-color: #141414; /* Color base oscuro */
-  
-  /* --- NUEVO FONDO: PATRÓN DE BAMBÚ CON HOJAS (SVG) --- */
-  /* Es un patrón sutil y oscuro para no distraer */
-  background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- Tallo 1 --%3E%3Cpath d='M40 0v300M35 50q5 10 10 0M35 120q5 10 10 0M35 200q5 10 10 0M35 260q5 10 10 0'/%3E%3Cpath d='M40 70q15-10 25 0t-25 0zM40 150q-15-10-25 0t25 0z' fill='rgba(255,255,255,0.03)' stroke='none'/%3E%3C!-- Tallo 2 (Distinto) --%3E%3Cpath d='M120 0v300M115 30q5 8 10 0M115 90q5 8 10 0M115 170q5 8 10 0M115 230q5 8 10 0'/%3E%3Cpath d='M120 110q20-5 30 5t-30 0zM120 200q-18-8-28 5t28 0z' fill='rgba(255,255,255,0.03)' stroke='none'/%3E%3C!-- Tallo 3 (Más grueso) --%3E%3Cpath d='M220 0v300M215 60q5 12 10 0M215 140q5 12 10 0M215 240q5 12 10 0' stroke-width='2'/%3E%3Cpath d='M220 80q25-15 35 5t-35 0zM220 180q-22-12-32 5t32 0z' fill='rgba(255,255,255,0.03)' stroke='none'/%3E%3C!-- Tallo 4 (Fino al fondo) --%3E%3Cpath d='M280 0v300M277 100q3 5 6 0M277 200q3 5 6 0' stroke-width='1' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
-  linear-gradient(145deg, rgba(26, 26, 26, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%); /* Gradiente sobre el patrón para oscurecerlo */
-  background-size: 300px 300px, cover; /* Tamaño del patrón SVG */
-  background-blend-mode: overlay; /* Mezcla el patrón con el gradiente oscuro */
+  position: relative;
+  overflow: visible; /* El botón cerrar queda fuera del inner y no se recorta */
+}
 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
+/* Contenedor interior: aquí va el fondo y overflow para no recortar el botón */
+.branch-modal-inner {
+  width: 100%;
+  background-color: #141414;
+  background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- Tallo 1 --%3E%3Cpath d='M40 0v300M35 50q5 10 10 0M35 120q5 10 10 0M35 200q5 10 10 0M35 260q5 10 10 0'/%3E%3Cpath d='M40 70q15-10 25 0t-25 0zM40 150q-15-10-25 0t25 0z' fill='rgba(255,255,255,0.03)' stroke='none'/%3E%3C!-- Tallo 2 (Distinto) --%3E%3Cpath d='M120 0v300M115 30q5 8 10 0M115 90q5 8 10 0M115 170q5 8 10 0M115 230q5 8 10 0'/%3E%3Cpath d='M120 110q20-5 30 5t-30 0zM120 200q-18-8-28 5t28 0z' fill='rgba(255,255,255,0.03)' stroke='none'/%3E%3C!-- Tallo 3 (Más grueso) --%3E%3Cpath d='M220 0v300M215 60q5 12 10 0M215 140q5 12 10 0M215 240q5 12 10 0' stroke-width='2'/%3E%3Cpath d='M220 80q25-15 35 5t-35 0zM220 180q-22-12-32 5t32 0z' fill='rgba(255,255,255,0.03)' stroke='none'/%3E%3C!-- Tallo 4 (Fino al fondo) --%3E%3Cpath d='M280 0v300M277 100q3 5 6 0M277 200q3 5 6 0' stroke-width='1' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(145deg, rgba(26, 26, 26, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%);
+  background-size: 300px 300px, cover;
+  background-blend-mode: overlay;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), 
-              0 0 30px rgba(255, 75, 99, 0.08); 
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 75, 99, 0.08);
   animation: modalSlideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   overflow: hidden;
   position: relative;
 }
 
-/* Marca de agua GIGANTE de Ramen (Se mantiene sutil sobre el bambú) */
-.branch-modal-wrapper::before {
-  content: '🍜'; 
+.branch-modal-inner::before {
+  content: '🍜';
   position: absolute;
   top: -40px;
   right: -30px;
   font-size: 11rem;
-  opacity: 0.03; 
-  filter: grayscale(100%); 
+  opacity: 0.03;
+  filter: grayscale(100%);
   pointer-events: none;
   z-index: 0;
   transform: rotate(15deg);
@@ -60,9 +61,9 @@
 .branch-modal-header {
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
   margin-bottom: 2rem;
-  position: relative; 
+  position: relative;
   text-align: center;
 }
 
@@ -91,28 +92,38 @@
   color: #a1a1aa;
 }
 
+/* Botón cerrar: fuera del inner para que no lo recorte overflow, siempre visible */
 .branch-modal-close-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 20;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
   border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
   cursor: pointer;
-  color: #a1a1aa;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: absolute; 
-  right: 0;
-  top: 0;
+  background: #ff4b63;
+  color: #ffffff !important;
+  box-shadow: 0 2px 16px rgba(255, 75, 99, 0.5);
+}
+.branch-modal-close-x {
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+  color: #ffffff !important;
 }
 
 .branch-modal-close-btn:hover {
-  background-color: #ff4b63; 
-  border-color: #ff4b63;
-  color: #ffffff;
-  transform: rotate(90deg);
-  box-shadow: 0 0 15px rgba(255, 75, 99, 0.5); 
+  transform: scale(1.1);
+  box-shadow: 0 4px 24px rgba(255, 75, 99, 0.65);
+  color: #ffffff !important;
 }
 
 /* 3. LISTA DE SUCURSALES */
@@ -361,6 +372,8 @@
 @media (max-width: 480px) {
   .branch-modal-wrapper {
     margin-top: auto;
+  }
+  .branch-modal-inner {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     animation: modalSlideUpMobile 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -373,6 +386,10 @@
     padding: 1.5rem;
     max-height: 85vh;
     overflow-y: auto;
+  }
+  .branch-modal-close-btn {
+    top: 0.5rem;
+    right: 0.5rem;
   }
   @keyframes modalSlideUpMobile {
     from { transform: translateY(100%); }

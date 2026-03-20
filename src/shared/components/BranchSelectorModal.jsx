@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { MapPin, Phone, X, Store, AlertCircle, Loader2 } from 'lucide-react';
+import { MapPin, Phone, Store, AlertCircle, Loader2 } from 'lucide-react';
 import '../../styles/BranchSelectorModal.css';
 
 const BranchSelectorModal = ({ isOpen, onClose, branches, allBranches, isLoadingCaja, onSelectBranch, allowClose = true, schedule }) => {
@@ -46,23 +46,25 @@ const BranchSelectorModal = ({ isOpen, onClose, branches, allBranches, isLoading
         className="branch-modal-wrapper" 
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="branch-modal-inner">
+        {/* Botón cerrar: fuera del área con overflow para que no se recorte */}
+        {allowClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="branch-modal-close-btn"
+            aria-label="Cerrar"
+          >
+            <span className="branch-modal-close-x" aria-hidden>×</span>
+          </button>
+        )}
         <div className="branch-modal-content">
-          
           {/* Header Limpio y Minimalista */}
           <header className="branch-modal-header">
             <div className="branch-modal-title-section">
               <h2 className="branch-modal-title">Elige tu Sucursal</h2>
               <p className="branch-modal-subtitle">Selecciona la ubicación más cercana</p>
             </div>
-            {allowClose && (
-              <button 
-                onClick={onClose}
-                className="branch-modal-close-btn"
-                aria-label="Cerrar modal"
-              >
-                <X size={20} />
-              </button>
-            )}
           </header>
 
           {/* Lista de Sucursales */}
@@ -116,6 +118,7 @@ const BranchSelectorModal = ({ isOpen, onClose, branches, allBranches, isLoading
             )}
           </div>
 
+        </div>
         </div>
       </div>
     </div>

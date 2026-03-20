@@ -381,7 +381,10 @@ const Menu = () => {
 
       <BranchSelectorModal
         isOpen={isLocationModalOpen}
-        onClose={() => {}} 
+        onClose={() => {
+          setIsLocationModalOpen(false);
+          navigate('/');
+        }} 
         branches={[...data.branches]
           .sort((a, b) => {
             const aOpen = branchesWithOpenCaja.includes(String(a?.id ?? ''));
@@ -416,7 +419,7 @@ const Menu = () => {
             selectBranch(original);
           }
         }}
-        allowClose={false}
+        allowClose={true}
         schedule={businessInfo?.schedule}
       />
     </div>
